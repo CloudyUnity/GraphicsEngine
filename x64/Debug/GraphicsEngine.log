@@ -1,0 +1,3 @@
+﻿  ApplicationClass.cpp
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(171,44): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  GraphicsEngine.vcxproj -> C:\Users\finnw\source\repos\GraphicsEngine\x64\Debug\GraphicsEngine.exe
