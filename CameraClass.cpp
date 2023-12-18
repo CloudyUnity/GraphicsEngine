@@ -95,3 +95,44 @@ void CameraClass::GetViewMatrix(XMMATRIX& viewMatrix)
 {
 	viewMatrix = m_viewMatrix;
 }
+
+void CameraClass::Frame(InputClass* Input, float frameTime) 
+{
+	float speed = 1.0 * frameTime;
+	float rotSpeed = 20.0 * frameTime;
+
+	float forwardX = sin(m_rotationY * 0.0174532925f);
+	float forwardZ = cos(m_rotationY * 0.0174532925f);
+
+	if (Input->IsKeyPressed(DIK_A)) {
+		m_positionX -= forwardZ * speed;
+		m_positionZ += forwardX * speed;
+	}
+
+	if (Input->IsKeyPressed(DIK_D)) {
+		m_positionX += forwardZ * speed;
+		m_positionZ -= forwardX * speed;
+	}
+
+	if (Input->IsKeyPressed(DIK_W)) {
+		m_positionX += forwardX * speed;
+		m_positionZ += forwardZ * speed;
+	}
+
+	if (Input->IsKeyPressed(DIK_S)) {
+		m_positionX -= forwardX * speed;
+		m_positionZ -= forwardZ * speed;
+	}
+
+	if (Input->IsKeyPressed(DIK_E))
+		m_positionY += speed;
+
+	if (Input->IsKeyPressed(DIK_Q))
+		m_positionY -= speed;
+
+	if (Input->IsKeyPressed(DIK_X))
+		m_rotationY += rotSpeed;
+
+	if (Input->IsKeyPressed(DIK_Z))
+		m_rotationY -= rotSpeed;
+}
