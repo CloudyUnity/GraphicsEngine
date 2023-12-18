@@ -1,0 +1,76 @@
+#define NUM_LIGHTS 4
+
+Texture2D shaderTexture1 : register(t0);
+Texture2D shaderTexture2 : register(t1);
+SamplerState SampleType : register(s0);
+
+cbuffer LightColorBuffer : register(b1)
+{
+    float4 diffuseColor[NUM_LIGHTS];
+};
+
+cbuffer UtilBuffer: register(b0)
+{
+    float time;
+    float pad2;
+    float pad3;
+    bool is2D;
+    bool pad1;
+    bool pad4;
+    bool pad5;
+};
+
+struct PixelInputType
+{
+    float4 position : SV_POSITION;
+    float2 tex : TEXCOORD0;
+    float3 normal : NORMAL;
+    float3 lightPos[NUM_LIGHTS] : TEXCOORD2;
+    float3 viewDirection : TEXCOORD1;
+};
+
+cbuffer LightBuffer : register(b2)
+{
+    float4 ambientColor;
+    float4 diffuseDirColor;
+    float3 lightDirection;
+    float specularPower;
+    float4 specularColor;
+};
+
+float4 MultiTexPixelShader(PixelInputType input) : SV_TARGET
+{
+    float4 texCol1, texCol2, blendCol;
+    float lightIntensity[NUM_LIGHTS];
+    float4 colorArray[NUM_LIGHTS];
+    float3 reflection;
+    float4 specular;
+
+    float4 colorSum = ambientColor;
+
+    texCol1 = shaderTexture1.Sample(SampleType, input.tex);
+    texCol2 = shaderTexture2.Sample(SampleType, input.tex);
+
+    // If tex2 is not assigned then texCol2 == texCol1
+    blendCol = saturate(texCol1 * texCol2 * 2.0);
+
+    if (is2D)
+        return blendCol;     
+
+    for(int i=0; i<NUM_LIGHTS; i++)
+    {
+        lightIntensity[i] = saturate(dot(input.normal, input.lightPos[i]));
+        colorArray[i] = diffuseColor[i] * lightIntensity[i];
+        colorSum.rgb += colorArray[i].rgb * colorArray[i].a;
+    }
+
+    float intensity = saturate(dot(input.normal, -lightDirection));
+    if(intensity > 0.0f)
+    {        
+        colorSum += diffuseDirColor * intensity;
+        reflection = normalize(2.0f * intensity * input.normal + lightDirection); 
+        specular = pow(saturate(dot(reflection, input.viewDirection)), specularPower);
+    }
+
+    return saturate(colorSum) * blendCol;
+}

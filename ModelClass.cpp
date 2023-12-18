@@ -4,7 +4,7 @@ ModelClass::ModelClass()
 {
 	m_vertexBuffer = 0;
 	m_indexBuffer = 0;
-	m_Texture = 0;
+	m_Textures = 0;
 	m_model = 0;
 }
 
@@ -18,9 +18,9 @@ ModelClass::~ModelClass()
 {
 }
 
-bool ModelClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* modelFilename, char* textureFilename)
+bool ModelClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* modelFilename, char* textureFilename1, char* textureFilename2)
 {
-	return LoadModel(modelFilename) && LoadTexture(device, deviceContext, textureFilename) && InitializeBuffers(device);
+	return LoadModel(modelFilename) && LoadTexture(device, deviceContext, textureFilename1, textureFilename2) && InitializeBuffers(device);
 }
 
 void ModelClass::Shutdown()
@@ -41,9 +41,9 @@ int ModelClass::GetIndexCount()
 	return m_indexCount;
 }
 
-ID3D11ShaderResourceView* ModelClass::GetTexture()
+ID3D11ShaderResourceView* ModelClass::GetTexture(int index)
 {
-	return m_Texture->GetTexture();
+	return m_Textures[index].GetTexture();
 }
 
 bool ModelClass::InitializeBuffers(ID3D11Device* device)
@@ -142,19 +142,33 @@ void ModelClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-bool ModelClass::LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* filename)
+bool ModelClass::LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* filename1, char* filename2)
 {
-	m_Texture = new TextureClass;
-	return m_Texture->Initialize(device, deviceContext, filename);
+	m_Textures = new TextureClass[2];
+
+	bool result = m_Textures[0].Initialize(device, deviceContext, filename1);
+	if (!result)
+		return false;
+
+	if (!filename2) 
+		filename2 = filename1;	
+
+	result = m_Textures[1].Initialize(device, deviceContext, filename2);
+	if (!result)
+		return false;
+
+	return true;
 }
 
 void ModelClass::ReleaseTexture()
 {
-	if (m_Texture)
+	if (m_Textures)
 	{
-		m_Texture->Shutdown();
-		delete m_Texture;
-		m_Texture = 0;
+		m_Textures[0].Shutdown();
+		m_Textures[1].Shutdown();
+
+		delete[] m_Textures;
+		m_Textures = 0;
 	}
 }
 

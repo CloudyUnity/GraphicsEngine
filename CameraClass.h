@@ -2,6 +2,7 @@
 #define _CAMERACLASS_H_
 
 #include <directxmath.h>
+#include "InputClass.h"
 using namespace DirectX;
 
 class CameraClass
@@ -19,6 +20,8 @@ public:
 
 	void Render();
 	void GetViewMatrix(XMMATRIX&);
+
+	void Frame(InputClass*, float);
 
 private:
 	float m_positionX, m_positionY, m_positionZ;

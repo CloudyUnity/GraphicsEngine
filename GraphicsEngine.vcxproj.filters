@@ -64,6 +64,21 @@
     <ClInclude Include="ModelParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BitMapClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TimerClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FontClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TextClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FPSClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -102,6 +117,21 @@
     <ClCompile Include="ModelParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BitMapClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TimerClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FontClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TextClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FPSClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Color.vs">
@@ -120,6 +150,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="Light.ps">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Font.ps">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="MultiTex.ps">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
