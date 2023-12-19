@@ -58,10 +58,10 @@ void TextureShaderClass::Shutdown()
 
 bool TextureShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix,
 	ID3D11ShaderResourceView* texture1, XMFLOAT4 diffuseColor[], XMFLOAT4 lightPosition[], XMFLOAT3 lightDirection, XMFLOAT4 ambientColor, XMFLOAT4 diffuseDirColor,
-	XMFLOAT3 cameraPosition, XMFLOAT4 specularColor, float specularPower, ID3D11ShaderResourceView* texture2)
+	XMFLOAT3 cameraPosition, XMFLOAT4 specularColor, float specularPower, ID3D11ShaderResourceView* texture2, ID3D11ShaderResourceView* alphaMap, ID3D11ShaderResourceView* normal)
 {
-	bool result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture1, diffuseColor, lightPosition, lightDirection, ambientColor, 
-		diffuseDirColor, cameraPosition, specularColor, specularPower, texture2);
+	bool result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture1, diffuseColor, lightPosition, lightDirection, ambientColor,
+		diffuseDirColor, cameraPosition, specularColor, specularPower, texture2, alphaMap, normal);
 	if (!result)
 		return false;
 
@@ -87,7 +87,7 @@ bool TextureShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 	ID3D10Blob* vertexShaderBuffer = 0;
 	ID3D10Blob* pixelShaderBuffer = 0;
 	ID3D10Blob* fontPixelShaderBuffer = 0;
-	D3D11_INPUT_ELEMENT_DESC polygonLayout[3];
+	D3D11_INPUT_ELEMENT_DESC polygonLayout[5];
 	unsigned int numElements;
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
@@ -176,6 +176,22 @@ bool TextureShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 	polygonLayout[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 	polygonLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	polygonLayout[2].InstanceDataStepRate = 0;
+
+	polygonLayout[3].SemanticName = "TANGENT";
+	polygonLayout[3].SemanticIndex = 0;
+	polygonLayout[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	polygonLayout[3].InputSlot = 0;
+	polygonLayout[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	polygonLayout[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	polygonLayout[3].InstanceDataStepRate = 0;
+
+	polygonLayout[4].SemanticName = "BINORMAL";
+	polygonLayout[4].SemanticIndex = 0;
+	polygonLayout[4].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	polygonLayout[4].InputSlot = 0;
+	polygonLayout[4].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	polygonLayout[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	polygonLayout[4].InstanceDataStepRate = 0;
 
 	numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
@@ -395,7 +411,7 @@ void TextureShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND
 
 bool TextureShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix,
 	ID3D11ShaderResourceView* texture1, XMFLOAT4 diffuseColor[], XMFLOAT4 lightPosition[], XMFLOAT3 lightDirection, XMFLOAT4 ambientColor, XMFLOAT4 diffuseDirColor,
-	XMFLOAT3 cameraPosition, XMFLOAT4 specularColor, float specularPower, ID3D11ShaderResourceView* texture2)
+	XMFLOAT3 cameraPosition, XMFLOAT4 specularColor, float specularPower, ID3D11ShaderResourceView* texture2, ID3D11ShaderResourceView* alphaMap, ID3D11ShaderResourceView* normal)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -415,6 +431,8 @@ bool TextureShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	if (texture2 == nullptr)
 		texture2 = texture1;
 	deviceContext->PSSetShaderResources(1, 1, &texture2);
+	deviceContext->PSSetShaderResources(2, 1, &alphaMap);
+	deviceContext->PSSetShaderResources(3, 1, &normal);
 
 	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))

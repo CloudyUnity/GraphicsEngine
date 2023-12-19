@@ -47,6 +47,12 @@ XMFLOAT3 CameraClass::GetRotation()
 	return XMFLOAT3(m_rotationX, m_rotationY, m_rotationZ);
 }
 
+void CameraClass::Initialize2DView() 
+{
+	Render();
+	m_2DViewMatrix = m_viewMatrix;
+}
+
 void CameraClass::Render()
 {
 	XMFLOAT3 up, position, lookAt;
@@ -96,10 +102,15 @@ void CameraClass::GetViewMatrix(XMMATRIX& viewMatrix)
 	viewMatrix = m_viewMatrix;
 }
 
+void CameraClass::Get2DViewMatrix(XMMATRIX & viewMatrix)
+{
+	viewMatrix = m_2DViewMatrix;
+}
+
 void CameraClass::Frame(InputClass* Input, float frameTime) 
 {
-	float speed = 1.0 * frameTime;
-	float rotSpeed = 20.0 * frameTime;
+	float speed = 2.0 * frameTime;
+	float rotSpeed = 40.0 * frameTime;
 
 	float forwardX = sin(m_rotationY * 0.0174532925f);
 	float forwardZ = cos(m_rotationY * 0.0174532925f);
@@ -135,4 +146,13 @@ void CameraClass::Frame(InputClass* Input, float frameTime)
 
 	if (Input->IsKeyPressed(DIK_Z))
 		m_rotationY -= rotSpeed;
+
+	if (Input->IsKeyPressed(DIK_R)) {
+		m_positionX = 0;
+		m_positionY = 0;
+		m_positionZ = -5.0f;
+		m_rotationX = 0;
+		m_rotationY = 0;
+		m_rotationZ = 0;
+	}
 }

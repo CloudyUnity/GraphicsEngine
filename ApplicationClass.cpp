@@ -19,7 +19,7 @@ ApplicationClass::ApplicationClass()
 	m_FpsString = 0;
 	m_MouseStrings = 0;
 
-	//ModelParser::ParseFile("C:\\Users\\finnw\\OneDrive\\Documents\\3D objects\\Madeline.obj");
+	//ModelParser::ParseFile("C:\\Users\\finnw\\OneDrive\\Documents\\3D objects\\Mountain.obj");
 }
 
 ApplicationClass::ApplicationClass(const ApplicationClass& other)
@@ -34,7 +34,7 @@ ApplicationClass::~ApplicationClass()
 bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 {
 	char testString1[32], testString2[32], fpsString[32];
-	char textureFilename1[128], textureFilename2[128];
+	char textureFilename1[128], textureFilename2[128], alphaMapFilename[128], normalFilename[128];
 	char modelFilename[128];
 	char bitmapFilename[128];
 	char mouseString1[32], mouseString2[32], mouseString3[32];
@@ -50,12 +50,15 @@ bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	m_Camera = new CameraClass;
 	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
+	m_Camera->Initialize2DView();
 
 	strcpy_s(modelFilename, "../GraphicsEngine/Models/Madeline.txt");
 	strcpy_s(textureFilename1, "../GraphicsEngine/Data/Celeste.tga");
 	strcpy_s(textureFilename2, "../GraphicsEngine/Data/Moss.tga");
+	strcpy_s(alphaMapFilename, "../GraphicsEngine/Data/AlphaMap.tga");
+	strcpy_s(normalFilename, "../GraphicsEngine/Data/MossNormal.tga");
 	m_Model = new ModelClass;
-	result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename1, textureFilename2);
+	result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename1, textureFilename2, nullptr, normalFilename);
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
@@ -333,7 +336,7 @@ bool ApplicationClass::Render(float rotation, int mousePosX, int mousePosY)
 	m_Model->Render(m_Direct3D->GetDeviceContext());
 	result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0),
 		diffuseColor, lightPosition, m_DirLight->GetDirection(), m_DirLight->GetAmbientColor(), m_DirLight->GetDiffuseColor(), m_Camera->GetPosition(), m_DirLight->GetSpecularColor(),
-		m_DirLight->GetSpecularPower(), m_Model->GetTexture(1));
+		m_DirLight->GetSpecularPower(), m_Model->GetTexture(1), m_Model->GetTexture(2), m_Model->GetTexture(3));
 	if (!result)
 		return false;
 
@@ -354,6 +357,7 @@ bool ApplicationClass::Render(float rotation, int mousePosX, int mousePosY)
 	if (render2D) {
 		m_Direct3D->EnableAlphaBlending();
 		m_Direct3D->TurnZBufferOff();
+		m_Camera->Get2DViewMatrix(viewMatrix);
 
 		scaleMatrix = XMMatrixScaling(0.25f, 0.25f, 1.0f);
 		translateMatrix = XMMatrixTranslation(-200.0f, 170.0f, 0.0f);

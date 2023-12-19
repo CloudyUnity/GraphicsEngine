@@ -20,13 +20,16 @@ public:
 
 	void Render();
 	void GetViewMatrix(XMMATRIX&);
+	void Get2DViewMatrix(XMMATRIX&);
+
+	void Initialize2DView();
 
 	void Frame(InputClass*, float);
 
 private:
 	float m_positionX, m_positionY, m_positionZ;
 	float m_rotationX, m_rotationY, m_rotationZ;
-	XMMATRIX m_viewMatrix;
+	XMMATRIX m_viewMatrix, m_2DViewMatrix;
 };
 
 #endif
