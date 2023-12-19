@@ -1,14 +1,19 @@
 ﻿  ApplicationClass.cpp
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(125,171): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(125,168): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(125,165): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(137,171): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(137,168): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(137,165): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(152,167): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(152,164): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(152,161): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(342,44): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(401,69): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(401,51): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(128,171): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(128,168): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(128,165): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(140,171): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(140,168): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(140,165): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(155,167): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(155,164): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(155,161): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(345,44): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(405,69): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(405,51): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  SystemClass.cpp
+  main.cpp
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\main.cpp(10,1): warning C4297: 'WinMain': function assumed not to throw an exception but does
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\main.cpp(10,1): message : __declspec(nothrow), throw(), noexcept(true), or noexcept was specified on the function
+  Generating Code...
   GraphicsEngine.vcxproj -> C:\Users\finnw\source\repos\GraphicsEngine\x64\Debug\GraphicsEngine.exe

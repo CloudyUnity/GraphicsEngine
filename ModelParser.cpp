@@ -27,6 +27,14 @@ bool ModelParser::ParseFile(const char* filename)
 				if (fin.peek() == '/')
 					fin.get();
 
+				if (fin.peek() == '/') {
+					fin.get();
+					fin >> val;
+					faceList.push_back(1);
+					faceList.push_back(val);
+					continue;
+				}
+
 				fin >> val;
 				faceList.push_back(val);
 				if (fin.peek() == '/')
