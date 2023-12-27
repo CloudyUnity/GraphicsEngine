@@ -31,7 +31,7 @@ public:
     bool Initialize(ID3D11Device*, ID3D11DeviceContext*, int);
     void Shutdown();
 
-    ID3D11ShaderResourceView* GetTexture();
+    TextureClass* GetTexture();
 
     void BuildVertexArray(void*, char*, float, float);
     int GetSentencePixelLength(char*);

@@ -12,9 +12,7 @@ TextureShaderClass::TextureShaderClass()
 	m_lightPositionBuffer = 0;
 	m_lightBuffer = 0;
 	m_cameraBuffer = 0;
-	m_pixelBuffer = 0;
-
-	m_startTime = std::chrono::high_resolution_clock::now();
+	m_pixelBuffer = 0;	
 }
 
 TextureShaderClass::TextureShaderClass(const TextureShaderClass& other)
@@ -26,29 +24,36 @@ TextureShaderClass::~TextureShaderClass()
 {
 }
 
-bool TextureShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
+bool TextureShaderClass::Initialize(ID3D11Device* device, HWND hwnd, char* vertexName, char* fragName)
 {
 	bool result;
 	wchar_t vsFilename[128];
 	wchar_t psFilename[128];
-	wchar_t fontPSFilename[128];
 	int error;
 
-	// Set the filename of the vertex shader.
-	error = wcscpy_s(vsFilename, 128, L"../GraphicsEngine/Light.vs");
+	char* lastSlash = strrchr(vertexName, '/');
+	m_vertexName = lastSlash != nullptr ? lastSlash + 1 : vertexName;
+	lastSlash = strrchr(fragName, '/');
+	m_fragName = lastSlash != nullptr ? lastSlash + 1 : fragName;
+
+	size_t requiredSize;
+	mbstowcs_s(&requiredSize, nullptr, 0, vertexName, 0);
+	if (requiredSize == -1)
+		return false;		
+
+	error = mbstowcs_s(nullptr, vsFilename, requiredSize, vertexName, requiredSize);
+	if (error != 0)
+		return false;		
+
+	mbstowcs_s(&requiredSize, nullptr, 0, fragName, 0);
+	if (requiredSize == -1)
+		return false;
+
+	error = mbstowcs_s(nullptr, psFilename, requiredSize, fragName, requiredSize);
 	if (error != 0)
 		return false;
 
-	// Set the filename of the pixel shader.
-	error = wcscpy_s(psFilename, 128, L"../GraphicsEngine/MultiTex.ps");
-	if (error != 0)
-		return false;
-
-	error = wcscpy_s(fontPSFilename, 128, L"../GraphicsEngine/Font.ps");
-	if (error != 0)
-		return false;
-
-	return InitializeShader(device, hwnd, vsFilename, psFilename, fontPSFilename);
+	return InitializeShader(device, hwnd, vsFilename, psFilename);
 }
 
 void TextureShaderClass::Shutdown()
@@ -57,11 +62,9 @@ void TextureShaderClass::Shutdown()
 }
 
 bool TextureShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix,
-	ID3D11ShaderResourceView* texture1, XMFLOAT4 diffuseColor[], XMFLOAT4 lightPosition[], XMFLOAT3 lightDirection, XMFLOAT4 ambientColor, XMFLOAT4 diffuseDirColor,
-	XMFLOAT3 cameraPosition, XMFLOAT4 specularColor, float specularPower, ID3D11ShaderResourceView* texture2, ID3D11ShaderResourceView* alphaMap, ID3D11ShaderResourceView* normal)
+	TextureClass* textures, int texCount, unordered_map<string, any> arguments)
 {
-	bool result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture1, diffuseColor, lightPosition, lightDirection, ambientColor,
-		diffuseDirColor, cameraPosition, specularColor, specularPower, texture2, alphaMap, normal);
+	bool result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, textures, texCount, arguments);
 	if (!result)
 		return false;
 
@@ -69,35 +72,19 @@ bool TextureShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCou
 	return true;
 }
 
-bool TextureShaderClass::RenderFont(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix,
-	ID3D11ShaderResourceView* texture, XMFLOAT4 fontColor)
-{
-	bool result = SetShaderParametersFont(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture, fontColor);
-	if (!result)
-		return false;
-
-	RenderShaderFont(deviceContext, indexCount);
-	return true;
-}
-
-bool TextureShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename, WCHAR* fontPSFilename)
+bool TextureShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
 {
 	HRESULT result;
 	ID3D10Blob* errorMessage = 0;
 	ID3D10Blob* vertexShaderBuffer = 0;
 	ID3D10Blob* pixelShaderBuffer = 0;
-	ID3D10Blob* fontPixelShaderBuffer = 0;
 	D3D11_INPUT_ELEMENT_DESC polygonLayout[5];
 	unsigned int numElements;
-	D3D11_BUFFER_DESC matrixBufferDesc;
-	D3D11_SAMPLER_DESC samplerDesc;
-	D3D11_BUFFER_DESC lightColorBufferDesc;
-	D3D11_BUFFER_DESC lightPositionBufferDesc;
-	D3D11_BUFFER_DESC lightBufferDesc;
-	D3D11_BUFFER_DESC cameraBufferDesc;
-	D3D11_BUFFER_DESC pixelBufferDesc;
 
-	result = D3DCompileFromFile(vsFilename, NULL, NULL, "LightVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS,
+	D3D11_BUFFER_DESC bufferDesc;
+	D3D11_SAMPLER_DESC samplerDesc;
+
+	result = D3DCompileFromFile(vsFilename, NULL, NULL, "VS_MAIN", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS,
 		0, &vertexShaderBuffer, &errorMessage);
 	if (FAILED(result))
 	{
@@ -111,7 +98,7 @@ bool TextureShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 		return false;
 	}
 
-	result = D3DCompileFromFile(psFilename, NULL, NULL, "MultiTexPixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS,
+	result = D3DCompileFromFile(psFilename, NULL, NULL, "PS_MAIN", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS,
 		0, &pixelShaderBuffer, &errorMessage);
 	if (FAILED(result))
 	{
@@ -125,29 +112,11 @@ bool TextureShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 		return false;
 	}
 
-	result = D3DCompileFromFile(fontPSFilename, NULL, NULL, "FontPixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS,
-		0, &fontPixelShaderBuffer, &errorMessage);
-	if (FAILED(result))
-	{
-		if (errorMessage)
-		{
-			OutputShaderErrorMessage(errorMessage, hwnd, fontPSFilename);
-			return false;
-		}
-
-		MessageBox(hwnd, fontPSFilename, L"Missing Shader File", MB_OK);
-		return false;
-	}
-
 	result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader);
 	if (FAILED(result))
 		return false;
 
 	result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pixelShader);
-	if (FAILED(result))
-		return false;
-
-	result = device->CreatePixelShader(fontPixelShaderBuffer->GetBufferPointer(), fontPixelShaderBuffer->GetBufferSize(), NULL, &m_fontPixelShader);
 	if (FAILED(result))
 		return false;
 
@@ -206,89 +175,67 @@ bool TextureShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 	pixelShaderBuffer->Release();
 	pixelShaderBuffer = 0;
 
-	fontPixelShaderBuffer->Release();
-	fontPixelShaderBuffer = 0;
+	bufferDesc.Usage = D3D11_USAGE_DYNAMIC;	
+	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	bufferDesc.MiscFlags = 0;
+	bufferDesc.StructureByteStride = 0;
 
-	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
-	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
-	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	matrixBufferDesc.MiscFlags = 0;
-	matrixBufferDesc.StructureByteStride = 0;
+	if (ShaderUsesBuffer(m_vertexName, "Matrix")) 
+	{
+		bufferDesc.ByteWidth = sizeof(MatrixBufferType);
+		result = device->CreateBuffer(&bufferDesc, NULL, &m_matrixBuffer);
+		if (FAILED(result))
+			return false;
+	}
 
-	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	result = device->CreateBuffer(&matrixBufferDesc, NULL, &m_matrixBuffer);
-	if (FAILED(result))
-		return false;
+	if (ShaderUsesBuffer(m_fragName, "Util"))
+	{
+		bufferDesc.ByteWidth = sizeof(UtilBufferType);
+		result = device->CreateBuffer(&bufferDesc, NULL, &m_utilBuffer);
+		if (FAILED(result))
+			return false;
+	}
 
-	D3D11_BUFFER_DESC timeBufferDesc;
-	timeBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	timeBufferDesc.ByteWidth = sizeof(UtilBufferType);
-	timeBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	timeBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	timeBufferDesc.MiscFlags = 0;
+	if (ShaderUsesBuffer(m_fragName, "LightColor"))
+	{
+		bufferDesc.ByteWidth = sizeof(LightColorBufferType);
+		result = device->CreateBuffer(&bufferDesc, NULL, &m_lightColorBuffer);
+		if (FAILED(result))
+			return false;
+	}
 
-	result = device->CreateBuffer(&timeBufferDesc, NULL, &m_utilBuffer);
-	if (FAILED(result))
-		return false;
+	if (ShaderUsesBuffer(m_fragName, "LightPosition"))
+	{
+		bufferDesc.ByteWidth = sizeof(LightPositionBufferType);
+		result = device->CreateBuffer(&bufferDesc, NULL, &m_lightPositionBuffer);
+		if (FAILED(result))
+			return false;
+	}
 
-	lightColorBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	lightColorBufferDesc.ByteWidth = sizeof(LightColorBufferType);
-	lightColorBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	lightColorBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	lightColorBufferDesc.MiscFlags = 0;
-	lightColorBufferDesc.StructureByteStride = 0;
+	if (ShaderUsesBuffer(m_fragName, "Light"))
+	{
+		bufferDesc.ByteWidth = sizeof(LightBufferType);
+		result = device->CreateBuffer(&bufferDesc, NULL, &m_lightBuffer);
+		if (FAILED(result))
+			return false;
+	}
 
-	// Create the constant buffer pointer so we can access the pixel shader constant buffer from within this class.
-	result = device->CreateBuffer(&lightColorBufferDesc, NULL, &m_lightColorBuffer);
-	if (FAILED(result))
-		return false;
+	if (ShaderUsesBuffer(m_fragName, "Camera"))
+	{
+		bufferDesc.ByteWidth = sizeof(CameraBufferType);
+		result = device->CreateBuffer(&bufferDesc, NULL, &m_cameraBuffer);
+		if (FAILED(result))
+			return false;
+	}
 
-	lightPositionBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	lightPositionBufferDesc.ByteWidth = sizeof(LightPositionBufferType);
-	lightPositionBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	lightPositionBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	lightPositionBufferDesc.MiscFlags = 0;
-	lightPositionBufferDesc.StructureByteStride = 0;
-
-	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	result = device->CreateBuffer(&lightPositionBufferDesc, NULL, &m_lightPositionBuffer);
-	if (FAILED(result))
-		return false;
-
-	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	lightBufferDesc.ByteWidth = sizeof(LightBufferType);
-	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	lightBufferDesc.MiscFlags = 0;
-	lightBufferDesc.StructureByteStride = 0;
-
-	result = device->CreateBuffer(&lightBufferDesc, NULL, &m_lightBuffer);
-	if (FAILED(result))
-		return false;
-
-	cameraBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	cameraBufferDesc.ByteWidth = sizeof(CameraBufferType);
-	cameraBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cameraBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cameraBufferDesc.MiscFlags = 0;
-	cameraBufferDesc.StructureByteStride = 0;
-
-	result = device->CreateBuffer(&cameraBufferDesc, NULL, &m_cameraBuffer);
-	if (FAILED(result))
-		return false;
-
-	pixelBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	pixelBufferDesc.ByteWidth = sizeof(PixelBufferType);
-	pixelBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	pixelBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	pixelBufferDesc.MiscFlags = 0;
-	pixelBufferDesc.StructureByteStride = 0;
-
-	result = device->CreateBuffer(&pixelBufferDesc, NULL, &m_pixelBuffer);
-	if (FAILED(result))
-		return false;
+	if (ShaderUsesBuffer(m_fragName, "Pixel"))
+	{
+		bufferDesc.ByteWidth = sizeof(PixelBufferType);
+		result = device->CreateBuffer(&bufferDesc, NULL, &m_pixelBuffer);
+		if (FAILED(result))
+			return false;
+	}
 
 	// Create a texture sampler state description.
 	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -373,12 +320,6 @@ void TextureShaderClass::ShutdownShader()
 		m_vertexShader->Release();
 		m_vertexShader = 0;
 	}
-
-	if (m_fontPixelShader)
-	{
-		m_fontPixelShader->Release();
-		m_fontPixelShader = 0;
-	}
 }
 
 void TextureShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename)
@@ -410,8 +351,7 @@ void TextureShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND
 }
 
 bool TextureShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix,
-	ID3D11ShaderResourceView* texture1, XMFLOAT4 diffuseColor[], XMFLOAT4 lightPosition[], XMFLOAT3 lightDirection, XMFLOAT4 ambientColor, XMFLOAT4 diffuseDirColor,
-	XMFLOAT3 cameraPosition, XMFLOAT4 specularColor, float specularPower, ID3D11ShaderResourceView* texture2, ID3D11ShaderResourceView* alphaMap, ID3D11ShaderResourceView* normal)
+	TextureClass* textures, int texCount, unordered_map<string, any> arguments)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -427,122 +367,113 @@ bool TextureShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	viewMatrix = XMMatrixTranspose(viewMatrix);
 	projectionMatrix = XMMatrixTranspose(projectionMatrix);
 
-	deviceContext->PSSetShaderResources(0, 1, &texture1);
-	if (texture2 == nullptr)
-		texture2 = texture1;
-	deviceContext->PSSetShaderResources(1, 1, &texture2);
-	deviceContext->PSSetShaderResources(2, 1, &alphaMap);
-	deviceContext->PSSetShaderResources(3, 1, &normal);
+	for (int i = 0; i < texCount; i++)
+	{
+		ID3D11ShaderResourceView* tex = textures[i].GetTexture();
+		deviceContext->PSSetShaderResources(i, 1, &tex);
+	}
 
-	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result))
-		return false;
-	matrixPtr = (MatrixBufferType*)mappedResource.pData;
-	matrixPtr->world = worldMatrix;
-	matrixPtr->view = viewMatrix;
-	matrixPtr->projection = projectionMatrix;
-	deviceContext->Unmap(m_matrixBuffer, 0);
-	bufferNumber = 0;
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
+	if (ShaderUsesBuffer(m_vertexName, "Matrix"))
+	{
+		result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		if (FAILED(result))
+			return false;
+		matrixPtr = (MatrixBufferType*)mappedResource.pData;
+		matrixPtr->world = worldMatrix;
+		matrixPtr->view = viewMatrix;
+		matrixPtr->projection = projectionMatrix;
+		deviceContext->Unmap(m_matrixBuffer, 0);
+		bufferNumber = 0;
+		deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
+	}
 
-	result = deviceContext->Map(m_utilBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result))
-		return false;	
-	auto now = std::chrono::high_resolution_clock::now();
-	float time = std::chrono::duration_cast<std::chrono::duration<float>>(now - m_startTime).count();
-	UtilBufferType* utilPtr = (UtilBufferType*)mappedResource.pData;
-	utilPtr->time = time;
-	utilPtr->is2D = !lightPosition || !diffuseColor || specularPower == 0;
-	deviceContext->Unmap(m_utilBuffer, 0);
-	bufferNumber = 0;
-	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_utilBuffer);	
+	if (ShaderUsesBuffer(m_fragName, "Util"))
+	{
+		result = deviceContext->Map(m_utilBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		if (FAILED(result))
+			return false;
+		UtilBufferType* utilPtr = (UtilBufferType*)mappedResource.pData;
+		utilPtr->time = any_cast<float>(arguments.at("Time"));
+		deviceContext->Unmap(m_utilBuffer, 0);
+		bufferNumber = 0;
+		deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_utilBuffer);
+	}
 
-	result = deviceContext->Map(m_cameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result))
-		return false;
-	camPtr = (CameraBufferType*)mappedResource.pData;
-	camPtr->cameraPosition = cameraPosition;
-	deviceContext->Unmap(m_cameraBuffer, 0);
-	bufferNumber = 2;
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_cameraBuffer);
+	if (ShaderUsesBuffer(m_fragName, "Camera"))
+	{
+		result = deviceContext->Map(m_cameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		if (FAILED(result))
+			return false;
+		camPtr = (CameraBufferType*)mappedResource.pData;
+		camPtr->cameraPosition = any_cast<XMFLOAT3>(arguments.at("CameraPos"));
+		deviceContext->Unmap(m_cameraBuffer, 0);
+		bufferNumber = 2;
+		deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_cameraBuffer);
+	}
 
-	if (!lightPosition || !diffuseColor)
-		return true;
+	if (ShaderUsesBuffer(m_fragName, "LightPosition"))
+	{
+		XMFLOAT4* lightPosition = any_cast<XMFLOAT4*>(arguments.at("LightPosition"));
 
-	result = deviceContext->Map(m_lightPositionBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result))
-		return false;
-	lightPosPtr = (LightPositionBufferType*)mappedResource.pData;	
-	lightPosPtr->lightPosition[0] = lightPosition[0];
-	lightPosPtr->lightPosition[1] = lightPosition[1];
-	lightPosPtr->lightPosition[2] = lightPosition[2];
-	lightPosPtr->lightPosition[3] = lightPosition[3];
-	deviceContext->Unmap(m_lightPositionBuffer, 0);
-	bufferNumber = 1;
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_lightPositionBuffer);
+		result = deviceContext->Map(m_lightPositionBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		if (FAILED(result))
+			return false;
+		lightPosPtr = (LightPositionBufferType*)mappedResource.pData;
+		lightPosPtr->lightPosition[0] = lightPosition[0];
+		lightPosPtr->lightPosition[1] = lightPosition[1];
+		lightPosPtr->lightPosition[2] = lightPosition[2];
+		lightPosPtr->lightPosition[3] = lightPosition[3];
+		deviceContext->Unmap(m_lightPositionBuffer, 0);
+		bufferNumber = 1;
+		deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_lightPositionBuffer);
+	}
 
-	result = deviceContext->Map(m_lightColorBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result))
-		return false;
-	lightColPtr = (LightColorBufferType*)mappedResource.pData;
-	lightColPtr->diffuseColor[0] = diffuseColor[0];
-	lightColPtr->diffuseColor[1] = diffuseColor[1];
-	lightColPtr->diffuseColor[2] = diffuseColor[2];
-	lightColPtr->diffuseColor[3] = diffuseColor[3];
-	deviceContext->Unmap(m_lightColorBuffer, 0);
-	bufferNumber = 1;
-	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightColorBuffer);
+	if (ShaderUsesBuffer(m_fragName, "LightColor"))
+	{
+		XMFLOAT4* diffuseColor = any_cast<XMFLOAT4*>(arguments.at("DiffuseColor"));
 
-	result = deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result))
-		return false;
-	lightPtr = (LightBufferType*)mappedResource.pData;
-	lightPtr->ambientColor = ambientColor;
-	lightPtr->diffuseColor = diffuseDirColor;
-	lightPtr->lightDirection = lightDirection;
-	lightPtr->specularColor = specularColor;
-	lightPtr->specularPower = specularPower;
-	deviceContext->Unmap(m_lightBuffer, 0);
-	bufferNumber = 2;
-	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
+		result = deviceContext->Map(m_lightColorBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		if (FAILED(result))
+			return false;
+		lightColPtr = (LightColorBufferType*)mappedResource.pData;
+		lightColPtr->diffuseColor[0] = diffuseColor[0];
+		lightColPtr->diffuseColor[1] = diffuseColor[1];
+		lightColPtr->diffuseColor[2] = diffuseColor[2];
+		lightColPtr->diffuseColor[3] = diffuseColor[3];
+		deviceContext->Unmap(m_lightColorBuffer, 0);
+		bufferNumber = 1;
+		deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightColorBuffer);
+	}
 
-	return true;
-}
+	if (ShaderUsesBuffer(m_fragName, "Light"))
+	{
+		LightClass* dirLight = any_cast<LightClass*>(arguments.at("DirLight"));
 
-bool TextureShaderClass::SetShaderParametersFont(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix,
-	ID3D11ShaderResourceView* texture, XMFLOAT4 fontColor)
-{
-	HRESULT result;
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	MatrixBufferType* matrixPtr;
-	PixelBufferType* pixelPtr;
-	unsigned int bufferNumber;
+		result = deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		if (FAILED(result))
+			return false;
+		lightPtr = (LightBufferType*)mappedResource.pData;
+		lightPtr->ambientColor = dirLight->GetAmbientColor();
+		lightPtr->diffuseColor = dirLight->GetDiffuseColor();
+		lightPtr->lightDirection = dirLight->GetDirection();
+		lightPtr->specularColor = dirLight->GetSpecularColor();
+		lightPtr->specularPower = dirLight->GetSpecularPower();
+		deviceContext->Unmap(m_lightBuffer, 0);
+		bufferNumber = 2;
+		deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
+	}
 
-	worldMatrix = XMMatrixTranspose(worldMatrix);
-	viewMatrix = XMMatrixTranspose(viewMatrix);
-	projectionMatrix = XMMatrixTranspose(projectionMatrix);
-
-	deviceContext->PSSetShaderResources(0, 1, &texture);
-
-	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result))
-		return false;
-	matrixPtr = (MatrixBufferType*)mappedResource.pData;
-	matrixPtr->world = worldMatrix;
-	matrixPtr->view = viewMatrix;
-	matrixPtr->projection = projectionMatrix;
-	deviceContext->Unmap(m_matrixBuffer, 0);
-	bufferNumber = 0;
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
-
-	result = deviceContext->Map(m_pixelBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result))
-		return false;
-	pixelPtr = (PixelBufferType*)mappedResource.pData;
-	pixelPtr->pixelColor = fontColor;
-	deviceContext->Unmap(m_pixelBuffer, 0);
-	bufferNumber = 0;
-	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_pixelBuffer);
+	if (ShaderUsesBuffer(m_fragName, "Pixel"))
+	{
+		result = deviceContext->Map(m_pixelBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		if (FAILED(result))
+			return false;
+		pixelPtr = (PixelBufferType*)mappedResource.pData;
+		pixelPtr->pixelColor = any_cast<XMFLOAT4>(arguments.at("Pixel"));
+		deviceContext->Unmap(m_pixelBuffer, 0);
+		bufferNumber = 0;
+		deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_pixelBuffer);
+	}
 
 	return true;
 }
@@ -563,18 +494,27 @@ void TextureShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int in
 	deviceContext->DrawIndexed(indexCount, 0, 0);
 }
 
-void TextureShaderClass::RenderShaderFont(ID3D11DeviceContext* deviceContext, int indexCount)
+bool TextureShaderClass::ShaderUsesBuffer(std::string shader, std::string buffer)
 {
-	// Set the vertex input layout.
-	deviceContext->IASetInputLayout(m_layout);
+	if (shader == "Light.vs") {
+		return buffer == "Matrix";
+	}
 
-	// Set the vertex and pixel shaders that will be used to render this triangle.
-	deviceContext->VSSetShader(m_vertexShader, NULL, 0);
-	deviceContext->PSSetShader(m_fontPixelShader, NULL, 0);
+	if (shader == "MultiTex.ps") {
+		return buffer == "LightColor" || 
+			buffer == "Util" || 
+			buffer == "Light" || 
+			buffer == "LightPosition" || 
+			buffer == "Camera";
+	}
 
-	// Set the sampler state in the pixel shader.
-	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
+	if (shader == "Font.ps") {
+		return buffer == "Pixel";
+	}
 
-	// Render the triangle.
-	deviceContext->DrawIndexed(indexCount, 0, 0);
+	if (shader == "2D.ps") {
+		return buffer == "Util";
+	}
+
+	return false;
 }

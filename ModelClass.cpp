@@ -18,27 +18,17 @@ ModelClass::~ModelClass()
 {
 }
 
-bool ModelClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* modelFilename, char* textureFilename1, char* textureFilename2, char* alphaMapFilename, char* normalFilename)
+bool ModelClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* modelFilename, char** textures, int texCount)
 {
-	char alphaMapFilenameDefault[128], normalFilenameDefault[128];
-
-	if (!alphaMapFilename) {
-		strcpy_s(alphaMapFilenameDefault, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
-		alphaMapFilename = alphaMapFilenameDefault;
-	}		
-
-	if (!normalFilename) {
-		strcpy_s(normalFilenameDefault, "../GraphicsEngine/Data/DefaultNormal.tga");
-		normalFilename = normalFilenameDefault;
-	}
-
 	bool result = LoadModel(modelFilename);
 	if (!result)
 		return false;
 
 	CalculateModelVectors();
 
-	return LoadTexture(device, deviceContext, textureFilename1, textureFilename2, alphaMapFilename, normalFilename) && InitializeBuffers(device);
+	m_TextureCount = texCount;
+
+	return LoadTexture(device, deviceContext, textures) && InitializeBuffers(device);
 }
 
 void ModelClass::Shutdown()
@@ -46,12 +36,6 @@ void ModelClass::Shutdown()
 	ReleaseModel();
 	ReleaseTexture();
 	ShutdownBuffers();	
-}
-
-void ModelClass::Render(ID3D11DeviceContext* deviceContext)
-{
-	// Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	RenderBuffers(deviceContext);
 }
 
 int ModelClass::GetIndexCount()
@@ -162,28 +146,18 @@ void ModelClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-bool ModelClass::LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* filename1, char* filename2, char* alphaMapFilename, char* normalFilename)
+bool ModelClass::LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char** textures)
 {
-	m_Textures = new TextureClass[4];
+	m_Textures = new TextureClass[m_TextureCount];
 
-	bool result = m_Textures[0].Initialize(device, deviceContext, filename1);
-	if (!result)
-		return false;
+	bool result;
 
-	if (!filename2) 
-		filename2 = filename1;	
-
-	result = m_Textures[1].Initialize(device, deviceContext, filename2);
-	if (!result)
-		return false;
-
-	result = m_Textures[2].Initialize(device, deviceContext, alphaMapFilename);
-	if (!result)
-		return false;
-
-	result = m_Textures[3].Initialize(device, deviceContext, normalFilename);
-	if (!result)
-		return false;
+	for (int i = 0; i < m_TextureCount; i++)
+	{
+		result = m_Textures[i].Initialize(device, deviceContext, textures[i]);
+		if (!result)
+			return false;
+	}
 
 	return true;
 }
@@ -192,10 +166,8 @@ void ModelClass::ReleaseTexture()
 {
 	if (m_Textures)
 	{
-		m_Textures[0].Shutdown();
-		m_Textures[1].Shutdown();
-		m_Textures[2].Shutdown();
-		m_Textures[3].Shutdown();
+		for (int i = 0; i < m_TextureCount; i++)
+			m_Textures[i].Shutdown();
 
 		delete[] m_Textures;
 		m_Textures = 0;

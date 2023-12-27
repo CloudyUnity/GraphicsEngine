@@ -20,22 +20,21 @@ bool FontClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCont
 {
     char fontFilename[128];
     char fontTextureFilename[128];
-    bool result;
 
     switch (fontChoice)
     {
-    case 0:
-    default:
-    {
-        strcpy_s(fontFilename, "../GraphicsEngine/Data/FontData.txt");
-        strcpy_s(fontTextureFilename, "../GraphicsEngine/Data/Font4.tga");
-        m_fontHeight = 32.0f;
-        m_spaceSize = 3;
-        break;
-    }
+        case 0:
+        default:
+        {
+            strcpy_s(fontFilename, "../GraphicsEngine/Data/FontData.txt");
+            strcpy_s(fontTextureFilename, "../GraphicsEngine/Data/Font4.tga");
+            m_fontHeight = 32.0f;
+            m_spaceSize = 3;
+            break;
+        }
     }
 
-    return  LoadFontData(fontFilename) && LoadTexture(device, deviceContext, fontTextureFilename);
+    return LoadFontData(fontFilename) && LoadTexture(device, deviceContext, fontTextureFilename);
 }
 
 void FontClass::Shutdown()
@@ -103,9 +102,9 @@ void FontClass::ReleaseTexture()
     }
 }
 
-ID3D11ShaderResourceView* FontClass::GetTexture()
+TextureClass* FontClass::GetTexture()
 {
-    return m_Texture->GetTexture();
+    return m_Texture;
 }
 
 void FontClass::BuildVertexArray(void* vertices, char* sentence, float drawX, float drawY)

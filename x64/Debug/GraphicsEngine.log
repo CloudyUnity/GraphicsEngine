@@ -1,16 +1,11 @@
 ﻿  ApplicationClass.cpp
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(128,171): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(128,168): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(128,165): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(140,171): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(140,168): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(140,165): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(155,167): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(155,164): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(155,161): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(345,44): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(405,69): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(405,51): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(422,48): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(422,33): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(431,98): warning C4101: 'srMatrix': unreferenced local variable
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(431,85): warning C4101: 'scaleMatrix': unreferenced local variable
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(431,11): warning C4101: 'worldMatrix': unreferenced local variable
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(431,54): warning C4101: 'rotateMatrix': unreferenced local variable
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(431,68): warning C4101: 'translateMatrix': unreferenced local variable
   SystemClass.cpp
   main.cpp
 C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\main.cpp(10,1): warning C4297: 'WinMain': function assumed not to throw an exception but does

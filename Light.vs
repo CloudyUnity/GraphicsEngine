@@ -38,7 +38,7 @@ struct PixelInputType
     float3 viewDirection : TEXCOORD1;
 };
 
-PixelInputType LightVertexShader(VertexInputType input)
+PixelInputType VS_MAIN(VertexInputType input)
 {
     PixelInputType output;
     float4 worldPosition;

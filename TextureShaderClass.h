@@ -7,9 +7,16 @@ const int NUM_LIGHTS = 4;
 #include <d3dcompiler.h>
 #include <directxmath.h>
 #include <fstream>
-#include <chrono>
+#include "LightClass.h"
+#include "TextureClass.h"
+#include <unordered_map>
+#include <any>
 using namespace DirectX;
 using std::ofstream;
+using std::string;
+using std::unordered_map;
+using std::any;
+using std::any_cast;
 
 class TextureShaderClass
 {
@@ -56,28 +63,28 @@ public:
 	TextureShaderClass(const TextureShaderClass&);
 	~TextureShaderClass();
 
-	bool Initialize(ID3D11Device*, HWND);
-	void Shutdown();
-	bool Render(ID3D11DeviceContext*, int, XMMATRIX, XMMATRIX, XMMATRIX, ID3D11ShaderResourceView*, XMFLOAT4[], XMFLOAT4[], XMFLOAT3, XMFLOAT4, XMFLOAT4, XMFLOAT3, XMFLOAT4, float, ID3D11ShaderResourceView* tex2 = nullptr, ID3D11ShaderResourceView* alphaMap = nullptr, ID3D11ShaderResourceView* normal = nullptr);
-	bool RenderFont(ID3D11DeviceContext*, int, XMMATRIX, XMMATRIX, XMMATRIX, ID3D11ShaderResourceView*, XMFLOAT4);
+	bool Initialize(ID3D11Device*, HWND, char*, char*);
+	void Shutdown();	
+	bool Render(ID3D11DeviceContext*, int, XMMATRIX, XMMATRIX, XMMATRIX, TextureClass*, int, unordered_map<string, any> = {});
 
 private:
-	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*, WCHAR*);
+	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
 	void ShutdownShader();
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
-	bool SetShaderParameters(ID3D11DeviceContext*, XMMATRIX, XMMATRIX, XMMATRIX, ID3D11ShaderResourceView*, XMFLOAT4[], XMFLOAT4[], XMFLOAT3, XMFLOAT4, XMFLOAT4, XMFLOAT3, XMFLOAT4, float, ID3D11ShaderResourceView* tex2 = nullptr, ID3D11ShaderResourceView* alphaMap = nullptr, ID3D11ShaderResourceView* normal = nullptr);
-	bool SetShaderParametersFont(ID3D11DeviceContext*, XMMATRIX, XMMATRIX, XMMATRIX, ID3D11ShaderResourceView*, XMFLOAT4);
+	bool SetShaderParameters(ID3D11DeviceContext*, XMMATRIX, XMMATRIX, XMMATRIX, TextureClass*, int, unordered_map<string, any>);
 	void RenderShader(ID3D11DeviceContext*, int);
-	void RenderShaderFont(ID3D11DeviceContext*, int);
+
+	bool ShaderUsesBuffer(std::string, std::string);
 
 private:
 	ID3D11VertexShader* m_vertexShader;
-	ID3D11PixelShader* m_pixelShader, *m_fontPixelShader;
+	ID3D11PixelShader* m_pixelShader;
 	ID3D11InputLayout* m_layout;
 	ID3D11Buffer* m_matrixBuffer, * m_utilBuffer, * m_lightColorBuffer, * m_lightPositionBuffer, * m_lightBuffer, * m_cameraBuffer, * m_pixelBuffer;
 	ID3D11SamplerState* m_sampleState;
-	std::chrono::high_resolution_clock::time_point m_startTime;
+
+	std::string m_vertexName, m_fragName;
 };
 
 #endif
