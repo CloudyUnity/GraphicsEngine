@@ -43,9 +43,6 @@
     <ClInclude Include="d3dclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ColorShaderClass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ModelClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -79,6 +76,15 @@
     <ClInclude Include="FPSClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GameObjectClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObjectClass2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Constants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -94,9 +100,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="d3dclass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ColorShaderClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ModelClass.cpp">
@@ -132,30 +135,24 @@
     <ClCompile Include="FPSClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GameObjectClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObjectClass2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Color.vs">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="Color.ps">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="Texture.vs">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="Texture.ps">
-      <Filter>Shaders</Filter>
-    </None>
     <None Include="Light.vs">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="Light.ps">
       <Filter>Shaders</Filter>
     </None>
     <None Include="Font.ps">
       <Filter>Shaders</Filter>
     </None>
     <None Include="MultiTex.ps">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="2D.ps">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

@@ -19,7 +19,7 @@ struct PixelInputType
     float3 viewDirection : TEXCOORD1;
 };
 
-float4 FontPixelShader(PixelInputType input) : SV_TARGET
+float4 PS_MAIN(PixelInputType input) : SV_TARGET
 {		
     float4 color = shaderTexture.Sample(SampleType, input.tex);
 	

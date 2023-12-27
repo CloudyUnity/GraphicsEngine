@@ -5,6 +5,7 @@
 #include <directxmath.h>
 #include "textureclass.h"
 #include <fstream>
+#include "LightClass.h"
 using namespace DirectX;
 using std::ifstream;
 
@@ -33,7 +34,6 @@ private:
 		float tu, tv;
 		float nx, ny, nz;
 	};
-
 	struct VectorType
 	{
 		float x, y, z;
@@ -44,29 +44,29 @@ public:
 	ModelClass(const ModelClass&);
 	~ModelClass();
 
-	bool Initialize(ID3D11Device*, ID3D11DeviceContext*, char*, char*, char* tex2Name = nullptr, char* alphaMap = nullptr, char* normal = nullptr);
-	void Shutdown();
-	void Render(ID3D11DeviceContext*);
+	bool Initialize(ID3D11Device*, ID3D11DeviceContext*, char*, char**, int);
+	void RenderBuffers(ID3D11DeviceContext*);
+	void Shutdown();	
 
 	int GetIndexCount();
 	ID3D11ShaderResourceView* GetTexture(int);
 
+	TextureClass* m_Textures;
+	int m_TextureCount;
+
 private:
 	bool InitializeBuffers(ID3D11Device*);
-	void ShutdownBuffers();
-	void RenderBuffers(ID3D11DeviceContext*);
-	bool LoadTexture(ID3D11Device*, ID3D11DeviceContext*, char*, char* tex2Name = nullptr, char* alphaMap = nullptr, char* normal = nullptr);
+	void ShutdownBuffers();	
+	bool LoadTexture(ID3D11Device*, ID3D11DeviceContext*, char**);
 	void ReleaseTexture();
 	bool LoadModel(char*);
 	void ReleaseModel();
 
 	void CalculateModelVectors();
-	void CalculateTangentBinormal(TempVertexType, TempVertexType, TempVertexType, VectorType&, VectorType&);
+	void CalculateTangentBinormal(TempVertexType, TempVertexType, TempVertexType, VectorType&, VectorType&);	
 
-private:
 	ID3D11Buffer* m_vertexBuffer, * m_indexBuffer;
-	int m_vertexCount, m_indexCount;
-	TextureClass* m_Textures;
+	int m_vertexCount, m_indexCount;	
 	ModelType* m_model;
 };
 

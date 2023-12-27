@@ -3,7 +3,7 @@
 TextClass::TextClass()
 {
     m_vertexBuffer = 0;
-    m_indexBuffer = 0;
+    m_indexBuffer = 0;    
 }
 
 
@@ -16,14 +16,18 @@ TextClass::~TextClass()
 {
 }
 
-bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int screenWidth, int screenHeight, int maxLength, FontClass* Font, char* text,
-    int positionX, int positionY, float red, float green, float blue)
+bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int screenWidth, int screenHeight, int maxLength, TextureShaderClass* shader)
 {
     m_screenWidth = screenWidth;
     m_screenHeight = screenHeight;
     m_maxLength = maxLength;
+    m_deviceContext = deviceContext;
+    m_pixelColor = XMFLOAT4(1, 1, 1, 1);
+    m_ScaleX = 1;
+    m_ScaleY = 1;
+    m_Shader = shader;
 
-    return InitializeBuffers(device, deviceContext, Font, text, positionX, positionY, red, green, blue);
+    return InitializeBuffers(device, deviceContext);
 }
 
 void TextClass::Shutdown()
@@ -31,9 +35,18 @@ void TextClass::Shutdown()
     ShutdownBuffers();
 }
 
-void TextClass::Render(ID3D11DeviceContext* deviceContext)
-{
+bool TextClass::Render(ID3D11DeviceContext* deviceContext, XMMATRIX viewMatrix, XMMATRIX projMatrix, unordered_map<string, any> args)
+{    
+    XMMATRIX scaleMatrix = XMMatrixScaling(m_ScaleX, m_ScaleY, 1.0f);
+    XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYaw(0, 0, m_RotZ * 0.0174532925f);
+
+    XMMATRIX worldMatrix = XMMatrixMultiply(rotateMatrix, scaleMatrix);
+
+    args.insert({ "Pixel", GetPixelColor() });
+
     RenderBuffers(deviceContext);
+
+    return m_Shader->Render(deviceContext, GetIndexCount(), worldMatrix, viewMatrix, projMatrix, m_font->GetTexture(), 1, args);
 }
 
 int TextClass::GetIndexCount()
@@ -41,7 +54,7 @@ int TextClass::GetIndexCount()
     return m_indexCount;
 }
 
-bool TextClass::InitializeBuffers(ID3D11Device* device, ID3D11DeviceContext* deviceContext, FontClass* Font, char* text, int positionX, int positionY, float red, float green, float blue)
+bool TextClass::InitializeBuffers(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
     VertexType* vertices;
     unsigned long* indices;
@@ -94,7 +107,7 @@ bool TextClass::InitializeBuffers(ID3D11Device* device, ID3D11DeviceContext* dev
     delete[] indices;
     indices = 0;
 
-    return UpdateText(deviceContext, Font, text, positionX, positionY, red, green, blue);    
+    return true;
 }
 
 void TextClass::ShutdownBuffers()
@@ -112,7 +125,7 @@ void TextClass::ShutdownBuffers()
     }
 }
 
-bool TextClass::UpdateText(ID3D11DeviceContext* deviceContext, FontClass* Font, char* text, int positionX, int positionY, float red, float green, float blue)
+bool TextClass::UpdateText()
 {
     int numLetters;
     VertexType* vertices;
@@ -121,31 +134,50 @@ bool TextClass::UpdateText(ID3D11DeviceContext* deviceContext, FontClass* Font, 
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     VertexType* verticesPtr;
 
-    m_pixelColor = XMFLOAT4(red, green, blue, 1.0f);
-
-    numLetters = (int)strlen(text);
+    numLetters = (int)strlen(m_text);
     if (numLetters > m_maxLength)
         return false;
 
     vertices = new VertexType[m_vertexCount];
     memset(vertices, 0, (sizeof(VertexType) * m_vertexCount));
 
-    drawX = (float)(((m_screenWidth / 2) * -1) + positionX);
-    drawY = (float)((m_screenHeight / 2) - positionY);
+    drawX = (float)(((m_screenWidth / 2) * -1) + m_PosX);
+    drawY = (float)((m_screenHeight / 2) - m_PosY);
 
-    Font->BuildVertexArray((void*)vertices, text, drawX, drawY);
+    m_font->BuildVertexArray((void*)vertices, m_text, drawX, drawY);
 
-    result = deviceContext->Map(m_vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+    result = m_deviceContext->Map(m_vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
     if (FAILED(result))
         return false;
     verticesPtr = (VertexType*)mappedResource.pData;
     memcpy(verticesPtr, (void*)vertices, (sizeof(VertexType) * m_vertexCount));
-    deviceContext->Unmap(m_vertexBuffer, 0);
+    m_deviceContext->Unmap(m_vertexBuffer, 0);
     
     delete[] vertices;
     vertices = 0;
 
     return true;
+}
+
+void TextClass::SetPosition(int x, int y)
+{
+    m_PosX = x;
+    m_PosY = y;
+}
+
+void TextClass::SetColor(float r, float g, float b)
+{
+    m_pixelColor = XMFLOAT4(r, g, b, 1);
+}
+
+void TextClass::SetFont(FontClass* font)
+{
+    m_font = font;
+}
+
+void TextClass::SetText(char* text)
+{
+    m_text = text;
 }
 
 void TextClass::RenderBuffers(ID3D11DeviceContext* deviceContext)

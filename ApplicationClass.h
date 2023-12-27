@@ -13,6 +13,15 @@
 #include "textclass.h"
 #include "fpsclass.h"
 #include "InputClass.h"
+#include <vector>
+#include <chrono>
+#include "GameObjectClass.h"
+#include "GameObjectClass2D.h"
+using std::vector;
+using std::string;
+using std::unordered_map;
+using std::any;
+using std::any_cast;
 
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
@@ -31,26 +40,32 @@ public:
 	bool Frame(InputClass*);
 
 private:
-	bool Render(float, int, int);
+	bool Render();
 	bool UpdateFps();
 	bool UpdateMouseStrings(int, int, bool);
 
 private:
 	D3DClass* m_Direct3D;
 	CameraClass* m_Camera;
-	ModelClass* m_Model;
-	ColorShaderClass* m_ColorShader;
-	TextureShaderClass* m_TextureShader;
+	ModelClass* m_MadelineModel, *m_IcosphereModel;
+	GameObjectClass* m_MadelineObject1, * m_MadelineObject2, * m_IcosphereObject;
+	GameObjectClass2D* m_SpinnerObj, *m_MouseObj;
+
+	TextureShaderClass* m_TextureShader, * m_2DShader, * m_FontShader;
 	LightClass* m_Lights, *m_DirLight;
 	int m_numLights;
 	BitmapClass* m_Bitmap, *m_MouseCursor;
 	TimerClass* m_Timer;
 	FontClass* m_Font;
-	TextClass* m_TextString1, * m_TextString2;
+	TextClass* m_TextString1, * m_TextString2, * m_TextStringMouseX, * m_TextStringMouseY, * m_TextStringMouseBttn;
 	FpsClass* m_Fps;
 	TextClass* m_FpsString;
 	int m_previousFps;
-	TextClass* m_MouseStrings;
+	std::chrono::high_resolution_clock::time_point m_startTime;
+
+	vector<GameObjectClass*> m_AllGameObjectList;
+	vector<GameObjectClass2D*> m_All2DGameObjectList;
+	vector<TextClass*> m_AllTextClassList;
 };
 
 #endif

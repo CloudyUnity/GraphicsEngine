@@ -104,6 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -137,10 +138,12 @@
     <ClInclude Include="ApplicationClass.h" />
     <ClInclude Include="BitMapClass.h" />
     <ClInclude Include="CameraClass.h" />
-    <ClInclude Include="ColorShaderClass.h" />
+    <ClInclude Include="Constants.h" />
     <ClInclude Include="d3dclass.h" />
     <ClInclude Include="FontClass.h" />
     <ClInclude Include="FPSClass.h" />
+    <ClInclude Include="GameObjectClass.h" />
+    <ClInclude Include="GameObjectClass2D.h" />
     <ClInclude Include="InputClass.h" />
     <ClInclude Include="LightClass.h" />
     <ClInclude Include="ModelClass.h" />
@@ -155,10 +158,11 @@
     <ClCompile Include="ApplicationClass.cpp" />
     <ClCompile Include="BitMapClass.cpp" />
     <ClCompile Include="CameraClass.cpp" />
-    <ClCompile Include="ColorShaderClass.cpp" />
     <ClCompile Include="d3dclass.cpp" />
     <ClCompile Include="FontClass.cpp" />
     <ClCompile Include="FPSClass.cpp" />
+    <ClCompile Include="GameObjectClass.cpp" />
+    <ClCompile Include="GameObjectClass2D.cpp" />
     <ClCompile Include="InputClass.cpp" />
     <ClCompile Include="LightClass.cpp" />
     <ClCompile Include="main.cpp" />
@@ -171,14 +175,10 @@
     <ClCompile Include="TimerClass.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Color.ps" />
-    <None Include="Color.vs" />
+    <None Include="2D.ps" />
     <None Include="Font.ps" />
-    <None Include="Light.ps" />
     <None Include="Light.vs" />
     <None Include="MultiTex.ps" />
-    <None Include="Texture.ps" />
-    <None Include="Texture.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

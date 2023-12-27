@@ -5,6 +5,8 @@ BitmapClass::BitmapClass()
     m_vertexBuffer = 0;
     m_indexBuffer = 0;
     m_Textures = 0;
+    m_renderX = 0;
+    m_renderY = 0;
 }
 
 
@@ -18,18 +20,25 @@ BitmapClass::~BitmapClass()
 }
 
 
-bool BitmapClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int screenWidth, int screenHeight, char* textureFilename, int renderX, int renderY)
+bool BitmapClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int screenWidth, int screenHeight, char* textureFilename)
 {    
     m_screenWidth = screenWidth;
     m_screenHeight = screenHeight;
 
-    // Store where the bitmap should be rendered to.
-    m_renderX = renderX;
-    m_renderY = renderY;
-
     m_frameTime = 0;
 
-    return InitializeBuffers(device) && LoadTextures(device, deviceContext, textureFilename);
+    bool result;
+
+    result = InitializeBuffers(device);
+    if (!result)
+        return false;
+
+    result = LoadTextures(device, deviceContext, textureFilename);
+    if (!result)
+        return false;
+
+    SetTextureFrame(0);
+    return true;
 }
 
 void BitmapClass::Shutdown()
@@ -61,9 +70,8 @@ void BitmapClass::Update(float frameTime)
         m_currentTexture++;
         if (m_currentTexture == m_textureCount)
             m_currentTexture = 0;
+        SetTextureFrame(m_currentTexture);
     }
-
-    return;
 }
 
 int BitmapClass::GetIndexCount()
@@ -73,7 +81,12 @@ int BitmapClass::GetIndexCount()
 
 ID3D11ShaderResourceView* BitmapClass::GetTexture()
 {
-    return m_Textures[m_currentTexture].GetTexture();
+    return m_AllTextureFrames[m_currentTexture].GetTexture();
+}
+
+void BitmapClass::SetTextureFrame(int frame) 
+{
+    m_Textures = &m_AllTextureFrames[frame];
 }
 
 bool BitmapClass::InitializeBuffers(ID3D11Device* device)
@@ -243,7 +256,7 @@ bool BitmapClass::LoadTextures(ID3D11Device* device, ID3D11DeviceContext* device
     fin >> m_textureCount;
     fin.get(input);
 
-    m_Textures = new TextureClass[m_textureCount];    
+    m_AllTextureFrames = new TextureClass[m_textureCount];    
 
     for (int i = 0; i < m_textureCount; i++)
     {
@@ -257,7 +270,7 @@ bool BitmapClass::LoadTextures(ID3D11Device* device, ID3D11DeviceContext* device
         }
         textureFilename[j] = '\0'; // Null terminated array
 
-        result = m_Textures[i].Initialize(device, deviceContext, textureFilename);
+        result = m_AllTextureFrames[i].Initialize(device, deviceContext, textureFilename);
         if (!result)
             return false;
     }
@@ -268,8 +281,8 @@ bool BitmapClass::LoadTextures(ID3D11Device* device, ID3D11DeviceContext* device
     fin.close();
 
     // Get the dimensions of the first texture and use that as the dimensions of the 2D sprite images.
-    m_bitmapWidth = m_Textures[0].GetWidth();
-    m_bitmapHeight = m_Textures[0].GetHeight();
+    m_bitmapWidth = m_AllTextureFrames[0].GetWidth();
+    m_bitmapHeight = m_AllTextureFrames[0].GetHeight();
 
     m_currentTexture = 0;
 
@@ -278,15 +291,15 @@ bool BitmapClass::LoadTextures(ID3D11Device* device, ID3D11DeviceContext* device
 
 void BitmapClass::ReleaseTextures()
 {
-    if (m_Textures)
+    if (m_AllTextureFrames)
     {
         for (int i = 0; i < m_textureCount; i++)
         {
-            m_Textures[i].Shutdown();
+            m_AllTextureFrames[i].Shutdown();
         }
 
-        delete[] m_Textures;
-        m_Textures = 0;
+        delete[] m_AllTextureFrames;
+        m_AllTextureFrames = 0;
     }
 }
 

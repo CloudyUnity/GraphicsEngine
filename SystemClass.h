@@ -12,6 +12,7 @@
 #include <windows.h>
 #include "InputClass.h"
 #include "ApplicationClass.h"
+#include "Constants.h"
 
 class SystemClass
 {
