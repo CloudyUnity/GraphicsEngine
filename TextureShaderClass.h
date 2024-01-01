@@ -63,6 +63,21 @@ private:
 		float fogEnd;
 		float pad1, pad2;
 	};
+	struct ClipPlaneBufferType
+	{
+		XMFLOAT4 clipPlane;
+	};
+	struct TexTranslationBufferType 
+	{
+		XMFLOAT2 translation;
+		float timeMultiplier;
+		float pad;
+	};
+	struct AlphaBufferType
+	{
+		float alphaBlend;
+		float pad1, pad2, pad3;
+	};
 
 public:
 	TextureShaderClass();
@@ -76,6 +91,7 @@ public:
 
 private:
 	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
+	bool TryCreateBuffer(ID3D11Device* device, D3D11_BUFFER_DESC bufferDesc, ID3D11Buffer** ptr, size_t structSize, string, string);
 	void ShutdownShader();
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
@@ -90,6 +106,7 @@ private:
 	ID3D11PixelShader* m_pixelShader;
 	ID3D11InputLayout* m_layout;
 	ID3D11Buffer* m_matrixBuffer, * m_utilBuffer, * m_lightColorBuffer, * m_lightPositionBuffer, * m_lightBuffer, * m_cameraBuffer, * m_pixelBuffer, * m_fogBuffer;
+	ID3D11Buffer* m_clipBuffer, * m_texTransBuffer, * m_alphaBuffer;
 	ID3D11SamplerState* m_sampleState;
 
 	std::string m_vertexName, m_fragName;

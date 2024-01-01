@@ -21,10 +21,16 @@ ApplicationClass::ApplicationClass()
 	m_TextStringMouseY = 0;
 	m_RenderTexture = 0;
 	m_DisplayPlane = 0;
+	m_mountainGO = 0;
+	m_IcosphereGO = 0;
+	m_transIcoGO = 0;
+	m_MadelineGO1 = 0;
+	m_MadelineGO2 = 0;
+	m_IcosphereModel = 0;
 
 	m_startTime = std::chrono::high_resolution_clock::now();
 
-	//ModelParser::ParseFile("C:\\Users\\finnw\\OneDrive\\Documents\\3D objects\\Mountain.obj");
+	//ModelParser::ParseFile("C:\\Users\\finnw\\OneDrive\\Documents\\3D objects\\MountFuji.obj");
 }
 
 ApplicationClass::ApplicationClass(const ApplicationClass& other)
@@ -118,15 +124,13 @@ bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}		
 	
-	m_MadelineObject1 = new GameObjectClass;
-	m_MadelineObject1->Initialize(m_MadelineModel, m_TextureShader);
-	m_AllGameObjectList.push_back(m_MadelineObject1);
+	m_MadelineGO1 = new GameObjectClass;
+	m_MadelineGO1->Initialize(m_MadelineModel, m_TextureShader);	
 
-	m_MadelineObject2 = new GameObjectClass;
-	m_MadelineObject2->Initialize(m_MadelineModel, m_TextureShader);
-	m_MadelineObject2->SetPosition(3, 0, 3);
-	m_MadelineObject2->SetScale(0.5f, 0.5f, 0.5f);
-	m_AllGameObjectList.push_back(m_MadelineObject2);
+	m_MadelineGO2 = new GameObjectClass;
+	m_MadelineGO2->Initialize(m_MadelineModel, m_TextureShader);
+	m_MadelineGO2->SetPosition(3, 0, 3);
+	m_MadelineGO2->SetScale(0.5f, 0.5f, 0.5f);	
 
 	textures = new char* [4];
 	for (int i = 0; i < 4; ++i)
@@ -145,11 +149,43 @@ bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	m_IcosphereObject = new GameObjectClass;
-	m_IcosphereObject->Initialize(m_IcosphereModel, m_TextureShader);
-	m_IcosphereObject->SetScale(5, 5, 5);
-	m_IcosphereObject->SetPosition(0, 0, 15);
-	m_AllGameObjectList.push_back(m_IcosphereObject);
+	m_IcosphereGO = new GameObjectClass;
+	m_IcosphereGO->Initialize(m_IcosphereModel, m_TextureShader);
+	m_IcosphereGO->SetScale(5, 5, 5);
+	m_IcosphereGO->SetPosition(0, 0, 15);
+
+	m_transIcoGO = new GameObjectClass;
+	m_transIcoGO->Initialize(m_IcosphereModel, m_TextureShader);
+	m_transIcoGO->SetPosition(3, 0.5f, 3);
+	m_transIcoGO->SetScale(1.0f, 1.0f, 1.0f);
+
+	textures = new char* [4];
+	for (int i = 0; i < 4; ++i)
+		textures[i] = new char[128];
+	strcpy_s(modelFilename, "../GraphicsEngine/Models/MountFuji.txt");
+	strcpy_s(textures[0], 128, "../GraphicsEngine/Data/Snow.tga");
+	strcpy_s(textures[1], 128, "../GraphicsEngine/Data/Snow.tga");
+	strcpy_s(textures[2], 128, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
+	strcpy_s(textures[3], 128, "../GraphicsEngine/Data/DefaultNormal.tga");
+
+	ModelClass* mountFuji = new ModelClass;
+	result = mountFuji->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textures, 4);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
+		return false;
+	}
+
+	m_mountainGO = new GameObjectClass;
+	m_mountainGO->Initialize(mountFuji, m_TextureShader);
+	m_mountainGO->SetScale(0.3f, 0.3f, 0.3f);
+	m_mountainGO->SetPosition(1, -13, 15);
+
+	m_AllGameObjectList.push_back(m_MadelineGO1);
+	m_AllGameObjectList.push_back(m_MadelineGO2);
+	m_AllGameObjectList.push_back(m_IcosphereGO);
+	m_AllGameObjectList.push_back(m_transIcoGO);
+	m_AllGameObjectList.push_back(m_mountainGO);
 
 	strcpy_s(bitmapFilename, "../GraphicsEngine/Animations/Spinner.txt");
 	m_Bitmap = new BitmapClass;
@@ -176,7 +212,7 @@ bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_numLights = 4;
 	m_Lights = new LightClass[m_numLights];
 
-	m_Lights[0].SetDiffuseColor(1.0f, 0.5f, 0.5f, 0.5f);
+	m_Lights[0].SetDiffuseColor(0.0f, 0.0f, 0.0f, 0.0f);
 	m_Lights[0].SetPosition(100.0f, 0.0f, 0.0f);
 
 	m_Lights[1].SetDiffuseColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -190,7 +226,7 @@ bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	m_DirLight = new LightClass();
 	m_DirLight->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
-	m_DirLight->SetDiffuseColor(0.5f, 1.0f, 0.5f, 1.0f);
+	m_DirLight->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_DirLight->SetDirection(-1.0f, 0.0f, -1.0f);
 	m_DirLight->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_DirLight->SetSpecularPower(32.0f);
@@ -449,8 +485,8 @@ bool ApplicationClass::Frame(InputClass* Input)
 	static float time = 0.0f;
 	time += 0.1f;
 
-	m_MadelineObject1->SetRotation(0, rotation * 10.0f, 0);
-	m_IcosphereObject->SetRotation(rotation * 50.0f, 0, 0);
+	m_MadelineGO1->SetRotation(0, rotation * 10.0f, 0);
+	m_IcosphereGO->SetRotation(rotation * 50.0f, 0, 0);
 	//m_SpinnerObj->SetPosition(m_SpinnerObj->m_PosX + time, m_SpinnerObj->m_PosY);
 
 	int mouseX, mouseY;
@@ -496,7 +532,11 @@ bool ApplicationClass::Render()
 		{"DirLight", m_DirLight},
 		{"Time", time},
 		{"FogStart", 0.0f},
-		{"FogEnd", 20.0f}
+		{"FogEnd", 20.0f},
+		{"ClipPlane", XMFLOAT4(0.0f, -1.0f, 0.0f, 2.5f)},
+		{"Translation", XMFLOAT2(0.0f, 0.0f)},
+		{"TranslationTimeMult", 0.0f},
+		{"Alpha", 1.0f}
 	};	
 
 	float fogColor = 0.5f;
@@ -508,6 +548,16 @@ bool ApplicationClass::Render()
 		if (!m_Frustum->CheckSphere(go->m_PosX, go->m_PosY, go->m_PosZ, go->GetBoundingRadius()))
 			continue;
 
+		if (go == m_MadelineGO2)
+			arguments.at("TranslationTimeMult") = 0.2f;
+		else
+			arguments.at("TranslationTimeMult") = 0.0f;
+
+		if (go == m_transIcoGO)
+			arguments.at("Alpha") = 0.1f;
+		else
+			arguments.at("Alpha") = 1.0f;
+
 		result = go->Render(m_Direct3D->GetDeviceContext(), viewMatrix, projectionMatrix, arguments);
 		if (!result)
 			return false;
@@ -516,7 +566,7 @@ bool ApplicationClass::Render()
 	bool renderToTexture = true;
 	if (renderToTexture)
 	{
-		XMMATRIX worldMatrix = XMMatrixTranslation(0, 0, 5);
+		XMMATRIX worldMatrix = XMMatrixTranslation(0, 0, 5);		
 
 		m_DisplayPlane->Render(m_Direct3D->GetDeviceContext());
 		result = m_DisplayShader->Render(m_Direct3D->GetDeviceContext(), m_DisplayPlane->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_RenderTexture->GetShaderResourceView());
@@ -540,8 +590,7 @@ bool ApplicationClass::Render()
 		m_Direct3D->SetBackBufferRenderTarget();
 		m_Direct3D->ResetViewport();
 	}
-
-	m_Direct3D->EnableAlphaBlending();
+	
 	m_Direct3D->TurnZBufferOff();
 	m_Camera->Get2DViewMatrix(viewMatrix);
 	m_Direct3D->GetOrthoMatrix(orthoMatrix);
@@ -561,7 +610,6 @@ bool ApplicationClass::Render()
 	}
 
 	m_Direct3D->TurnZBufferOn();
-	m_Direct3D->DisableAlphaBlending();
 
 	m_Direct3D->EndScene();
 
@@ -614,8 +662,6 @@ bool ApplicationClass::UpdateFps()
 
 	return m_FpsString->UpdateText();
 }
-
-// TEXT IS NOT BEING SET IN RENDER (LIST NOT SAME REF AS MEMBER VARS?)
 
 bool ApplicationClass::UpdateMouseStrings(int mouseX, int mouseY, bool mouseDown)
 {

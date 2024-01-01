@@ -3,6 +3,7 @@
 
 inline constexpr int SCREEN_X = 1200;
 inline constexpr int SCREEN_Y = 900;
-inline constexpr int RENDER_MODE = 2; // 0 = No culling, 1 = Back-face culling, 2 = Wireframes only
+inline constexpr int RENDER_MODE = 0; // 0 = No culling, 1 = Back-face culling, 2 = Wireframes only
+inline constexpr bool BLENDING_ON = true;
 
 #endif

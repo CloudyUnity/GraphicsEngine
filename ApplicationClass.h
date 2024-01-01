@@ -51,7 +51,7 @@ private:
 	D3DClass* m_Direct3D;
 	CameraClass* m_Camera;
 	ModelClass* m_MadelineModel, *m_IcosphereModel;
-	GameObjectClass* m_MadelineObject1, * m_MadelineObject2, * m_IcosphereObject;
+	GameObjectClass* m_MadelineGO1, * m_MadelineGO2, * m_IcosphereGO, * m_mountainGO, * m_transIcoGO;
 	GameObjectClass2D* m_SpinnerObj, *m_MouseObj;
 
 	TextureShaderClass* m_TextureShader, * m_2DShader, * m_FontShader, * m_DisplayShader;

@@ -29,6 +29,7 @@ struct PixelInputType
     float3 lightPos[NUM_LIGHTS] : TEXCOORD2;
     float3 viewDirection : TEXCOORD1;
     float fogFactor : FOG;
+    float clip : SV_ClipDistance0;
 };
 
 cbuffer LightBuffer : register(b2)
@@ -38,6 +39,21 @@ cbuffer LightBuffer : register(b2)
     float3 lightDirection;
     float specularPower;
     float4 specularColor;
+};
+
+cbuffer TextureTranslationBuffer : register(b3)
+{
+    float2 translation;
+    float timeMultiplier;
+    float texPad;
+};
+
+cbuffer AlphaBuffer : register(b4)
+{
+    float alphaBlend;
+    float alphaPad1;
+    float alphaPad2;
+    float alphaPad3;
 };
 
 float4 PS_MAIN(PixelInputType input) : SV_TARGET
@@ -50,7 +66,8 @@ float4 PS_MAIN(PixelInputType input) : SV_TARGET
     float4 bumpMap;
     float3 bumpNormal;
 
-    //return float4(input.fogFactor, input.fogFactor, input.fogFactor, 1);
+    input.tex.xy += time * timeMultiplier;
+    input.tex += translation;
 
     float4 colorSum = ambientColor;
 
@@ -84,6 +101,7 @@ float4 PS_MAIN(PixelInputType input) : SV_TARGET
     }
 
     float4 finalColor = saturate(saturate(colorSum + specular) * blendCol);
+    finalColor.a = alphaBlend;
 
     float4 fogColor = float4(0.5f, 0.5f, 0.5f, 1.0f);
 

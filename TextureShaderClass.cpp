@@ -14,6 +14,8 @@ TextureShaderClass::TextureShaderClass()
 	m_cameraBuffer = 0;
 	m_pixelBuffer = 0;	
 	m_fogBuffer = 0;
+	m_clipBuffer = 0;
+	m_texTransBuffer = 0;
 }
 
 TextureShaderClass::TextureShaderClass(const TextureShaderClass& other)
@@ -193,69 +195,21 @@ bool TextureShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 	bufferDesc.MiscFlags = 0;
 	bufferDesc.StructureByteStride = 0;
 
-	if (ShaderUsesBuffer(m_vertexName, "Matrix")) 
-	{
-		bufferDesc.ByteWidth = sizeof(MatrixBufferType);
-		result = device->CreateBuffer(&bufferDesc, NULL, &m_matrixBuffer);
-		if (FAILED(result))
-			return false;
-	}
+	bool bufferCreationResult = 
+		TryCreateBuffer(device, bufferDesc, &m_matrixBuffer, sizeof(MatrixBufferType), m_vertexName, "Matrix") &&
+		TryCreateBuffer(device, bufferDesc, &m_fogBuffer, sizeof(FogBufferType), m_vertexName, "Fog") &&
+		TryCreateBuffer(device, bufferDesc, &m_clipBuffer, sizeof(ClipPlaneBufferType), m_vertexName, "Clip") &&
+		TryCreateBuffer(device, bufferDesc, &m_cameraBuffer, sizeof(CameraBufferType), m_vertexName, "Camera") &&
+		TryCreateBuffer(device, bufferDesc, &m_utilBuffer, sizeof(UtilBufferType), m_fragName, "Util") &&
+		TryCreateBuffer(device, bufferDesc, &m_lightColorBuffer, sizeof(LightColorBufferType), m_fragName, "LightColor") &&
+		TryCreateBuffer(device, bufferDesc, &m_lightBuffer, sizeof(LightBufferType), m_fragName, "Light") &&
+		TryCreateBuffer(device, bufferDesc, &m_pixelBuffer, sizeof(PixelBufferType), m_fragName, "Pixel") &&
+		TryCreateBuffer(device, bufferDesc, &m_texTransBuffer, sizeof(TexTranslationBufferType), m_fragName, "TexTranslation") &&
+		TryCreateBuffer(device, bufferDesc, &m_alphaBuffer, sizeof(AlphaBufferType), m_fragName, "Alpha") &&
+		TryCreateBuffer(device, bufferDesc, &m_lightPositionBuffer, sizeof(LightPositionBufferType), m_fragName, "LightPosition");
 
-	if (ShaderUsesBuffer(m_vertexName, "Fog"))
-	{
-		bufferDesc.ByteWidth = sizeof(FogBufferType);
-		result = device->CreateBuffer(&bufferDesc, NULL, &m_fogBuffer);
-		if (FAILED(result))
-			return false;
-	}
-
-	if (ShaderUsesBuffer(m_fragName, "Util"))
-	{
-		bufferDesc.ByteWidth = sizeof(UtilBufferType);
-		result = device->CreateBuffer(&bufferDesc, NULL, &m_utilBuffer);
-		if (FAILED(result))
-			return false;
-	}
-
-	if (ShaderUsesBuffer(m_fragName, "LightColor"))
-	{
-		bufferDesc.ByteWidth = sizeof(LightColorBufferType);
-		result = device->CreateBuffer(&bufferDesc, NULL, &m_lightColorBuffer);
-		if (FAILED(result))
-			return false;
-	}
-
-	if (ShaderUsesBuffer(m_fragName, "LightPosition"))
-	{
-		bufferDesc.ByteWidth = sizeof(LightPositionBufferType);
-		result = device->CreateBuffer(&bufferDesc, NULL, &m_lightPositionBuffer);
-		if (FAILED(result))
-			return false;
-	}
-
-	if (ShaderUsesBuffer(m_fragName, "Light"))
-	{
-		bufferDesc.ByteWidth = sizeof(LightBufferType);
-		result = device->CreateBuffer(&bufferDesc, NULL, &m_lightBuffer);
-		if (FAILED(result))
-			return false;
-	}
-
-	if (ShaderUsesBuffer(m_fragName, "Camera"))
-	{
-		bufferDesc.ByteWidth = sizeof(CameraBufferType);
-		result = device->CreateBuffer(&bufferDesc, NULL, &m_cameraBuffer);
-		if (FAILED(result))
-			return false;
-	}
-
-	if (ShaderUsesBuffer(m_fragName, "Pixel"))
-	{
-		bufferDesc.ByteWidth = sizeof(PixelBufferType);
-		result = device->CreateBuffer(&bufferDesc, NULL, &m_pixelBuffer);
-		if (FAILED(result))
-			return false;
-	}
+	if (!bufferCreationResult)
+		return false;
 
 	// Create a texture sampler state description.
 	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -277,6 +231,16 @@ bool TextureShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 		return false;
 
 	return true;
+}
+
+bool TextureShaderClass::TryCreateBuffer(ID3D11Device* device, D3D11_BUFFER_DESC bufferDesc, ID3D11Buffer** ptr, size_t structSize, string shaderName, string bufferName)
+{
+	if (!ShaderUsesBuffer(shaderName, bufferName))
+		return true;
+
+	bufferDesc.ByteWidth = structSize;
+	HRESULT result = device->CreateBuffer(&bufferDesc, NULL, ptr);
+	return !FAILED(result);
 }
 
 void TextureShaderClass::ShutdownShader()
@@ -321,6 +285,18 @@ void TextureShaderClass::ShutdownShader()
 	{
 		m_lightPositionBuffer->Release();
 		m_lightPositionBuffer = 0;
+	}
+
+	if (m_clipBuffer) 
+	{
+		m_clipBuffer->Release();
+		m_clipBuffer = 0;
+	}
+
+	if (m_texTransBuffer)
+	{
+		m_texTransBuffer->Release();
+		m_texTransBuffer = 0;
 	}
 
 	if (m_layout)
@@ -407,6 +383,18 @@ bool TextureShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 		deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 	}
 
+	if (ShaderUsesBuffer(m_vertexName, "Camera"))
+	{
+		result = deviceContext->Map(m_cameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		if (FAILED(result))
+			return false;
+		auto camPtr = (CameraBufferType*)mappedResource.pData;
+		camPtr->cameraPosition = any_cast<XMFLOAT3>(arguments.at("CameraPos"));
+		deviceContext->Unmap(m_cameraBuffer, 0);
+		bufferNumber = 2;
+		deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_cameraBuffer);
+	}
+
 	if (ShaderUsesBuffer(m_vertexName, "Fog"))
 	{
 		result = deviceContext->Map(m_fogBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
@@ -420,6 +408,18 @@ bool TextureShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 		deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_fogBuffer);
 	}
 
+	if (ShaderUsesBuffer(m_vertexName, "Clip"))
+	{
+		result = deviceContext->Map(m_clipBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		if (FAILED(result))
+			return false;
+		auto matrixPtr = (ClipPlaneBufferType*)mappedResource.pData;
+		matrixPtr->clipPlane = any_cast<XMFLOAT4>(arguments.at("ClipPlane"));
+		deviceContext->Unmap(m_clipBuffer, 0);
+		bufferNumber = 4;
+		deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_clipBuffer);
+	}
+
 	if (ShaderUsesBuffer(m_fragName, "Util"))
 	{
 		result = deviceContext->Map(m_utilBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
@@ -430,18 +430,6 @@ bool TextureShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 		deviceContext->Unmap(m_utilBuffer, 0);
 		bufferNumber = 0;
 		deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_utilBuffer);
-	}
-
-	if (ShaderUsesBuffer(m_fragName, "Camera"))
-	{
-		result = deviceContext->Map(m_cameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-		if (FAILED(result))
-			return false;
-		auto camPtr = (CameraBufferType*)mappedResource.pData;
-		camPtr->cameraPosition = any_cast<XMFLOAT3>(arguments.at("CameraPos"));
-		deviceContext->Unmap(m_cameraBuffer, 0);
-		bufferNumber = 2;
-		deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_cameraBuffer);
 	}
 
 	if (ShaderUsesBuffer(m_fragName, "LightPosition"))
@@ -508,6 +496,31 @@ bool TextureShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 		deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_pixelBuffer);
 	}
 
+	if (ShaderUsesBuffer(m_fragName, "TexTranslation"))
+	{
+		result = deviceContext->Map(m_texTransBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		if (FAILED(result))
+			return false;
+		auto pixelPtr = (TexTranslationBufferType*)mappedResource.pData;
+		pixelPtr->translation = any_cast<XMFLOAT2>(arguments.at("Translation"));
+		pixelPtr->timeMultiplier = any_cast<float>(arguments.at("TranslationTimeMult"));
+		deviceContext->Unmap(m_texTransBuffer, 0);
+		bufferNumber = 3;
+		deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_texTransBuffer);
+	}
+
+	if (ShaderUsesBuffer(m_fragName, "Alpha"))
+	{
+		result = deviceContext->Map(m_alphaBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		if (FAILED(result))
+			return false;
+		auto ptr = (AlphaBufferType*)mappedResource.pData;
+		ptr->alphaBlend = any_cast<float>(arguments.at("Alpha"));
+		deviceContext->Unmap(m_alphaBuffer, 0);
+		bufferNumber = 4;
+		deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_alphaBuffer);
+	}
+
 	return true;
 }
 
@@ -563,14 +576,17 @@ bool TextureShaderClass::ShaderUsesBuffer(std::string shader, std::string buffer
 	if (shader == "Fog.vs") {
 		return buffer == "Matrix" ||
 			buffer == "Camera" ||
-			buffer == "Fog";
+			buffer == "Fog" ||
+			buffer == "Clip";
 	}
 
 	if (shader == "MultiTex.ps" || shader == "Fog.ps") {
 		return buffer == "LightColor" ||
 			buffer == "Util" ||
 			buffer == "Light" ||
-			buffer == "LightPosition";
+			buffer == "LightPosition" ||
+			buffer == "TexTranslation" ||
+			buffer == "Alpha";
 	}
 
 	if (shader == "Font.ps") {
