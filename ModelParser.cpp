@@ -19,7 +19,7 @@ bool ModelParser::ParseFile(const char* filename)
 	{
 		if (input == 'f')
 		{
-			for (int i = 0; i < 3 && fin.peek() == ' '; i++)
+			for (int i = 0; fin.peek() == ' '; i++)
 			{
 				int val;
 				fin >> val;
@@ -49,6 +49,9 @@ bool ModelParser::ParseFile(const char* filename)
 			continue;
 
 		fin.get(input);
+
+		if (input != ' ' && input != 't' && input != 'n')
+			continue;
 
 		float val;
 		int max = input == 't' ? 2 : 3;

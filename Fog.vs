@@ -24,6 +24,11 @@ cbuffer FogBuffer : register(b3)
     float fogEnd;
 };
 
+cbuffer ClipPlaneBuffer : register(b4)
+{
+    float4 clipPlane;
+};
+
 struct VertexInputType
 {
     float4 position : POSITION;
@@ -43,6 +48,7 @@ struct PixelInputType
     float3 lightPos[NUM_LIGHTS] : TEXCOORD2;
     float3 viewDirection : TEXCOORD1;
     float fogFactor : FOG;
+    float clip : SV_ClipDistance0;
 };
 
 PixelInputType VS_MAIN(VertexInputType input)
@@ -82,6 +88,9 @@ PixelInputType VS_MAIN(VertexInputType input)
     cameraPos = mul(cameraPos, viewMatrix);
 
     output.fogFactor = saturate((fogEnd - cameraPos.z) / (fogEnd - fogStart));
+    // Exponential Fog = 1.0 / 2.71828 power (ViewpointDistance * FogDensity)
+
+    output.clip = dot(mul(input.position, worldMatrix), clipPlane);
 
     return output;
 }
