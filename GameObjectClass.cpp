@@ -4,8 +4,7 @@ GameObjectClass::GameObjectClass()
 {
 	m_Model = 0;
 	m_Shader = 0;
-
-	SetScale(1, 1, 1);
+	m_boundingRadius = 0;	
 }
 
 GameObjectClass::GameObjectClass(const GameObjectClass&)
@@ -20,6 +19,7 @@ void GameObjectClass::Initialize(ModelClass* model, TextureShaderClass* shaders)
 {
 	m_Model = model;
 	m_Shader = shaders;
+	SetScale(1, 1, 1);
 }
 
 bool GameObjectClass::Render(ID3D11DeviceContext* deviceContext, XMMATRIX viewMatrix, XMMATRIX projMatrix, unordered_map<string, any> arguments)
@@ -66,4 +66,11 @@ void GameObjectClass::SetScale(float x, float y, float z)
 	m_ScaleX = x;
 	m_ScaleY = y;
 	m_ScaleZ = z;
+
+	m_boundingRadius = m_Model->GetBoundingRadius() * max(max(m_ScaleX, m_ScaleY), m_ScaleZ);
+}
+
+float GameObjectClass::GetBoundingRadius() 
+{
+	return m_boundingRadius;
 }

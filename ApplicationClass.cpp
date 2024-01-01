@@ -19,6 +19,8 @@ ApplicationClass::ApplicationClass()
 	m_TextStringMouseBttn = 0;
 	m_TextStringMouseX = 0;
 	m_TextStringMouseY = 0;
+	m_RenderTexture = 0;
+	m_DisplayPlane = 0;
 
 	m_startTime = std::chrono::high_resolution_clock::now();
 
@@ -59,8 +61,10 @@ bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	if (!result)
 		return false;
 
-	strcpy_s(vertexShader, "../GraphicsEngine/Light.vs");
-	strcpy_s(fragShader, "../GraphicsEngine/MultiTex.ps");
+	m_Frustum = new FrustumClass;
+
+	strcpy_s(vertexShader, "../GraphicsEngine/Fog.vs");
+	strcpy_s(fragShader, "../GraphicsEngine/Fog.ps");
 	m_TextureShader = new TextureShaderClass;
 	result = m_TextureShader->Initialize(m_Direct3D->GetDevice(), hwnd, vertexShader, fragShader);
 	if (!result)
@@ -81,6 +85,15 @@ bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	strcpy_s(fragShader, "../GraphicsEngine/Font.ps");
 	m_FontShader = new TextureShaderClass;
 	result = m_FontShader->Initialize(m_Direct3D->GetDevice(), hwnd, vertexShader, fragShader);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
+		return false;
+	}
+
+	strcpy_s(fragShader, "../GraphicsEngine/Display.ps");
+	m_DisplayShader = new TextureShaderClass;
+	result = m_DisplayShader->Initialize(m_Direct3D->GetDevice(), hwnd, vertexShader, fragShader);
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
@@ -245,6 +258,22 @@ bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_AllTextClassList.push_back(m_TextStringMouseX);
 	m_AllTextClassList.push_back(m_TextStringMouseY);
 	m_AllTextClassList.push_back(m_TextStringMouseBttn);
+
+	m_RenderTexture = new RenderTextureClass;
+	int texHeight = 256;
+	int texWidth = 256;
+	int format = 1;
+	result = m_RenderTexture->Initialize(m_Direct3D->GetDevice(), texWidth, texHeight, SCREEN_DEPTH, SCREEN_NEAR, format);
+	if (!result)
+		return false;
+
+	m_DisplayPlane = new DisplayPlaneClass;
+	int displayWidth = 1;
+	int displayHeight = 1;
+	result = m_DisplayPlane->Initialize(m_Direct3D->GetDevice(), displayWidth, displayHeight);
+	if (!result)
+		return false;
+
 	return true;
 }
 
@@ -274,6 +303,20 @@ void ApplicationClass::Shutdown()
 		m_TextureShader->Shutdown();
 		delete m_TextureShader;
 		m_TextureShader = 0;
+	}
+
+	if (m_DisplayPlane)
+	{
+		m_DisplayPlane->Shutdown();
+		delete m_DisplayPlane;
+		m_DisplayPlane = 0;
+	}
+
+	if (m_RenderTexture)
+	{
+		m_RenderTexture->Shutdown();
+		delete m_RenderTexture;
+		m_RenderTexture = 0;
 	}
 
 	if (m_2DShader)
@@ -428,13 +471,10 @@ bool ApplicationClass::Frame(InputClass* Input)
 
 bool ApplicationClass::Render()
 {
-	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, rotateMatrix, translateMatrix, scaleMatrix, srMatrix, orthoMatrix;
-	bool result;
-	
-	m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+	XMMATRIX viewMatrix, displayProjMatrix, projectionMatrix, orthoMatrix;
+	bool result;	
 
 	m_Camera->Render();
-
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);	
 
@@ -454,15 +494,52 @@ bool ApplicationClass::Render()
 		{"DiffuseColor", diffuseColor},
 		{"LightPosition", lightPosition},
 		{"DirLight", m_DirLight},
-		{"Time", time}
-	};
+		{"Time", time},
+		{"FogStart", 0.0f},
+		{"FogEnd", 20.0f}
+	};	
+
+	float fogColor = 0.5f;
+	m_Direct3D->BeginScene(fogColor, fogColor, fogColor, 1.0f);
+	m_Frustum->ConstructFrustum(viewMatrix, projectionMatrix, SCREEN_DEPTH);
 
 	for (auto go : m_AllGameObjectList) 
 	{
+		if (!m_Frustum->CheckSphere(go->m_PosX, go->m_PosY, go->m_PosZ, go->GetBoundingRadius()))
+			continue;
+
 		result = go->Render(m_Direct3D->GetDeviceContext(), viewMatrix, projectionMatrix, arguments);
 		if (!result)
 			return false;
-	}	
+	}		
+
+	bool renderToTexture = true;
+	if (renderToTexture)
+	{
+		XMMATRIX worldMatrix = XMMatrixTranslation(0, 0, 5);
+
+		m_DisplayPlane->Render(m_Direct3D->GetDeviceContext());
+		result = m_DisplayShader->Render(m_Direct3D->GetDeviceContext(), m_DisplayPlane->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_RenderTexture->GetShaderResourceView());
+		if (!result)
+			return false;
+		
+		m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());		
+		m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), fogColor, fogColor, fogColor, 1.0f);
+		m_RenderTexture->GetProjectionMatrix(displayProjMatrix);
+
+		for (auto go : m_AllGameObjectList)
+		{
+			if (!m_Frustum->CheckSphere(go->m_PosX, go->m_PosY, go->m_PosZ, go->GetBoundingRadius()))
+				continue;
+
+			result = go->Render(m_Direct3D->GetDeviceContext(), viewMatrix, displayProjMatrix, arguments);
+			if (!result)
+				return false;
+		}
+
+		m_Direct3D->SetBackBufferRenderTarget();
+		m_Direct3D->ResetViewport();
+	}
 
 	m_Direct3D->EnableAlphaBlending();
 	m_Direct3D->TurnZBufferOff();

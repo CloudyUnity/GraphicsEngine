@@ -140,14 +140,17 @@
     <ClInclude Include="CameraClass.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="d3dclass.h" />
+    <ClInclude Include="DisplayPlaneClass.h" />
     <ClInclude Include="FontClass.h" />
     <ClInclude Include="FPSClass.h" />
+    <ClInclude Include="FrustumClass.h" />
     <ClInclude Include="GameObjectClass.h" />
     <ClInclude Include="GameObjectClass2D.h" />
     <ClInclude Include="InputClass.h" />
     <ClInclude Include="LightClass.h" />
     <ClInclude Include="ModelClass.h" />
     <ClInclude Include="ModelParser.h" />
+    <ClInclude Include="RenderTextureClass.h" />
     <ClInclude Include="SystemClass.h" />
     <ClInclude Include="TextClass.h" />
     <ClInclude Include="TextureClass.h" />
@@ -159,8 +162,10 @@
     <ClCompile Include="BitMapClass.cpp" />
     <ClCompile Include="CameraClass.cpp" />
     <ClCompile Include="d3dclass.cpp" />
+    <ClCompile Include="DisplayPlaneClass.cpp" />
     <ClCompile Include="FontClass.cpp" />
     <ClCompile Include="FPSClass.cpp" />
+    <ClCompile Include="FrustumClass.cpp" />
     <ClCompile Include="GameObjectClass.cpp" />
     <ClCompile Include="GameObjectClass2D.cpp" />
     <ClCompile Include="InputClass.cpp" />
@@ -168,6 +173,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ModelClass.cpp" />
     <ClCompile Include="ModelParser.cpp" />
+    <ClCompile Include="RenderTextureClass.cpp" />
     <ClCompile Include="SystemClass.cpp" />
     <ClCompile Include="TextClass.cpp" />
     <ClCompile Include="TextureClass.cpp" />
@@ -176,6 +182,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="2D.ps" />
+    <None Include="Display.ps" />
+    <None Include="Fog.ps" />
+    <None Include="Fog.vs" />
     <None Include="Font.ps" />
     <None Include="Light.vs" />
     <None Include="MultiTex.ps" />

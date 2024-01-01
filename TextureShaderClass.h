@@ -57,6 +57,12 @@ private:
 	{
 		XMFLOAT4 pixelColor;
 	};
+	struct FogBufferType 
+	{
+		float fogStart;
+		float fogEnd;
+		float pad1, pad2;
+	};
 
 public:
 	TextureShaderClass();
@@ -66,6 +72,7 @@ public:
 	bool Initialize(ID3D11Device*, HWND, char*, char*);
 	void Shutdown();	
 	bool Render(ID3D11DeviceContext*, int, XMMATRIX, XMMATRIX, XMMATRIX, TextureClass*, int, unordered_map<string, any> = {});
+	bool Render(ID3D11DeviceContext*, int, XMMATRIX, XMMATRIX, XMMATRIX, ID3D11ShaderResourceView*);
 
 private:
 	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
@@ -73,6 +80,7 @@ private:
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
 	bool SetShaderParameters(ID3D11DeviceContext*, XMMATRIX, XMMATRIX, XMMATRIX, TextureClass*, int, unordered_map<string, any>);
+	bool SetShaderParameters(ID3D11DeviceContext*, XMMATRIX, XMMATRIX, XMMATRIX, ID3D11ShaderResourceView*);
 	void RenderShader(ID3D11DeviceContext*, int);
 
 	bool ShaderUsesBuffer(std::string, std::string);
@@ -81,7 +89,7 @@ private:
 	ID3D11VertexShader* m_vertexShader;
 	ID3D11PixelShader* m_pixelShader;
 	ID3D11InputLayout* m_layout;
-	ID3D11Buffer* m_matrixBuffer, * m_utilBuffer, * m_lightColorBuffer, * m_lightPositionBuffer, * m_lightBuffer, * m_cameraBuffer, * m_pixelBuffer;
+	ID3D11Buffer* m_matrixBuffer, * m_utilBuffer, * m_lightColorBuffer, * m_lightPositionBuffer, * m_lightBuffer, * m_cameraBuffer, * m_pixelBuffer, * m_fogBuffer;
 	ID3D11SamplerState* m_sampleState;
 
 	std::string m_vertexName, m_fragName;
