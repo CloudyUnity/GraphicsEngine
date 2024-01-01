@@ -16,10 +16,7 @@ cbuffer UtilBuffer: register(b0)
     float time;
     float pad2;
     float pad3;
-    bool is2D;
-    bool pad1;
-    bool pad4;
-    bool pad5;
+    float pad4;
 };
 
 struct PixelInputType
@@ -61,9 +58,6 @@ float4 PS_MAIN(PixelInputType input) : SV_TARGET
     // If tex2 is not assigned then texCol2 == texCol1
     blendCol = (alphaMapCol * texCol1) + ((1.0 - alphaMapCol) * texCol2);
     blendCol = saturate(blendCol);
-
-    if (is2D)
-        return blendCol;     
 
     bumpMap = normalMap.Sample(SampleType, input.tex);
     bumpMap = (bumpMap * 2.0f) - 1.0f;

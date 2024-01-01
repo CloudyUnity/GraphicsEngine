@@ -85,6 +85,15 @@
     <ClInclude Include="Constants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FrustumClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTextureClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DisplayPlaneClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -141,6 +150,15 @@
     <ClCompile Include="GameObjectClass2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FrustumClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTextureClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DisplayPlaneClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Light.vs">
@@ -153,6 +171,15 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="2D.ps">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Display.ps">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Fog.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Fog.ps">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

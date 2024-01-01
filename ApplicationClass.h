@@ -17,6 +17,9 @@
 #include <chrono>
 #include "GameObjectClass.h"
 #include "GameObjectClass2D.h"
+#include "FrustumClass.h"
+#include "rendertextureclass.h"
+#include "displayplaneclass.h"
 using std::vector;
 using std::string;
 using std::unordered_map;
@@ -51,7 +54,7 @@ private:
 	GameObjectClass* m_MadelineObject1, * m_MadelineObject2, * m_IcosphereObject;
 	GameObjectClass2D* m_SpinnerObj, *m_MouseObj;
 
-	TextureShaderClass* m_TextureShader, * m_2DShader, * m_FontShader;
+	TextureShaderClass* m_TextureShader, * m_2DShader, * m_FontShader, * m_DisplayShader;
 	LightClass* m_Lights, *m_DirLight;
 	int m_numLights;
 	BitmapClass* m_Bitmap, *m_MouseCursor;
@@ -62,6 +65,9 @@ private:
 	TextClass* m_FpsString;
 	int m_previousFps;
 	std::chrono::high_resolution_clock::time_point m_startTime;
+	FrustumClass* m_Frustum;
+	RenderTextureClass* m_RenderTexture;
+	DisplayPlaneClass* m_DisplayPlane;
 
 	vector<GameObjectClass*> m_AllGameObjectList;
 	vector<GameObjectClass2D*> m_All2DGameObjectList;

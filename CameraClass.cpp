@@ -109,8 +109,8 @@ void CameraClass::Get2DViewMatrix(XMMATRIX & viewMatrix)
 
 void CameraClass::Frame(InputClass* Input, float frameTime) 
 {
-	float speed = 2.0 * frameTime;
-	float rotSpeed = 40.0 * frameTime;
+	float speed = 4.0 * frameTime;
+	float rotSpeed = 60.0 * frameTime;
 
 	float forwardX = sin(m_rotationY * 0.0174532925f);
 	float forwardZ = cos(m_rotationY * 0.0174532925f);

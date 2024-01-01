@@ -1,12 +1,5 @@
-﻿  ApplicationClass.cpp
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(422,48): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(422,33): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(431,98): warning C4101: 'srMatrix': unreferenced local variable
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(431,85): warning C4101: 'scaleMatrix': unreferenced local variable
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(431,11): warning C4101: 'worldMatrix': unreferenced local variable
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(431,54): warning C4101: 'rotateMatrix': unreferenced local variable
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(431,68): warning C4101: 'translateMatrix': unreferenced local variable
-  SystemClass.cpp
+﻿  d3dclass.cpp
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\d3dclass.cpp(86,20): warning C4018: '<': signed/unsigned mismatch
   main.cpp
 C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\main.cpp(10,1): warning C4297: 'WinMain': function assumed not to throw an exception but does
 C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\main.cpp(10,1): message : __declspec(nothrow), throw(), noexcept(true), or noexcept was specified on the function

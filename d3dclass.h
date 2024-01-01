@@ -7,6 +7,7 @@
 
 #include <d3d11.h>
 #include <directxmath.h>
+#include "Constants.h"
 using namespace DirectX;
 
 class D3DClass

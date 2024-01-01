@@ -6,6 +6,7 @@ ModelClass::ModelClass()
 	m_indexBuffer = 0;
 	m_Textures = 0;
 	m_model = 0;
+	m_boundingRadius = 0;
 }
 
 
@@ -46,6 +47,11 @@ int ModelClass::GetIndexCount()
 ID3D11ShaderResourceView* ModelClass::GetTexture(int index)
 {
 	return m_Textures[index].GetTexture();
+}
+
+float ModelClass::GetBoundingRadius() 
+{
+	return m_boundingRadius;
 }
 
 bool ModelClass::InitializeBuffers(ID3D11Device* device)
@@ -191,6 +197,8 @@ bool ModelClass::LoadModel(char* filename)
 	fin >> m_vertexCount;
 	m_indexCount = m_vertexCount;
 
+	float faceCount = m_vertexCount / 3;
+
 	m_model = new ModelType[m_vertexCount];
 
 	fin.get(input);
@@ -199,11 +207,15 @@ bool ModelClass::LoadModel(char* filename)
 
 	fin.get(input);
 
-	for (int i = 0; i < m_vertexCount; i++)
+	for (int i = 0; i < faceCount; i++)
 	{
 		fin >> m_model[i].x >> m_model[i].y >> m_model[i].z;
 		fin >> m_model[i].tu >> m_model[i].tv;
 		fin >> m_model[i].nx >> m_model[i].ny >> m_model[i].nz;
+
+		float furthestPoint = max(max(abs(m_model[i].x), abs(m_model[i].y)), abs(m_model[i].z));
+		if (furthestPoint > m_boundingRadius)
+			m_boundingRadius = furthestPoint;
 	}
 
 	fin.close();

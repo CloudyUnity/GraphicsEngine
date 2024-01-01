@@ -1,0 +1,91 @@
+#define NUM_LIGHTS 4
+
+Texture2D shaderTexture1 : register(t0);
+Texture2D shaderTexture2 : register(t1);
+Texture2D alphaMap : register(t2);
+Texture2D normalMap : register(t3);
+SamplerState SampleType : register(s0);
+
+cbuffer LightColorBuffer : register(b1)
+{
+    float4 diffuseColor[NUM_LIGHTS];
+};
+
+cbuffer UtilBuffer: register(b0)
+{
+    float time;
+    float pad2;
+    float pad3;
+    float pad4;
+};
+
+struct PixelInputType
+{
+    float4 position : SV_POSITION;
+    float2 tex : TEXCOORD0;
+    float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAL;
+    float3 lightPos[NUM_LIGHTS] : TEXCOORD2;
+    float3 viewDirection : TEXCOORD1;
+    float fogFactor : FOG;
+};
+
+cbuffer LightBuffer : register(b2)
+{
+    float4 ambientColor;
+    float4 diffuseDirColor;
+    float3 lightDirection;
+    float specularPower;
+    float4 specularColor;
+};
+
+float4 PS_MAIN(PixelInputType input) : SV_TARGET
+{
+    float4 texCol1, texCol2, blendCol, alphaMapCol;
+    float lightIntensity[NUM_LIGHTS];
+    float4 colorArray[NUM_LIGHTS];
+    float3 reflection;
+    float4 specular;
+    float4 bumpMap;
+    float3 bumpNormal;
+
+    //return float4(input.fogFactor, input.fogFactor, input.fogFactor, 1);
+
+    float4 colorSum = ambientColor;
+
+    texCol1 = shaderTexture1.Sample(SampleType, input.tex);
+    texCol2 = shaderTexture2.Sample(SampleType, input.tex);
+    alphaMapCol = alphaMap.Sample(SampleType, input.tex);
+
+    // If tex2 is not assigned then texCol2 == texCol1
+    blendCol = (alphaMapCol * texCol1) + ((1.0 - alphaMapCol) * texCol2);
+    blendCol = saturate(blendCol);
+
+    bumpMap = normalMap.Sample(SampleType, input.tex);
+    bumpMap = (bumpMap * 2.0f) - 1.0f;
+
+    bumpNormal = (bumpMap.x * input.tangent) + (bumpMap.y * input.binormal) + (bumpMap.z * input.normal);
+    bumpNormal = normalize(bumpNormal);
+
+    for(int i=0; i<NUM_LIGHTS; i++)
+    {
+        lightIntensity[i] = saturate(dot(bumpNormal, input.lightPos[i]));
+        colorArray[i] = diffuseColor[i] * lightIntensity[i];
+        colorSum.rgb += colorArray[i].rgb * colorArray[i].a;
+    }
+
+    float intensity = saturate(dot(bumpNormal, -lightDirection));
+    if(intensity > 0.0f)
+    {        
+        colorSum += diffuseDirColor * intensity;
+        reflection = normalize(2.0f * intensity * bumpNormal + lightDirection); 
+        specular = pow(saturate(dot(reflection, input.viewDirection)), specularPower);
+    }
+
+    float4 finalColor = saturate(saturate(colorSum + specular) * blendCol);
+
+    float4 fogColor = float4(0.5f, 0.5f, 0.5f, 1.0f);
+
+    return input.fogFactor * finalColor + (1.0f - input.fogFactor) * fogColor;
+}

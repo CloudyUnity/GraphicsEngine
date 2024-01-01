@@ -50,7 +50,8 @@ public:
 
 	int GetIndexCount();
 	ID3D11ShaderResourceView* GetTexture(int);
-
+	float GetBoundingRadius();
+		
 	TextureClass* m_Textures;
 	int m_TextureCount;
 
@@ -68,6 +69,7 @@ private:
 	ID3D11Buffer* m_vertexBuffer, * m_indexBuffer;
 	int m_vertexCount, m_indexCount;	
 	ModelType* m_model;
+	float m_boundingRadius;
 };
 
 #endif
