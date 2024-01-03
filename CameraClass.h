@@ -21,6 +21,8 @@ public:
 	void Render();
 	void GetViewMatrix(XMMATRIX&);
 	void Get2DViewMatrix(XMMATRIX&);
+	void RenderReflection(float);
+	void GetReflectionViewMatrix(XMMATRIX&);
 
 	void Initialize2DView();
 
@@ -29,7 +31,7 @@ public:
 private:
 	float m_positionX, m_positionY, m_positionZ;
 	float m_rotationX, m_rotationY, m_rotationZ;
-	XMMATRIX m_viewMatrix, m_2DViewMatrix;
+	XMMATRIX m_viewMatrix, m_2DViewMatrix, m_reflectionViewMatrix;
 };
 
 #endif

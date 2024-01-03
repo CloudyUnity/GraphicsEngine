@@ -16,10 +16,12 @@ GameObjectClass2D::~GameObjectClass2D()
 {
 }
 
-void GameObjectClass2D::Initialize(BitmapClass* model, TextureShaderClass* shaders)
+void GameObjectClass2D::Initialize(BitmapClass* bitmap, ShaderClass* shaders)
 {
-	m_BitMap = model;
+	m_BitMap = bitmap;
 	m_Shader = shaders;
+
+	m_TexSet = new TextureSetClass;
 }
 
 bool GameObjectClass2D::Render(ID3D11DeviceContext* deviceContext, XMMATRIX viewMatrix, XMMATRIX projMatrix, unordered_map<string, any> args)
@@ -42,7 +44,9 @@ bool GameObjectClass2D::Render(ID3D11DeviceContext* deviceContext, XMMATRIX view
 	m_BitMap->SetRenderLocation(0, 0);
 	m_BitMap->Render(deviceContext);	
 
-	return m_Shader->Render(deviceContext, m_BitMap->GetIndexCount(), worldMatrix, viewMatrix, projMatrix, m_BitMap->m_Textures, 1, args);
+	m_TexSet->Add(m_BitMap->GetTexture(), 0);
+
+	return m_Shader->Render(deviceContext, m_BitMap->GetIndexCount(), worldMatrix, viewMatrix, projMatrix, m_TexSet, args);
 }
 
 void GameObjectClass2D::Shutdown()
@@ -53,6 +57,13 @@ void GameObjectClass2D::Shutdown()
 
 	if (m_Shader) {
 		m_Shader = 0;
+	}
+
+	if (m_TexSet)
+	{
+		m_TexSet->Shutdown();
+		delete m_TexSet;
+		m_TexSet = 0;
 	}
 }
 

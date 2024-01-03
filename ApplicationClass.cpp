@@ -5,8 +5,8 @@ ApplicationClass::ApplicationClass()
 {
 	m_Direct3D = 0;
 	m_Camera = 0;
-	m_MadelineModel = 0;
-	m_TextureShader = 0;
+	m_ModelMadeline = 0;
+	m_ShaderMain = 0;
 	m_Lights = 0;
 	m_Bitmap = 0;
 	m_DirLight = 0;
@@ -19,18 +19,24 @@ ApplicationClass::ApplicationClass()
 	m_TextStringMouseBttn = 0;
 	m_TextStringMouseX = 0;
 	m_TextStringMouseY = 0;
-	m_RenderTexture = 0;
+	m_RenderTexDisplay = 0;
+	m_RenderTexReflection = 0;
 	m_DisplayPlane = 0;
 	m_mountainGO = 0;
 	m_IcosphereGO = 0;
 	m_transIcoGO = 0;
 	m_MadelineGO1 = 0;
 	m_MadelineGO2 = 0;
-	m_IcosphereModel = 0;
+	m_ModelIcosphere = 0;
+	m_ModelCube = 0;
+	m_ModelMountain = 0;
+	m_cubeGO = 0;
+	m_ShaderReflect = 0;
+	m_RenderClass = 0;
 
 	m_startTime = std::chrono::high_resolution_clock::now();
 
-	//ModelParser::ParseFile("C:\\Users\\finnw\\OneDrive\\Documents\\3D objects\\MountFuji.obj");
+	//ModelParser::ParseFile("C:\\Users\\finnw\\OneDrive\\Documents\\3D objects\\Cube.obj");
 }
 
 ApplicationClass::ApplicationClass(const ApplicationClass& other)
@@ -49,9 +55,9 @@ bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	char bitmapFilename[128];
 	char vertexShader[128], fragShader[128];
 
-	m_Direct3D = new D3DClass;
+	m_Direct3D = new D3DClass;	
 
-	bool result = m_Direct3D->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+	bool result = m_Direct3D->Initialize(screenWidth, screenHeight, V_SYNC, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize Direct3D", L"Error", MB_OK);
@@ -69,19 +75,33 @@ bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	m_Frustum = new FrustumClass;
 
+	m_RenderClass = new RenderClass;
+	m_RenderClass->Initialize(m_Direct3D, m_Camera, m_Frustum);
+
 	strcpy_s(vertexShader, "../GraphicsEngine/Fog.vs");
 	strcpy_s(fragShader, "../GraphicsEngine/Fog.ps");
-	m_TextureShader = new TextureShaderClass;
-	result = m_TextureShader->Initialize(m_Direct3D->GetDevice(), hwnd, vertexShader, fragShader);
+	m_ShaderMain = new ShaderClass;
+	result = m_ShaderMain->Initialize(m_Direct3D->GetDevice(), hwnd, vertexShader, fragShader);
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 		return false;
 	}
 
+	strcpy_s(vertexShader, "../GraphicsEngine/Reflect.vs");
+	strcpy_s(fragShader, "../GraphicsEngine/Reflect.ps");
+	m_ShaderReflect = new ShaderClass;
+	result = m_ShaderReflect->Initialize(m_Direct3D->GetDevice(), hwnd, vertexShader, fragShader);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
+		return false;
+	}
+
+	strcpy_s(vertexShader, "../GraphicsEngine/Simple.vs");
 	strcpy_s(fragShader, "../GraphicsEngine/2D.ps");
-	m_2DShader = new TextureShaderClass;
-	result = m_2DShader->Initialize(m_Direct3D->GetDevice(), hwnd, vertexShader, fragShader);
+	m_Shader2D = new ShaderClass;
+	result = m_Shader2D->Initialize(m_Direct3D->GetDevice(), hwnd, vertexShader, fragShader);
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
@@ -89,103 +109,108 @@ bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	strcpy_s(fragShader, "../GraphicsEngine/Font.ps");
-	m_FontShader = new TextureShaderClass;
-	result = m_FontShader->Initialize(m_Direct3D->GetDevice(), hwnd, vertexShader, fragShader);
+	m_ShaderFont = new ShaderClass;
+	result = m_ShaderFont->Initialize(m_Direct3D->GetDevice(), hwnd, vertexShader, fragShader);
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 		return false;
 	}
 
-	strcpy_s(fragShader, "../GraphicsEngine/Display.ps");
-	m_DisplayShader = new TextureShaderClass;
-	result = m_DisplayShader->Initialize(m_Direct3D->GetDevice(), hwnd, vertexShader, fragShader);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
-		return false;
-	}
+	m_TexSetMoss = new TextureSetClass;
+	m_TexSetMoss->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/Celeste.tga");
+	m_TexSetMoss->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/Moss.tga");
+	m_TexSetMoss->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/DefaultAlphaMap.tga");
+	m_TexSetMoss->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/MossNormal.tga");
+
+	m_TexSetStars = new TextureSetClass;
+	m_TexSetStars->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/Celeste.tga");
+	m_TexSetStars->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/Celeste.tga");
+	m_TexSetStars->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/DefaultAlphaMap.tga");
+	m_TexSetStars->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/RockNormal.tga");
+
+	m_TexSetSnow = new TextureSetClass;
+	m_TexSetSnow->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/Snow.tga");
+	m_TexSetSnow->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/Snow.tga");
+	m_TexSetSnow->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/DefaultAlphaMap.tga");
+	m_TexSetSnow->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/DefaultNormal.tga");
+
+	m_TexSetReflection = new TextureSetClass;
+	m_TexSetReflection->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/Glass.tga");
+	m_TexSetReflection->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/Glass.tga");
+	m_TexSetReflection->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/DefaultAlphaMap.tga");
+	m_TexSetReflection->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/GlassNormal.tga");
 
 	strcpy_s(modelFilename, "../GraphicsEngine/Models/Madeline.txt");
-	char** textures = new char* [4];
-	for (int i = 0; i < 4; ++i)
-		textures[i] = new char[128];
-
-	strcpy_s(textures[0], 128, "../GraphicsEngine/Data/Celeste.tga");
-	strcpy_s(textures[1], 128, "../GraphicsEngine/Data/Moss.tga");
-	strcpy_s(textures[2], 128, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
-	strcpy_s(textures[3], 128, "../GraphicsEngine/Data/MossNormal.tga");
-
-	m_MadelineModel = new ModelClass;
-	result = m_MadelineModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textures, 4);
+	m_ModelMadeline = new ModelClass;
+	result = m_ModelMadeline->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename);
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
-	}		
-	
-	m_MadelineGO1 = new GameObjectClass;
-	m_MadelineGO1->Initialize(m_MadelineModel, m_TextureShader);	
+	}			
 
-	m_MadelineGO2 = new GameObjectClass;
-	m_MadelineGO2->Initialize(m_MadelineModel, m_TextureShader);
-	m_MadelineGO2->SetPosition(3, 0, 3);
-	m_MadelineGO2->SetScale(0.5f, 0.5f, 0.5f);	
-
-	textures = new char* [4];
-	for (int i = 0; i < 4; ++i)
-		textures[i] = new char[128];
 	strcpy_s(modelFilename, "../GraphicsEngine/Models/Icosphere.txt");
-	strcpy_s(textures[0], 128, "../GraphicsEngine/Data/Moss.tga");
-	strcpy_s(textures[1], 128, "../GraphicsEngine/Data/Moss.tga");
-	strcpy_s(textures[2], 128, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
-	strcpy_s(textures[3], 128, "../GraphicsEngine/Data/MossNormal.tga");
-
-	m_IcosphereModel = new ModelClass;
-	result = m_IcosphereModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textures, 4);
+	m_ModelIcosphere = new ModelClass;
+	result = m_ModelIcosphere->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename);
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
 	}
 
+	strcpy_s(modelFilename, "../GraphicsEngine/Models/MountFuji.txt");
+	m_ModelMountain = new ModelClass;
+	result = m_ModelMountain->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
+		return false;
+	}
+
+	strcpy_s(modelFilename, "../GraphicsEngine/Models/Cube.txt");
+	m_ModelCube = new ModelClass;
+	result = m_ModelCube->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
+		return false;
+	}
+
+	m_MadelineGO1 = new GameObjectClass;
+	m_MadelineGO1->Initialize(m_ModelMadeline, m_ShaderMain, m_TexSetMoss, "Madeline1");
+
+	m_MadelineGO2 = new GameObjectClass;
+	m_MadelineGO2->Initialize(m_ModelMadeline, m_ShaderMain, m_TexSetStars, "Madeline2");
+	m_MadelineGO2->SetPosition(3, 0, 3);
+	m_MadelineGO2->SetScale(0.5f, 0.5f, 0.5f);
+
 	m_IcosphereGO = new GameObjectClass;
-	m_IcosphereGO->Initialize(m_IcosphereModel, m_TextureShader);
+	m_IcosphereGO->Initialize(m_ModelIcosphere, m_ShaderMain, m_TexSetMoss, "IcosphereBig");
 	m_IcosphereGO->SetScale(5, 5, 5);
 	m_IcosphereGO->SetPosition(0, 0, 15);
 
 	m_transIcoGO = new GameObjectClass;
-	m_transIcoGO->Initialize(m_IcosphereModel, m_TextureShader);
+	m_transIcoGO->Initialize(m_ModelIcosphere, m_ShaderMain, m_TexSetSnow, "IcosphereTrans");
 	m_transIcoGO->SetPosition(3, 0.5f, 3);
-	m_transIcoGO->SetScale(1.0f, 1.0f, 1.0f);
-
-	textures = new char* [4];
-	for (int i = 0; i < 4; ++i)
-		textures[i] = new char[128];
-	strcpy_s(modelFilename, "../GraphicsEngine/Models/MountFuji.txt");
-	strcpy_s(textures[0], 128, "../GraphicsEngine/Data/Snow.tga");
-	strcpy_s(textures[1], 128, "../GraphicsEngine/Data/Snow.tga");
-	strcpy_s(textures[2], 128, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
-	strcpy_s(textures[3], 128, "../GraphicsEngine/Data/DefaultNormal.tga");
-
-	ModelClass* mountFuji = new ModelClass;
-	result = mountFuji->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textures, 4);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
-		return false;
-	}
+	m_transIcoGO->SetScale(1.0f, 1.0f, 1.0f);	
 
 	m_mountainGO = new GameObjectClass;
-	m_mountainGO->Initialize(mountFuji, m_TextureShader);
+	m_mountainGO->Initialize(m_ModelMountain, m_ShaderMain, m_TexSetSnow, "Mountain");
 	m_mountainGO->SetScale(0.3f, 0.3f, 0.3f);
 	m_mountainGO->SetPosition(1, -13, 15);
 
-	m_AllGameObjectList.push_back(m_MadelineGO1);
-	m_AllGameObjectList.push_back(m_MadelineGO2);
-	m_AllGameObjectList.push_back(m_IcosphereGO);
-	m_AllGameObjectList.push_back(m_transIcoGO);
-	m_AllGameObjectList.push_back(m_mountainGO);
+	m_cubeGO = new GameObjectClass;
+	m_cubeGO->Initialize(m_ModelCube, m_ShaderReflect, m_TexSetReflection, "GlassCube");
+	m_cubeGO->SetScale(1.5f, 0.5f, 1.5f);
+	m_cubeGO->SetPosition(0, -0.5f, 0);
+
+	m_RenderClass->AddGameObject(m_MadelineGO1);
+	m_RenderClass->AddGameObject(m_MadelineGO2);
+	m_RenderClass->AddGameObject(m_IcosphereGO);
+	m_RenderClass->AddGameObject(m_transIcoGO);
+	m_RenderClass->AddGameObject(m_mountainGO);
+	m_RenderClass->AddGameObject(m_cubeGO);
 
 	strcpy_s(bitmapFilename, "../GraphicsEngine/Animations/Spinner.txt");
 	m_Bitmap = new BitmapClass;
@@ -193,10 +218,9 @@ bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	if (!result)
 		return false;
 	m_SpinnerObj = new GameObjectClass2D;
-	m_SpinnerObj->Initialize(m_Bitmap, m_2DShader);
+	m_SpinnerObj->Initialize(m_Bitmap, m_Shader2D);
 	m_SpinnerObj->SetPosition(1000, 50);
 	m_SpinnerObj->SetScale(0.75f, 0.75f);
-	m_All2DGameObjectList.push_back(m_SpinnerObj);
 
 	strcpy_s(bitmapFilename, "../GraphicsEngine/Animations/MouseAnim.txt");
 	m_MouseCursor = new BitmapClass;
@@ -204,10 +228,12 @@ bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	if (!result)
 		return false;
 	m_MouseObj = new GameObjectClass2D;
-	m_MouseObj->Initialize(m_MouseCursor, m_2DShader);
+	m_MouseObj->Initialize(m_MouseCursor, m_Shader2D);
 	m_MouseObj->SetScale(0.1f, 0.1f);
 	m_MouseObj->SetRotation(225);
-	m_All2DGameObjectList.push_back(m_MouseObj);
+
+	m_RenderClass->AddGameObject2D(m_SpinnerObj);
+	m_RenderClass->AddGameObject2D(m_MouseObj);
 
 	m_numLights = 4;
 	m_Lights = new LightClass[m_numLights];
@@ -239,50 +265,47 @@ bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	strcpy_s(text, "Sample Text 1");
 	m_TextString1 = new TextClass;
 	int maxLength = 32;
-	result = m_TextString1->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, maxLength, m_FontShader);
+	result = m_TextString1->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, maxLength, m_ShaderFont);
 	if (!result)
 		return false;
 	m_TextString1->SetColor(1, 0, 0);
 	m_TextString1->SetFont(m_Font);
 	m_TextString1->SetPosition(10, 10);
 	m_TextString1->SetText(text);
-	m_TextString1->UpdateText();
-	m_AllTextClassList.push_back(m_TextString1);
+	m_TextString1->UpdateText();	
 
 	strcpy_s(text, "Sample Text 2");
 	m_TextString2 = new TextClass;
-	result = m_TextString2->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, maxLength, m_FontShader);
+	result = m_TextString2->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, maxLength, m_ShaderFont);
 	if (!result)
 		return false;
 	m_TextString2->SetColor(0, 1, 0);
 	m_TextString2->SetFont(m_Font);
 	m_TextString2->SetPosition(15, 30);
 	m_TextString2->SetText(text);
-	m_TextString2->UpdateText();
-	m_AllTextClassList.push_back(m_TextString2);
+	m_TextString2->UpdateText();	
 
 	m_Fps = new FpsClass();
 	m_Fps->Initialize();
 	m_previousFps = -1;
 
 	m_FpsString = new TextClass;
-	result = m_FpsString->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, maxLength, m_FontShader);
+	result = m_FpsString->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, maxLength, m_ShaderFont);
 	if (!result)
 		return false;
 	m_FpsString->SetFont(m_Font);
-	m_FpsString->SetPosition(10, 60);
-	m_AllTextClassList.push_back(m_FpsString);
+	m_FpsString->SetPosition(10, 60);	
 
 	m_TextStringMouseX = new TextClass;
 	m_TextStringMouseY = new TextClass;
 	m_TextStringMouseBttn = new TextClass;
-	result = m_TextStringMouseX->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, maxLength, m_FontShader);
+	result = m_TextStringMouseX->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, maxLength, m_ShaderFont);
 	if (!result)
 		return false;
-	result = m_TextStringMouseY->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, maxLength, m_FontShader);
+	result = m_TextStringMouseY->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, maxLength, m_ShaderFont);
 	if (!result)
 		return false;
-	result = m_TextStringMouseBttn->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, maxLength, m_FontShader);
+	result = m_TextStringMouseBttn->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, maxLength, m_ShaderFont);
 	if (!result)
 		return false;	
 	m_TextStringMouseX->SetFont(m_Font);
@@ -291,22 +314,34 @@ bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_TextStringMouseX->SetPosition(10, 80);
 	m_TextStringMouseY->SetPosition(10, 100);
 	m_TextStringMouseBttn->SetPosition(10, 120);
-	m_AllTextClassList.push_back(m_TextStringMouseX);
-	m_AllTextClassList.push_back(m_TextStringMouseY);
-	m_AllTextClassList.push_back(m_TextStringMouseBttn);
 
-	m_RenderTexture = new RenderTextureClass;
+	m_RenderClass->AddTextClass(m_TextString1);
+	m_RenderClass->AddTextClass(m_TextString2);
+	m_RenderClass->AddTextClass(m_FpsString);
+	m_RenderClass->AddTextClass(m_TextStringMouseX);
+	m_RenderClass->AddTextClass(m_TextStringMouseY);
+	m_RenderClass->AddTextClass(m_TextStringMouseBttn);
+
+	m_RenderTexDisplay = new RenderTextureClass;
 	int texHeight = 256;
 	int texWidth = 256;
 	int format = 1;
-	result = m_RenderTexture->Initialize(m_Direct3D->GetDevice(), texWidth, texHeight, SCREEN_DEPTH, SCREEN_NEAR, format);
+	result = m_RenderTexDisplay->Initialize(m_Direct3D->GetDevice(), texWidth, texHeight, SCREEN_DEPTH, SCREEN_NEAR, format);
 	if (!result)
 		return false;
 
 	m_DisplayPlane = new DisplayPlaneClass;
 	int displayWidth = 1;
 	int displayHeight = 1;
-	result = m_DisplayPlane->Initialize(m_Direct3D->GetDevice(), displayWidth, displayHeight);
+	result = m_DisplayPlane->Initialize(m_Direct3D->GetDevice(), displayWidth, displayHeight, m_RenderTexDisplay, m_Shader2D);
+	if (!result)
+		return false;
+
+	m_DisplayPlane->SetPosition(0, 0, 5);
+	m_RenderClass->AddDisplayPlane(m_DisplayPlane);
+
+	m_RenderTexReflection = new RenderTextureClass;
+	result = m_RenderTexReflection->Initialize(m_Direct3D->GetDevice(), texWidth, texHeight, SCREEN_DEPTH, SCREEN_NEAR, format);
 	if (!result)
 		return false;
 
@@ -315,30 +350,25 @@ bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void ApplicationClass::Shutdown()
 {
-	for (auto go : m_AllGameObjectList) 
+	if (m_RenderClass)
 	{
-		go->Shutdown();
-		delete go;
+		m_RenderClass->Shutdown();
+		delete m_RenderClass;
+		m_RenderClass = 0;
 	}
 
-	for (auto go : m_All2DGameObjectList)
+	if (m_ModelMadeline) 
 	{
-		go->Shutdown();
-		delete go;
+		m_ModelMadeline->Shutdown();
+		delete m_ModelMadeline;
+		m_ModelMadeline = 0;
 	}
 
-	if (m_MadelineModel) 
+	if (m_ShaderMain)
 	{
-		m_MadelineModel->Shutdown();
-		delete m_MadelineModel;
-		m_MadelineModel = 0;
-	}
-
-	if (m_TextureShader)
-	{
-		m_TextureShader->Shutdown();
-		delete m_TextureShader;
-		m_TextureShader = 0;
+		m_ShaderMain->Shutdown();
+		delete m_ShaderMain;
+		m_ShaderMain = 0;
 	}
 
 	if (m_DisplayPlane)
@@ -348,44 +378,32 @@ void ApplicationClass::Shutdown()
 		m_DisplayPlane = 0;
 	}
 
-	if (m_RenderTexture)
+	if (m_RenderTexDisplay)
 	{
-		m_RenderTexture->Shutdown();
-		delete m_RenderTexture;
-		m_RenderTexture = 0;
+		m_RenderTexDisplay->Shutdown();
+		delete m_RenderTexDisplay;
+		m_RenderTexDisplay = 0;
 	}
 
-	if (m_2DShader)
+	if (m_RenderTexReflection)
 	{
-		m_2DShader->Shutdown();
-		delete m_2DShader;
-		m_2DShader = 0;
+		m_RenderTexReflection->Shutdown();
+		delete m_RenderTexReflection;
+		m_RenderTexReflection = 0;
 	}
 
-	if (m_FontShader)
+	if (m_Shader2D)
 	{
-		m_FontShader->Shutdown();
-		delete m_FontShader;
-		m_FontShader = 0;
+		m_Shader2D->Shutdown();
+		delete m_Shader2D;
+		m_Shader2D = 0;
 	}
 
-	if (m_TextStringMouseX)
+	if (m_ShaderFont)
 	{
-		m_TextStringMouseX->Shutdown();
-		delete m_TextStringMouseX;
-		m_TextStringMouseX = 0;
-	}
-	if (m_TextStringMouseY)
-	{
-		m_TextStringMouseY->Shutdown();
-		delete m_TextStringMouseY;
-		m_TextStringMouseY = 0;
-	}
-	if (m_TextStringMouseBttn)
-	{
-		m_TextStringMouseBttn->Shutdown();
-		delete m_TextStringMouseBttn;
-		m_TextStringMouseBttn = 0;
+		m_ShaderFont->Shutdown();
+		delete m_ShaderFont;
+		m_ShaderFont = 0;
 	}
 
 	if (m_Timer)
@@ -394,32 +412,11 @@ void ApplicationClass::Shutdown()
 		m_Timer = 0;
 	}
 
-	if (m_FpsString)
-	{
-		m_FpsString->Shutdown();
-		delete m_FpsString;
-		m_FpsString = 0;
-	}
-
 	if (m_Fps)
 	{
 		delete m_Fps;
 		m_Fps = 0;
-	}
-
-	if (m_TextString2)
-	{
-		m_TextString2->Shutdown();
-		delete m_TextString2;
-		m_TextString2 = 0;
-	}
-
-	if (m_TextString1)
-	{
-		m_TextString1->Shutdown();
-		delete m_TextString1;
-		m_TextString1 = 0;
-	}
+	}	
 
 	if (m_Font)
 	{
@@ -447,11 +444,11 @@ void ApplicationClass::Shutdown()
 		m_DirLight = 0;
 	}
 
-	if (m_TextureShader)
+	if (m_ShaderMain)
 	{
-		m_TextureShader->Shutdown();
-		delete m_TextureShader;
-		m_TextureShader = 0;
+		m_ShaderMain->Shutdown();
+		delete m_ShaderMain;
+		m_ShaderMain = 0;
 	}
 
 	if (m_Camera)
@@ -507,12 +504,7 @@ bool ApplicationClass::Frame(InputClass* Input)
 
 bool ApplicationClass::Render()
 {
-	XMMATRIX viewMatrix, displayProjMatrix, projectionMatrix, orthoMatrix;
-	bool result;	
-
-	m_Camera->Render();
-	m_Camera->GetViewMatrix(viewMatrix);
-	m_Direct3D->GetProjectionMatrix(projectionMatrix);	
+	bool result;
 
 	XMFLOAT4 diffuseColor[4], lightPosition[4];
 	for (int i = 0; i < m_numLights; i++)
@@ -539,80 +531,13 @@ bool ApplicationClass::Render()
 		{"Alpha", 1.0f}
 	};	
 
-	float fogColor = 0.5f;
-	m_Direct3D->BeginScene(fogColor, fogColor, fogColor, 1.0f);
-	m_Frustum->ConstructFrustum(viewMatrix, projectionMatrix, SCREEN_DEPTH);
+	float reflectHeight = m_cubeGO->m_PosY + m_cubeGO->m_ScaleY;
+	result = m_RenderClass->Render(arguments, m_RenderTexReflection, reflectHeight);
+	if (!result)
+		return false;
 
-	for (auto go : m_AllGameObjectList) 
-	{
-		if (!m_Frustum->CheckSphere(go->m_PosX, go->m_PosY, go->m_PosZ, go->GetBoundingRadius()))
-			continue;
-
-		if (go == m_MadelineGO2)
-			arguments.at("TranslationTimeMult") = 0.2f;
-		else
-			arguments.at("TranslationTimeMult") = 0.0f;
-
-		if (go == m_transIcoGO)
-			arguments.at("Alpha") = 0.1f;
-		else
-			arguments.at("Alpha") = 1.0f;
-
-		result = go->Render(m_Direct3D->GetDeviceContext(), viewMatrix, projectionMatrix, arguments);
-		if (!result)
-			return false;
-	}		
-
-	bool renderToTexture = true;
-	if (renderToTexture)
-	{
-		XMMATRIX worldMatrix = XMMatrixTranslation(0, 0, 5);		
-
-		m_DisplayPlane->Render(m_Direct3D->GetDeviceContext());
-		result = m_DisplayShader->Render(m_Direct3D->GetDeviceContext(), m_DisplayPlane->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_RenderTexture->GetShaderResourceView());
-		if (!result)
-			return false;
-		
-		m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());		
-		m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), fogColor, fogColor, fogColor, 1.0f);
-		m_RenderTexture->GetProjectionMatrix(displayProjMatrix);
-
-		for (auto go : m_AllGameObjectList)
-		{
-			if (!m_Frustum->CheckSphere(go->m_PosX, go->m_PosY, go->m_PosZ, go->GetBoundingRadius()))
-				continue;
-
-			result = go->Render(m_Direct3D->GetDeviceContext(), viewMatrix, displayProjMatrix, arguments);
-			if (!result)
-				return false;
-		}
-
-		m_Direct3D->SetBackBufferRenderTarget();
-		m_Direct3D->ResetViewport();
-	}
+	m_TexSetReflection->Add(m_RenderTexReflection->GetShaderResourceView(), 4);
 	
-	m_Direct3D->TurnZBufferOff();
-	m_Camera->Get2DViewMatrix(viewMatrix);
-	m_Direct3D->GetOrthoMatrix(orthoMatrix);
-
-	for (auto go : m_All2DGameObjectList)
-	{
-		result = go->Render(m_Direct3D->GetDeviceContext(), viewMatrix, orthoMatrix, arguments);
-		if (!result)
-			return false;
-	}
-
-	for (auto go : m_AllTextClassList)
-	{
-		result = go->Render(m_Direct3D->GetDeviceContext(), viewMatrix, orthoMatrix, arguments);
-		if (!result)
-			return false;
-	}
-
-	m_Direct3D->TurnZBufferOn();
-
-	m_Direct3D->EndScene();
-
 	return true;
 }
 

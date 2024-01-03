@@ -15,7 +15,7 @@ public:
 	GameObjectClass2D(const GameObjectClass2D&);
 	~GameObjectClass2D();
 
-	void Initialize(BitmapClass*, TextureShaderClass*);
+	void Initialize(BitmapClass*, ShaderClass*);
 	bool Render(ID3D11DeviceContext*, XMMATRIX, XMMATRIX, unordered_map<string, any>);
 	void Shutdown();
 
@@ -29,7 +29,8 @@ public:
 	float m_ScaleX, m_ScaleY;
 
 	BitmapClass* m_BitMap;
-	TextureShaderClass* m_Shader;
+	ShaderClass* m_Shader;
+	TextureSetClass* m_TexSet;
 };
 
 #endif

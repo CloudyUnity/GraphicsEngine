@@ -94,6 +94,12 @@
     <ClInclude Include="DisplayPlaneClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TextureSetClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -159,6 +165,12 @@
     <ClCompile Include="DisplayPlaneClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TextureSetClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Light.vs">
@@ -173,13 +185,20 @@
     <None Include="2D.ps">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Display.ps">
-      <Filter>Shaders</Filter>
-    </None>
     <None Include="Fog.vs">
       <Filter>Shaders</Filter>
     </None>
     <None Include="Fog.ps">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="README.md" />
+    <None Include="Reflect.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Reflect.ps">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Simple.vs">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

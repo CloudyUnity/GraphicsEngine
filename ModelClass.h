@@ -44,22 +44,16 @@ public:
 	ModelClass(const ModelClass&);
 	~ModelClass();
 
-	bool Initialize(ID3D11Device*, ID3D11DeviceContext*, char*, char**, int);
+	bool Initialize(ID3D11Device*, ID3D11DeviceContext*, char*);
 	void RenderBuffers(ID3D11DeviceContext*);
 	void Shutdown();	
 
 	int GetIndexCount();
-	ID3D11ShaderResourceView* GetTexture(int);
-	float GetBoundingRadius();
-		
-	TextureClass* m_Textures;
-	int m_TextureCount;
+	float GetBoundingRadius();	
 
 private:
 	bool InitializeBuffers(ID3D11Device*);
-	void ShutdownBuffers();	
-	bool LoadTexture(ID3D11Device*, ID3D11DeviceContext*, char**);
-	void ReleaseTexture();
+	void ShutdownBuffers();		
 	bool LoadModel(char*);
 	void ReleaseModel();
 

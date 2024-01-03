@@ -5,6 +5,8 @@
 #include <directxmath.h>
 #include "TextureShaderClass.h"
 #include "ModelClass.h"
+#include "TextureSetClass.h"
+#include <string>
 using namespace DirectX;
 
 class GameObjectClass
@@ -14,7 +16,7 @@ public:
 	GameObjectClass(const GameObjectClass&);
 	~GameObjectClass();
 
-	void Initialize(ModelClass*, TextureShaderClass*);
+	void Initialize(ModelClass*, ShaderClass*, TextureSetClass*, std::string);
 	bool Render(ID3D11DeviceContext*, XMMATRIX, XMMATRIX, unordered_map<string, any>);
 	void Shutdown();
 
@@ -28,12 +30,14 @@ public:
 	float m_PosX, m_PosY, m_PosZ;
 	float m_RotX, m_RotY, m_RotZ;
 	float m_ScaleX, m_ScaleY, m_ScaleZ;
+	std::string m_NameIdentifier;
 
 private:
 	float m_boundingRadius;
 
 	ModelClass* m_Model;
-	TextureShaderClass* m_Shader;
+	ShaderClass* m_Shader;
+	TextureSetClass* m_Textures;
 };
 
 #endif

@@ -15,10 +15,12 @@ GameObjectClass::~GameObjectClass()
 {
 }
 
-void GameObjectClass::Initialize(ModelClass* model, TextureShaderClass* shaders)
+void GameObjectClass::Initialize(ModelClass* model, ShaderClass* shaders, TextureSetClass* textures, std::string name)
 {
 	m_Model = model;
 	m_Shader = shaders;
+	m_Textures = textures;
+	m_NameIdentifier = name;
 	SetScale(1, 1, 1);
 }
 
@@ -33,7 +35,7 @@ bool GameObjectClass::Render(ID3D11DeviceContext* deviceContext, XMMATRIX viewMa
 	// Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	m_Model->RenderBuffers(deviceContext);
 
-	return m_Shader->Render(deviceContext, m_Model->GetIndexCount(), worldMatrix, viewMatrix, projMatrix, m_Model->m_Textures, m_Model->m_TextureCount, arguments);
+	return m_Shader->Render(deviceContext, m_Model->GetIndexCount(), worldMatrix, viewMatrix, projMatrix, m_Textures, arguments);
 }
 
 void GameObjectClass::Shutdown() 
@@ -44,6 +46,11 @@ void GameObjectClass::Shutdown()
 
 	if (m_Shader) {
 		m_Shader = 0;
+	}
+
+	if (m_Textures)
+	{
+		m_Textures = 0;
 	}
 }
 
