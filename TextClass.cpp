@@ -16,7 +16,7 @@ TextClass::~TextClass()
 {
 }
 
-bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int screenWidth, int screenHeight, int maxLength, TextureShaderClass* shader)
+bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int screenWidth, int screenHeight, int maxLength, ShaderClass* shader)
 {
     m_screenWidth = screenWidth;
     m_screenHeight = screenHeight;
@@ -27,26 +27,35 @@ bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCont
     m_ScaleY = 1;
     m_Shader = shader;
 
+    m_TexSet = new TextureSetClass;
+
     return InitializeBuffers(device, deviceContext);
 }
 
 void TextClass::Shutdown()
 {
     ShutdownBuffers();
+
+    if (m_TexSet)
+    {
+        m_TexSet->Shutdown();
+        delete m_TexSet;
+        m_TexSet = 0;
+    }
 }
 
 bool TextClass::Render(ID3D11DeviceContext* deviceContext, XMMATRIX viewMatrix, XMMATRIX projMatrix, unordered_map<string, any> args)
 {    
     XMMATRIX scaleMatrix = XMMatrixScaling(m_ScaleX, m_ScaleY, 1.0f);
     XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYaw(0, 0, m_RotZ * 0.0174532925f);
-
     XMMATRIX worldMatrix = XMMatrixMultiply(rotateMatrix, scaleMatrix);
 
     args.insert({ "Pixel", GetPixelColor() });
 
     RenderBuffers(deviceContext);
+    m_TexSet->Add(m_font->GetTexture()->GetTexture(), 0);
 
-    return m_Shader->Render(deviceContext, GetIndexCount(), worldMatrix, viewMatrix, projMatrix, m_font->GetTexture(), 1, args);
+    return m_Shader->Render(deviceContext, GetIndexCount(), worldMatrix, viewMatrix, projMatrix, m_TexSet, args);
 }
 
 int TextClass::GetIndexCount()

@@ -18,7 +18,7 @@ public:
     TextClass(const TextClass&);
     ~TextClass();
 
-    bool Initialize(ID3D11Device*, ID3D11DeviceContext*, int, int, int, TextureShaderClass* shader);
+    bool Initialize(ID3D11Device*, ID3D11DeviceContext*, int, int, int, ShaderClass* shader);
     void Shutdown();
     bool Render(ID3D11DeviceContext*, XMMATRIX, XMMATRIX, unordered_map<string, any>);
 
@@ -29,7 +29,7 @@ public:
     void SetColor(float, float, float);
     void SetFont(FontClass* font);
     void SetText(char* text);
-    void SetShader(TextureShaderClass*);
+    void SetShader(ShaderClass*);
     void SetScale(float, float);
     void SetRotation(float);
     XMFLOAT4 GetPixelColor();    
@@ -48,7 +48,8 @@ private:
     ID3D11DeviceContext* m_deviceContext;
     float m_ScaleX, m_ScaleY;
     float m_RotZ;
-    TextureShaderClass* m_Shader;
+    ShaderClass* m_Shader;
+    TextureSetClass* m_TexSet;
 };
 
 #endif

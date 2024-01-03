@@ -20,16 +20,12 @@
 #include "FrustumClass.h"
 #include "rendertextureclass.h"
 #include "displayplaneclass.h"
+#include "RenderClass.h"
 using std::vector;
 using std::string;
 using std::unordered_map;
 using std::any;
 using std::any_cast;
-
-const bool FULL_SCREEN = false;
-const bool VSYNC_ENABLED = true;
-const float SCREEN_DEPTH = 1000.0f;
-const float SCREEN_NEAR = 0.3f;
 
 class ApplicationClass
 {
@@ -50,11 +46,13 @@ private:
 private:
 	D3DClass* m_Direct3D;
 	CameraClass* m_Camera;
-	ModelClass* m_MadelineModel, *m_IcosphereModel;
-	GameObjectClass* m_MadelineGO1, * m_MadelineGO2, * m_IcosphereGO, * m_mountainGO, * m_transIcoGO;
+	ModelClass* m_ModelMadeline, * m_ModelIcosphere, * m_ModelMountain, * m_ModelCube;
+	GameObjectClass* m_MadelineGO1, * m_MadelineGO2, * m_IcosphereGO, * m_mountainGO, * m_transIcoGO, * m_cubeGO;
 	GameObjectClass2D* m_SpinnerObj, *m_MouseObj;
 
-	TextureShaderClass* m_TextureShader, * m_2DShader, * m_FontShader, * m_DisplayShader;
+	RenderClass* m_RenderClass;
+
+	ShaderClass* m_ShaderMain, * m_Shader2D, * m_ShaderFont, *m_ShaderReflect;
 	LightClass* m_Lights, *m_DirLight;
 	int m_numLights;
 	BitmapClass* m_Bitmap, *m_MouseCursor;
@@ -66,12 +64,9 @@ private:
 	int m_previousFps;
 	std::chrono::high_resolution_clock::time_point m_startTime;
 	FrustumClass* m_Frustum;
-	RenderTextureClass* m_RenderTexture;
+	RenderTextureClass* m_RenderTexDisplay, * m_RenderTexReflection;
 	DisplayPlaneClass* m_DisplayPlane;
-
-	vector<GameObjectClass*> m_AllGameObjectList;
-	vector<GameObjectClass2D*> m_All2DGameObjectList;
-	vector<TextClass*> m_AllTextClassList;
+	TextureSetClass* m_TexSetMoss, * m_TexSetStars, * m_TexSetSnow, * m_TexSetReflection;
 };
 
 #endif

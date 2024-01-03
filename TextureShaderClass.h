@@ -11,6 +11,8 @@ const int NUM_LIGHTS = 4;
 #include "TextureClass.h"
 #include <unordered_map>
 #include <any>
+#include "TextureSetClass.h"
+#include "Constants.h"
 using namespace DirectX;
 using std::ofstream;
 using std::string;
@@ -18,7 +20,7 @@ using std::unordered_map;
 using std::any;
 using std::any_cast;
 
-class TextureShaderClass
+class ShaderClass
 {
 private:
 	struct MatrixBufferType
@@ -78,16 +80,19 @@ private:
 		float alphaBlend;
 		float pad1, pad2, pad3;
 	};
+	struct ReflectionBufferType
+	{
+		XMMATRIX reflectionMatrix;
+	};
 
 public:
-	TextureShaderClass();
-	TextureShaderClass(const TextureShaderClass&);
-	~TextureShaderClass();
+	ShaderClass();
+	ShaderClass(const ShaderClass&);
+	~ShaderClass();
 
 	bool Initialize(ID3D11Device*, HWND, char*, char*);
 	void Shutdown();	
-	bool Render(ID3D11DeviceContext*, int, XMMATRIX, XMMATRIX, XMMATRIX, TextureClass*, int, unordered_map<string, any> = {});
-	bool Render(ID3D11DeviceContext*, int, XMMATRIX, XMMATRIX, XMMATRIX, ID3D11ShaderResourceView*);
+	bool Render(ID3D11DeviceContext*, int, XMMATRIX, XMMATRIX, XMMATRIX, TextureSetClass*, unordered_map<string, any> = {});
 
 private:
 	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
@@ -95,8 +100,7 @@ private:
 	void ShutdownShader();
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
-	bool SetShaderParameters(ID3D11DeviceContext*, XMMATRIX, XMMATRIX, XMMATRIX, TextureClass*, int, unordered_map<string, any>);
-	bool SetShaderParameters(ID3D11DeviceContext*, XMMATRIX, XMMATRIX, XMMATRIX, ID3D11ShaderResourceView*);
+	bool SetShaderParameters(ID3D11DeviceContext*, XMMATRIX, XMMATRIX, XMMATRIX, TextureSetClass*, unordered_map<string, any>);
 	void RenderShader(ID3D11DeviceContext*, int);
 
 	bool ShaderUsesBuffer(std::string, std::string);
@@ -106,7 +110,7 @@ private:
 	ID3D11PixelShader* m_pixelShader;
 	ID3D11InputLayout* m_layout;
 	ID3D11Buffer* m_matrixBuffer, * m_utilBuffer, * m_lightColorBuffer, * m_lightPositionBuffer, * m_lightBuffer, * m_cameraBuffer, * m_pixelBuffer, * m_fogBuffer;
-	ID3D11Buffer* m_clipBuffer, * m_texTransBuffer, * m_alphaBuffer;
+	ID3D11Buffer* m_clipBuffer, * m_texTransBuffer, * m_alphaBuffer, * m_reflectionBuffer;
 	ID3D11SamplerState* m_sampleState;
 
 	std::string m_vertexName, m_fragName;

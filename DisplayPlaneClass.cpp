@@ -14,20 +14,47 @@ DisplayPlaneClass::~DisplayPlaneClass()
 {
 }
 
-bool DisplayPlaneClass::Initialize(ID3D11Device* device, float width, float height)
+bool DisplayPlaneClass::Initialize(ID3D11Device* device, float width, float height, RenderTextureClass* rendTex, ShaderClass* shader)
 {
+    m_RenderTexture = rendTex;
+    m_Shader = shader;
+    m_TexSet = new TextureSetClass;
+
+    SetScale(1, 1, 1);
+
     return InitializeBuffers(device, width, height);
 }
 
 void DisplayPlaneClass::Shutdown()
 {
+    if (m_TexSet)
+    {
+        m_TexSet->Shutdown();
+        delete m_TexSet;
+        m_TexSet = 0;
+    }
+
     ShutdownBuffers();
 }
 
-void DisplayPlaneClass::Render(ID3D11DeviceContext* deviceContext)
+bool DisplayPlaneClass::Render(ID3D11DeviceContext* deviceContext, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, unordered_map<string, any> arguments)
 {
     // Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
     RenderBuffers(deviceContext);
+
+    XMMATRIX scaleMatrix = XMMatrixScaling(m_ScaleX, m_ScaleY, m_ScaleZ);
+    XMMATRIX translateMatrix = XMMatrixTranslation(m_PosX, m_PosY, m_PosZ);
+    XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYaw(m_RotX * 0.0174532925f, m_RotY * 0.0174532925f, m_RotZ * 0.0174532925f); // ???
+    XMMATRIX srMatrix = XMMatrixMultiply(scaleMatrix, rotateMatrix);
+    XMMATRIX worldMatrix = XMMatrixMultiply(srMatrix, translateMatrix);
+
+    m_TexSet->Add(m_RenderTexture->GetShaderResourceView(), 0);
+
+    bool result = m_Shader->Render(deviceContext, GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_TexSet, arguments);
+    if (!result)
+        return false;
+
+    return true;
 }
 
 int DisplayPlaneClass::GetIndexCount()
@@ -150,4 +177,26 @@ void DisplayPlaneClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
 
     // Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
     deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+}
+
+
+void DisplayPlaneClass::SetPosition(float  x, float y, float z)
+{
+    m_PosX = x;
+    m_PosY = y;
+    m_PosZ = z;
+}
+
+void DisplayPlaneClass::SetRotation(float x, float y, float z)
+{
+    m_RotX = x;
+    m_RotY = y;
+    m_RotZ = z;
+}
+
+void DisplayPlaneClass::SetScale(float x, float y, float z)
+{
+    m_ScaleX = x;
+    m_ScaleY = y;
+    m_ScaleZ = z;
 }

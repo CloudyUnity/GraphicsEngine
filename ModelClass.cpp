@@ -4,7 +4,6 @@ ModelClass::ModelClass()
 {
 	m_vertexBuffer = 0;
 	m_indexBuffer = 0;
-	m_Textures = 0;
 	m_model = 0;
 	m_boundingRadius = 0;
 }
@@ -19,7 +18,7 @@ ModelClass::~ModelClass()
 {
 }
 
-bool ModelClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* modelFilename, char** textures, int texCount)
+bool ModelClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* modelFilename)
 {
 	bool result = LoadModel(modelFilename);
 	if (!result)
@@ -27,26 +26,18 @@ bool ModelClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCon
 
 	CalculateModelVectors();
 
-	m_TextureCount = texCount;
-
-	return LoadTexture(device, deviceContext, textures) && InitializeBuffers(device);
+	return InitializeBuffers(device);
 }
 
 void ModelClass::Shutdown()
 {
 	ReleaseModel();
-	ReleaseTexture();
 	ShutdownBuffers();	
 }
 
 int ModelClass::GetIndexCount()
 {
 	return m_indexCount;
-}
-
-ID3D11ShaderResourceView* ModelClass::GetTexture(int index)
-{
-	return m_Textures[index].GetTexture();
 }
 
 float ModelClass::GetBoundingRadius() 
@@ -152,34 +143,6 @@ void ModelClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-bool ModelClass::LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char** textures)
-{
-	m_Textures = new TextureClass[m_TextureCount];
-
-	bool result;
-
-	for (int i = 0; i < m_TextureCount; i++)
-	{
-		result = m_Textures[i].Initialize(device, deviceContext, textures[i]);
-		if (!result)
-			return false;
-	}
-
-	return true;
-}
-
-void ModelClass::ReleaseTexture()
-{
-	if (m_Textures)
-	{
-		for (int i = 0; i < m_TextureCount; i++)
-			m_Textures[i].Shutdown();
-
-		delete[] m_Textures;
-		m_Textures = 0;
-	}
-}
-
 bool ModelClass::LoadModel(char* filename)
 {
 	ifstream fin;
@@ -213,7 +176,8 @@ bool ModelClass::LoadModel(char* filename)
 		fin >> m_model[i].tu >> m_model[i].tv;
 		fin >> m_model[i].nx >> m_model[i].ny >> m_model[i].nz;
 
-		float furthestPoint = max(max(abs(m_model[i].x), abs(m_model[i].y)), abs(m_model[i].z));
+		//float furthestPoint = max(max(abs(m_model[i].x), abs(m_model[i].y)), abs(m_model[i].z));
+		float furthestPoint = sqrt(m_model[i].x * m_model[i].x + m_model[i].y * m_model[i].y + m_model[i].z * m_model[i].z);
 		if (furthestPoint > m_boundingRadius)
 			m_boundingRadius = furthestPoint;
 	}

@@ -1,6 +1,6 @@
 #include "textureshaderclass.h"
 
-TextureShaderClass::TextureShaderClass()
+ShaderClass::ShaderClass()
 {
 	m_vertexShader = 0;
 	m_pixelShader = 0;
@@ -16,18 +16,19 @@ TextureShaderClass::TextureShaderClass()
 	m_fogBuffer = 0;
 	m_clipBuffer = 0;
 	m_texTransBuffer = 0;
+	m_reflectionBuffer = 0;
 }
 
-TextureShaderClass::TextureShaderClass(const TextureShaderClass& other)
+ShaderClass::ShaderClass(const ShaderClass& other)
 {
 }
 
 
-TextureShaderClass::~TextureShaderClass()
+ShaderClass::~ShaderClass()
 {
 }
 
-bool TextureShaderClass::Initialize(ID3D11Device* device, HWND hwnd, char* vertexName, char* fragName)
+bool ShaderClass::Initialize(ID3D11Device* device, HWND hwnd, char* vertexName, char* fragName)
 {
 	bool result;
 	wchar_t vsFilename[128];
@@ -59,15 +60,15 @@ bool TextureShaderClass::Initialize(ID3D11Device* device, HWND hwnd, char* verte
 	return InitializeShader(device, hwnd, vsFilename, psFilename);
 }
 
-void TextureShaderClass::Shutdown()
+void ShaderClass::Shutdown()
 {
 	ShutdownShader();
 }
 
-bool TextureShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix,
-	TextureClass* textures, int texCount, unordered_map<string, any> arguments)
+bool ShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix,
+	TextureSetClass* textures, unordered_map<string, any> arguments)
 {
-	bool result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, textures, texCount, arguments);
+	bool result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, textures, arguments);
 	if (!result)
 		return false;
 
@@ -75,18 +76,7 @@ bool TextureShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCou
 	return true;
 }
 
-bool TextureShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix,
-	ID3D11ShaderResourceView* texture)
-{
-	bool result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture);
-	if (!result)
-		return false;
-
-	RenderShader(deviceContext, indexCount);
-	return true;
-}
-
-bool TextureShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
+bool ShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
 {
 	HRESULT result;
 	ID3D10Blob* errorMessage = 0;
@@ -200,12 +190,13 @@ bool TextureShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 		TryCreateBuffer(device, bufferDesc, &m_fogBuffer, sizeof(FogBufferType), m_vertexName, "Fog") &&
 		TryCreateBuffer(device, bufferDesc, &m_clipBuffer, sizeof(ClipPlaneBufferType), m_vertexName, "Clip") &&
 		TryCreateBuffer(device, bufferDesc, &m_cameraBuffer, sizeof(CameraBufferType), m_vertexName, "Camera") &&
+		TryCreateBuffer(device, bufferDesc, &m_reflectionBuffer, sizeof(ReflectionBufferType), m_vertexName, "Reflection") &&
 		TryCreateBuffer(device, bufferDesc, &m_utilBuffer, sizeof(UtilBufferType), m_fragName, "Util") &&
 		TryCreateBuffer(device, bufferDesc, &m_lightColorBuffer, sizeof(LightColorBufferType), m_fragName, "LightColor") &&
 		TryCreateBuffer(device, bufferDesc, &m_lightBuffer, sizeof(LightBufferType), m_fragName, "Light") &&
 		TryCreateBuffer(device, bufferDesc, &m_pixelBuffer, sizeof(PixelBufferType), m_fragName, "Pixel") &&
 		TryCreateBuffer(device, bufferDesc, &m_texTransBuffer, sizeof(TexTranslationBufferType), m_fragName, "TexTranslation") &&
-		TryCreateBuffer(device, bufferDesc, &m_alphaBuffer, sizeof(AlphaBufferType), m_fragName, "Alpha") &&
+		TryCreateBuffer(device, bufferDesc, &m_alphaBuffer, sizeof(AlphaBufferType), m_fragName, "Alpha") &&		
 		TryCreateBuffer(device, bufferDesc, &m_lightPositionBuffer, sizeof(LightPositionBufferType), m_fragName, "LightPosition");
 
 	if (!bufferCreationResult)
@@ -213,9 +204,19 @@ bool TextureShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 
 	// Create a texture sampler state description.
 	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	if (SAMPLER_MODE == 1)
+	{
+		samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+		samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+		samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	}
+	else if (SAMPLER_MODE == 0)
+	{
+		samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	}	
+
 	samplerDesc.MipLODBias = 0.0f;
 	samplerDesc.MaxAnisotropy = 1;
 	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
@@ -233,7 +234,7 @@ bool TextureShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 	return true;
 }
 
-bool TextureShaderClass::TryCreateBuffer(ID3D11Device* device, D3D11_BUFFER_DESC bufferDesc, ID3D11Buffer** ptr, size_t structSize, string shaderName, string bufferName)
+bool ShaderClass::TryCreateBuffer(ID3D11Device* device, D3D11_BUFFER_DESC bufferDesc, ID3D11Buffer** ptr, size_t structSize, string shaderName, string bufferName)
 {
 	if (!ShaderUsesBuffer(shaderName, bufferName))
 		return true;
@@ -243,7 +244,7 @@ bool TextureShaderClass::TryCreateBuffer(ID3D11Device* device, D3D11_BUFFER_DESC
 	return !FAILED(result);
 }
 
-void TextureShaderClass::ShutdownShader()
+void ShaderClass::ShutdownShader()
 {
 	if (m_sampleState)
 	{
@@ -261,6 +262,12 @@ void TextureShaderClass::ShutdownShader()
 	{
 		m_utilBuffer->Release();
 		m_utilBuffer = 0;
+	}
+
+	if (m_reflectionBuffer)
+	{
+		m_reflectionBuffer->Release();
+		m_reflectionBuffer = 0;
 	}
 
 	if (m_cameraBuffer)
@@ -324,7 +331,7 @@ void TextureShaderClass::ShutdownShader()
 	}
 }
 
-void TextureShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename)
+void ShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename)
 {
 	char* compileErrors;
 	unsigned long long bufferSize, i;
@@ -352,8 +359,8 @@ void TextureShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND
 	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shaderFilename, MB_OK);
 }
 
-bool TextureShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix,
-	TextureClass* textures, int texCount, unordered_map<string, any> arguments)
+bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix,
+	TextureSetClass* textures, unordered_map<string, any> arguments)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -363,9 +370,9 @@ bool TextureShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	viewMatrix = XMMatrixTranspose(viewMatrix);
 	projectionMatrix = XMMatrixTranspose(projectionMatrix);
 
-	for (int i = 0; i < texCount; i++)
+	for (int i = 0; i < textures->GetCount(); i++)
 	{
-		ID3D11ShaderResourceView* tex = textures[i].GetTexture();
+		ID3D11ShaderResourceView* tex = textures->GetTexture(i);
 		deviceContext->PSSetShaderResources(i, 1, &tex);
 	}
 
@@ -418,6 +425,18 @@ bool TextureShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 		deviceContext->Unmap(m_clipBuffer, 0);
 		bufferNumber = 4;
 		deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_clipBuffer);
+	}
+
+	if (ShaderUsesBuffer(m_vertexName, "Reflection"))
+	{
+		result = deviceContext->Map(m_reflectionBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		if (FAILED(result))
+			return false;
+		auto ptr = (ReflectionBufferType*)mappedResource.pData;
+		ptr->reflectionMatrix = XMMatrixTranspose(any_cast<XMMATRIX>(arguments.at("ReflectionMatrix")));
+		deviceContext->Unmap(m_reflectionBuffer, 0);
+		bufferNumber = 5;
+		deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_reflectionBuffer);
 	}
 
 	if (ShaderUsesBuffer(m_fragName, "Util"))
@@ -524,33 +543,7 @@ bool TextureShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	return true;
 }
 
-bool TextureShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix,
-	ID3D11ShaderResourceView* texture)
-{
-	HRESULT result;
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	MatrixBufferType* matrixPtr;
-
-	worldMatrix = XMMatrixTranspose(worldMatrix);
-	viewMatrix = XMMatrixTranspose(viewMatrix);
-	projectionMatrix = XMMatrixTranspose(projectionMatrix);
-
-	deviceContext->PSSetShaderResources(0, 1, &texture);
-
-	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result))
-		return false;
-	matrixPtr = (MatrixBufferType*)mappedResource.pData;
-	matrixPtr->world = worldMatrix;
-	matrixPtr->view = viewMatrix;
-	matrixPtr->projection = projectionMatrix;
-	deviceContext->Unmap(m_matrixBuffer, 0);
-	deviceContext->VSSetConstantBuffers(0, 1, &m_matrixBuffer);
-
-	return true;
-}
-
-void TextureShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
+void ShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
 {
 	// Set the vertex input layout.
 	deviceContext->IASetInputLayout(m_layout);
@@ -566,7 +559,7 @@ void TextureShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int in
 	deviceContext->DrawIndexed(indexCount, 0, 0);
 }
 
-bool TextureShaderClass::ShaderUsesBuffer(std::string shader, std::string buffer)
+bool ShaderClass::ShaderUsesBuffer(std::string shader, std::string buffer)
 {
 	if (shader == "Light.vs") {
 		return buffer == "Matrix" ||
@@ -580,7 +573,21 @@ bool TextureShaderClass::ShaderUsesBuffer(std::string shader, std::string buffer
 			buffer == "Clip";
 	}
 
-	if (shader == "MultiTex.ps" || shader == "Fog.ps") {
+	if (shader == "Simple.vs")
+	{
+		return buffer == "Matrix";
+	}
+
+	if (shader == "Reflect.vs")
+	{
+		return buffer == "Matrix" ||
+			buffer == "Camera" ||
+			buffer == "Fog" ||
+			buffer == "Clip" ||
+			buffer == "Reflection";
+	}
+
+	if (shader == "MultiTex.ps" || shader == "Fog.ps" || shader == "Reflect.ps") {
 		return buffer == "LightColor" ||
 			buffer == "Util" ||
 			buffer == "Light" ||
