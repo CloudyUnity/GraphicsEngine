@@ -201,5 +201,11 @@
     <None Include="Simple.vs">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Water.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Water.ps">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

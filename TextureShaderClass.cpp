@@ -17,6 +17,7 @@ ShaderClass::ShaderClass()
 	m_clipBuffer = 0;
 	m_texTransBuffer = 0;
 	m_reflectionBuffer = 0;
+	m_waterBuffer = 0;
 }
 
 ShaderClass::ShaderClass(const ShaderClass& other)
@@ -197,6 +198,7 @@ bool ShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFil
 		TryCreateBuffer(device, bufferDesc, &m_pixelBuffer, sizeof(PixelBufferType), m_fragName, "Pixel") &&
 		TryCreateBuffer(device, bufferDesc, &m_texTransBuffer, sizeof(TexTranslationBufferType), m_fragName, "TexTranslation") &&
 		TryCreateBuffer(device, bufferDesc, &m_alphaBuffer, sizeof(AlphaBufferType), m_fragName, "Alpha") &&		
+		TryCreateBuffer(device, bufferDesc, &m_waterBuffer, sizeof(WaterBufferType), m_fragName, "Water") &&		
 		TryCreateBuffer(device, bufferDesc, &m_lightPositionBuffer, sizeof(LightPositionBufferType), m_fragName, "LightPosition");
 
 	if (!bufferCreationResult)
@@ -239,6 +241,8 @@ bool ShaderClass::TryCreateBuffer(ID3D11Device* device, D3D11_BUFFER_DESC buffer
 	if (!ShaderUsesBuffer(shaderName, bufferName))
 		return true;
 
+	m_bufferList.push_back(*ptr);
+
 	bufferDesc.ByteWidth = structSize;
 	HRESULT result = device->CreateBuffer(&bufferDesc, NULL, ptr);
 	return !FAILED(result);
@@ -252,82 +256,10 @@ void ShaderClass::ShutdownShader()
 		m_sampleState = 0;
 	}
 
-	if (m_matrixBuffer)
+	for (auto buffer : m_bufferList)
 	{
-		m_matrixBuffer->Release();
-		m_matrixBuffer = 0;
-	}
-
-	if (m_utilBuffer)
-	{
-		m_utilBuffer->Release();
-		m_utilBuffer = 0;
-	}
-
-	if (m_reflectionBuffer)
-	{
-		m_reflectionBuffer->Release();
-		m_reflectionBuffer = 0;
-	}
-
-	if (m_cameraBuffer)
-	{
-		m_cameraBuffer->Release();
-		m_cameraBuffer = 0;
-	}
-
-	if (m_lightColorBuffer)
-	{
-		m_lightColorBuffer->Release();
-		m_lightColorBuffer = 0;
-	}
-
-	if (m_lightBuffer)
-	{
-		m_lightBuffer->Release();
-		m_lightBuffer = 0;
-	}
-
-	if (m_lightPositionBuffer)
-	{
-		m_lightPositionBuffer->Release();
-		m_lightPositionBuffer = 0;
-	}
-
-	if (m_clipBuffer) 
-	{
-		m_clipBuffer->Release();
-		m_clipBuffer = 0;
-	}
-
-	if (m_texTransBuffer)
-	{
-		m_texTransBuffer->Release();
-		m_texTransBuffer = 0;
-	}
-
-	if (m_layout)
-	{
-		m_layout->Release();
-		m_layout = 0;
-	}
-
-	if (m_pixelShader)
-	{
-		m_pixelShader->Release();
-		m_pixelShader = 0;
-	}
-
-	if (m_vertexShader)
-	{
-		m_vertexShader->Release();
-		m_vertexShader = 0;
-	}
-
-	if (m_fogBuffer) 
-	{
-		m_fogBuffer->Release();
-		m_fogBuffer = 0;
+		if (buffer)
+			buffer->Release();
 	}
 }
 
@@ -427,13 +359,15 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATR
 		deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_clipBuffer);
 	}
 
-	if (ShaderUsesBuffer(m_vertexName, "Reflection"))
+	if (ShaderUsesBuffer(m_vertexName, "Reflection") && REFLECTION_ENABLED)
 	{
 		result = deviceContext->Map(m_reflectionBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 		if (FAILED(result))
 			return false;
 		auto ptr = (ReflectionBufferType*)mappedResource.pData;
-		ptr->reflectionMatrix = XMMatrixTranspose(any_cast<XMMATRIX>(arguments.at("ReflectionMatrix")));
+		string name = any_cast<string>(arguments.at("Name"));
+		XMMATRIX matrix = any_cast<XMMATRIX>(arguments.at("ReflectionMatrix_" + name));
+		ptr->reflectionMatrix = XMMatrixTranspose(matrix);
 		deviceContext->Unmap(m_reflectionBuffer, 0);
 		bufferNumber = 5;
 		deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_reflectionBuffer);
@@ -540,6 +474,18 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATR
 		deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_alphaBuffer);
 	}
 
+	if (ShaderUsesBuffer(m_fragName, "Water"))
+	{
+		result = deviceContext->Map(m_waterBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		if (FAILED(result))
+			return false;
+		auto ptr = (WaterBufferType*)mappedResource.pData;
+		ptr->reflectRefractScale = any_cast<float>(arguments.at("WaterRRScale"));
+		deviceContext->Unmap(m_waterBuffer, 0);
+		bufferNumber = 5;
+		deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_waterBuffer);
+	}
+
 	return true;
 }
 
@@ -578,7 +524,7 @@ bool ShaderClass::ShaderUsesBuffer(std::string shader, std::string buffer)
 		return buffer == "Matrix";
 	}
 
-	if (shader == "Reflect.vs")
+	if (shader == "Reflect.vs" || shader == "Water.vs")
 	{
 		return buffer == "Matrix" ||
 			buffer == "Camera" ||
@@ -594,6 +540,17 @@ bool ShaderClass::ShaderUsesBuffer(std::string shader, std::string buffer)
 			buffer == "LightPosition" ||
 			buffer == "TexTranslation" ||
 			buffer == "Alpha";
+	}
+
+	if (shader == "Water.ps")
+	{
+		return buffer == "LightColor" ||
+			buffer == "Util" ||
+			buffer == "Light" ||
+			buffer == "LightPosition" ||
+			buffer == "TexTranslation" ||
+			buffer == "Alpha" ||
+			buffer == "Water";
 	}
 
 	if (shader == "Font.ps") {

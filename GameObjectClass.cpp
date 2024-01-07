@@ -52,6 +52,20 @@ void GameObjectClass::Shutdown()
 	{
 		m_Textures = 0;
 	}
+
+	if (m_RendTexReflection)
+	{
+		m_RendTexReflection->Shutdown();
+		delete m_RendTexReflection;
+		m_RendTexReflection = 0;
+	}
+
+	if (m_RendTexRefraction)
+	{
+		m_RendTexRefraction->Shutdown();
+		delete m_RendTexRefraction;
+		m_RendTexRefraction = 0;
+	}
 }
 
 void GameObjectClass::SetPosition(float  x, float y, float z)
@@ -80,4 +94,30 @@ void GameObjectClass::SetScale(float x, float y, float z)
 float GameObjectClass::GetBoundingRadius() 
 {
 	return m_boundingRadius;
+}
+
+void GameObjectClass::SubscribeToReflection(ID3D11Device* device, int texSetNum, int format)
+{
+	m_RendTexReflection = new RenderTextureClass;
+	m_RendTexReflection->Initialize(device, SCREEN_X, SCREEN_Y, SCREEN_DEPTH, SCREEN_NEAR, format);
+
+	m_texSetReflectionNum = texSetNum;
+}
+
+void GameObjectClass::SubscribeToRefraction(ID3D11Device* device, int texSetNum, int format)
+{
+	m_RendTexRefraction = new RenderTextureClass;
+	m_RendTexRefraction->Initialize(device, SCREEN_X, SCREEN_Y, SCREEN_DEPTH, SCREEN_NEAR, format);
+
+	m_texSetRefractionNum = texSetNum;
+}
+
+void GameObjectClass::SetReflectionTex()
+{
+	m_Textures->Add(m_RendTexReflection->GetShaderResourceView(), m_texSetReflectionNum);
+}
+
+void GameObjectClass::SetRefractionTex()
+{
+	m_Textures->Add(m_RendTexRefraction->GetShaderResourceView(), m_texSetRefractionNum);
 }

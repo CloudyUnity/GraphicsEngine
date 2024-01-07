@@ -195,6 +195,8 @@
     <None Include="Reflect.ps" />
     <None Include="Reflect.vs" />
     <None Include="Simple.vs" />
+    <None Include="Water.ps" />
+    <None Include="Water.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
