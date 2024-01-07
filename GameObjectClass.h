@@ -7,6 +7,8 @@
 #include "ModelClass.h"
 #include "TextureSetClass.h"
 #include <string>
+#include "RenderTextureClass.h"
+#include "Constants.h"
 using namespace DirectX;
 
 class GameObjectClass
@@ -24,6 +26,11 @@ public:
 	void SetRotation(float, float, float);
 	void SetScale(float, float, float);
 
+	void SubscribeToReflection(ID3D11Device*, int, int);
+	void SubscribeToRefraction(ID3D11Device*, int, int);
+	void SetReflectionTex();
+	void SetRefractionTex();
+
 	float GetBoundingRadius();
 
 public:
@@ -32,12 +39,17 @@ public:
 	float m_ScaleX, m_ScaleY, m_ScaleZ;
 	std::string m_NameIdentifier;
 
+	RenderTextureClass* m_RendTexReflection, * m_RendTexRefraction;
+
 private:
 	float m_boundingRadius;
 
 	ModelClass* m_Model;
 	ShaderClass* m_Shader;
 	TextureSetClass* m_Textures;
+
+	int m_texSetReflectionNum;
+	int m_texSetRefractionNum;
 };
 
 #endif

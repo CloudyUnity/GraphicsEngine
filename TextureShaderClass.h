@@ -84,6 +84,11 @@ private:
 	{
 		XMMATRIX reflectionMatrix;
 	};
+	struct WaterBufferType
+	{
+		float reflectRefractScale;
+		XMFLOAT3 padding;
+	};
 
 public:
 	ShaderClass();
@@ -110,10 +115,12 @@ private:
 	ID3D11PixelShader* m_pixelShader;
 	ID3D11InputLayout* m_layout;
 	ID3D11Buffer* m_matrixBuffer, * m_utilBuffer, * m_lightColorBuffer, * m_lightPositionBuffer, * m_lightBuffer, * m_cameraBuffer, * m_pixelBuffer, * m_fogBuffer;
-	ID3D11Buffer* m_clipBuffer, * m_texTransBuffer, * m_alphaBuffer, * m_reflectionBuffer;
+	ID3D11Buffer* m_clipBuffer, * m_texTransBuffer, * m_alphaBuffer, * m_reflectionBuffer, * m_waterBuffer;
 	ID3D11SamplerState* m_sampleState;
 
 	std::string m_vertexName, m_fragName;
+
+	vector<ID3D11Buffer*> m_bufferList;
 };
 
 #endif

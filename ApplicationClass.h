@@ -35,6 +35,7 @@ public:
 	~ApplicationClass();
 
 	bool Initialize(int, int, HWND);
+	bool InitializeModel(HWND, ModelClass**, const char*);
 	void Shutdown();
 	bool Frame(InputClass*);
 
@@ -46,13 +47,13 @@ private:
 private:
 	D3DClass* m_Direct3D;
 	CameraClass* m_Camera;
-	ModelClass* m_ModelMadeline, * m_ModelIcosphere, * m_ModelMountain, * m_ModelCube;
+	ModelClass* m_ModelMadeline, * m_ModelIcosphere, * m_ModelMountain, * m_ModelCube, * m_ModelWater;
 	GameObjectClass* m_MadelineGO1, * m_MadelineGO2, * m_IcosphereGO, * m_mountainGO, * m_transIcoGO, * m_cubeGO;
 	GameObjectClass2D* m_SpinnerObj, *m_MouseObj;
 
 	RenderClass* m_RenderClass;
 
-	ShaderClass* m_ShaderMain, * m_Shader2D, * m_ShaderFont, *m_ShaderReflect;
+	ShaderClass* m_ShaderMain, * m_Shader2D, * m_ShaderFont, * m_ShaderReflect, * m_ShaderWater;
 	LightClass* m_Lights, *m_DirLight;
 	int m_numLights;
 	BitmapClass* m_Bitmap, *m_MouseCursor;
@@ -64,9 +65,11 @@ private:
 	int m_previousFps;
 	std::chrono::high_resolution_clock::time_point m_startTime;
 	FrustumClass* m_Frustum;
-	RenderTextureClass* m_RenderTexDisplay, * m_RenderTexReflection;
+	RenderTextureClass* m_RenderTexDisplay;
 	DisplayPlaneClass* m_DisplayPlane;
-	TextureSetClass* m_TexSetMoss, * m_TexSetStars, * m_TexSetSnow, * m_TexSetReflection;
+	TextureSetClass* m_TexSetMoss, * m_TexSetStars, * m_TexSetSnow, * m_TexSetReflection, * m_TexSetWater;
+
+	vector<ModelClass*> m_ModelList;
 };
 
 #endif

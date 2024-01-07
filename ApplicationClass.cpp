@@ -20,7 +20,6 @@ ApplicationClass::ApplicationClass()
 	m_TextStringMouseX = 0;
 	m_TextStringMouseY = 0;
 	m_RenderTexDisplay = 0;
-	m_RenderTexReflection = 0;
 	m_DisplayPlane = 0;
 	m_mountainGO = 0;
 	m_IcosphereGO = 0;
@@ -36,7 +35,7 @@ ApplicationClass::ApplicationClass()
 
 	m_startTime = std::chrono::high_resolution_clock::now();
 
-	//ModelParser::ParseFile("C:\\Users\\finnw\\OneDrive\\Documents\\3D objects\\Cube.obj");
+	ModelParser::ParseFile("C:\\Users\\finnw\\OneDrive\\Documents\\3D objects\\Plane.obj");
 }
 
 ApplicationClass::ApplicationClass(const ApplicationClass& other)
@@ -51,12 +50,10 @@ ApplicationClass::~ApplicationClass()
 bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 {
 	char text[128];
-	char modelFilename[128];
 	char bitmapFilename[128];
 	char vertexShader[128], fragShader[128];
 
 	m_Direct3D = new D3DClass;	
-
 	bool result = m_Direct3D->Initialize(screenWidth, screenHeight, V_SYNC, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 	if (!result)
 	{
@@ -76,7 +73,9 @@ bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_Frustum = new FrustumClass;
 
 	m_RenderClass = new RenderClass;
-	m_RenderClass->Initialize(m_Direct3D, m_Camera, m_Frustum);
+	result = m_RenderClass->Initialize(m_Direct3D, m_Camera, m_Frustum);
+	if (!result)
+		return false;
 
 	strcpy_s(vertexShader, "../GraphicsEngine/Fog.vs");
 	strcpy_s(fragShader, "../GraphicsEngine/Fog.ps");
@@ -98,6 +97,16 @@ bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
+	strcpy_s(vertexShader, "../GraphicsEngine/Water.vs");
+	strcpy_s(fragShader, "../GraphicsEngine/Water.ps");
+	m_ShaderWater = new ShaderClass;
+	result = m_ShaderWater->Initialize(m_Direct3D->GetDevice(), hwnd, vertexShader, fragShader);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
+		return false;
+	}
+
 	strcpy_s(vertexShader, "../GraphicsEngine/Simple.vs");
 	strcpy_s(fragShader, "../GraphicsEngine/2D.ps");
 	m_Shader2D = new ShaderClass;
@@ -108,6 +117,7 @@ bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
+	strcpy_s(vertexShader, "../GraphicsEngine/Simple.vs");
 	strcpy_s(fragShader, "../GraphicsEngine/Font.ps");
 	m_ShaderFont = new ShaderClass;
 	result = m_ShaderFont->Initialize(m_Direct3D->GetDevice(), hwnd, vertexShader, fragShader);
@@ -141,41 +151,20 @@ bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_TexSetReflection->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/DefaultAlphaMap.tga");
 	m_TexSetReflection->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/GlassNormal.tga");
 
-	strcpy_s(modelFilename, "../GraphicsEngine/Models/Madeline.txt");
-	m_ModelMadeline = new ModelClass;
-	result = m_ModelMadeline->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
-		return false;
-	}			
+	m_TexSetWater = new TextureSetClass;
+	m_TexSetWater->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/WaterBlue.tga");
+	m_TexSetWater->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/WaterBlue.tga");
+	m_TexSetWater->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/DefaultAlphaMap.tga");
+	m_TexSetWater->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/WaterNormal.tga");
 
-	strcpy_s(modelFilename, "../GraphicsEngine/Models/Icosphere.txt");
-	m_ModelIcosphere = new ModelClass;
-	result = m_ModelIcosphere->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename);
+	result = 
+		InitializeModel(hwnd, &m_ModelMadeline, "../GraphicsEngine/Models/Madeline.txt") &&
+		InitializeModel(hwnd, &m_ModelMountain, "../GraphicsEngine/Models/MountFuji.txt") &&
+		InitializeModel(hwnd, &m_ModelCube, "../GraphicsEngine/Models/Cube.txt") &&
+		InitializeModel(hwnd, &m_ModelIcosphere, "../GraphicsEngine/Models/Icosphere.txt") &&
+		InitializeModel(hwnd, &m_ModelWater, "../GraphicsEngine/Models/Plane.txt");
 	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
-	}
-
-	strcpy_s(modelFilename, "../GraphicsEngine/Models/MountFuji.txt");
-	m_ModelMountain = new ModelClass;
-	result = m_ModelMountain->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
-		return false;
-	}
-
-	strcpy_s(modelFilename, "../GraphicsEngine/Models/Cube.txt");
-	m_ModelCube = new ModelClass;
-	result = m_ModelCube->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
-		return false;
-	}
 
 	m_MadelineGO1 = new GameObjectClass;
 	m_MadelineGO1->Initialize(m_ModelMadeline, m_ShaderMain, m_TexSetMoss, "Madeline1");
@@ -205,12 +194,32 @@ bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_cubeGO->SetScale(1.5f, 0.5f, 1.5f);
 	m_cubeGO->SetPosition(0, -0.5f, 0);
 
+	float waterSize = 2;
+	GameObjectClass* waterGO = new GameObjectClass;
+	waterGO->Initialize(m_ModelWater, m_ShaderWater, m_TexSetWater, "Water");
+	waterGO->SetPosition(6, 0.5f, -0.5f);
+	waterGO->SetScale(waterSize, 0.000000000001f, waterSize);
+
+	auto waterCube = new GameObjectClass;
+	waterCube->Initialize(m_ModelMadeline, m_ShaderMain, m_TexSetMoss, "WaterCube");
+	waterCube->SetScale(0.5f, 0.5f, 0.5f);
+	waterCube->SetPosition(6, 0, -0.5f);
+
 	m_RenderClass->AddGameObject(m_MadelineGO1);
 	m_RenderClass->AddGameObject(m_MadelineGO2);
 	m_RenderClass->AddGameObject(m_IcosphereGO);
 	m_RenderClass->AddGameObject(m_transIcoGO);
 	m_RenderClass->AddGameObject(m_mountainGO);
 	m_RenderClass->AddGameObject(m_cubeGO);
+	m_RenderClass->AddGameObject(waterGO);
+	m_RenderClass->AddGameObject(waterCube);
+
+	int texSetIndex = 4;
+	int format = 1;
+	m_RenderClass->SubscribeToReflection(m_Direct3D->GetDevice(), m_cubeGO, texSetIndex, format);
+	m_RenderClass->SubscribeToReflection(m_Direct3D->GetDevice(), waterGO, texSetIndex, format);
+	texSetIndex = 5;
+	m_RenderClass->SubscribeToRefraction(m_Direct3D->GetDevice(), waterGO, texSetIndex, format);
 
 	strcpy_s(bitmapFilename, "../GraphicsEngine/Animations/Spinner.txt");
 	m_Bitmap = new BitmapClass;
@@ -322,28 +331,42 @@ bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_RenderClass->AddTextClass(m_TextStringMouseY);
 	m_RenderClass->AddTextClass(m_TextStringMouseBttn);
 
-	m_RenderTexDisplay = new RenderTextureClass;
 	int texHeight = 256;
 	int texWidth = 256;
-	int format = 1;
+
+	int displayWidth = 1;
+	int displayHeight = 1;
+
+	m_RenderTexDisplay = new RenderTextureClass;
 	result = m_RenderTexDisplay->Initialize(m_Direct3D->GetDevice(), texWidth, texHeight, SCREEN_DEPTH, SCREEN_NEAR, format);
 	if (!result)
 		return false;
 
 	m_DisplayPlane = new DisplayPlaneClass;
-	int displayWidth = 1;
-	int displayHeight = 1;
 	result = m_DisplayPlane->Initialize(m_Direct3D->GetDevice(), displayWidth, displayHeight, m_RenderTexDisplay, m_Shader2D);
 	if (!result)
 		return false;
-
 	m_DisplayPlane->SetPosition(0, 0, 5);
+
 	m_RenderClass->AddDisplayPlane(m_DisplayPlane);
 
-	m_RenderTexReflection = new RenderTextureClass;
-	result = m_RenderTexReflection->Initialize(m_Direct3D->GetDevice(), texWidth, texHeight, SCREEN_DEPTH, SCREEN_NEAR, format);
+	return true;
+}
+
+bool ApplicationClass::InitializeModel(HWND hwnd, ModelClass** ptr, const char* name)
+{
+	char modelFilename[128];
+	strcpy_s(modelFilename, name);
+
+	*ptr = new ModelClass;
+	bool result = (*ptr)->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename);
 	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
+	}
+
+	m_ModelList.push_back(*ptr);
 
 	return true;
 }
@@ -357,11 +380,10 @@ void ApplicationClass::Shutdown()
 		m_RenderClass = 0;
 	}
 
-	if (m_ModelMadeline) 
+	for (auto model : m_ModelList)
 	{
-		m_ModelMadeline->Shutdown();
-		delete m_ModelMadeline;
-		m_ModelMadeline = 0;
+		model->Shutdown();
+		delete model;
 	}
 
 	if (m_ShaderMain)
@@ -383,13 +405,6 @@ void ApplicationClass::Shutdown()
 		m_RenderTexDisplay->Shutdown();
 		delete m_RenderTexDisplay;
 		m_RenderTexDisplay = 0;
-	}
-
-	if (m_RenderTexReflection)
-	{
-		m_RenderTexReflection->Shutdown();
-		delete m_RenderTexReflection;
-		m_RenderTexReflection = 0;
 	}
 
 	if (m_Shader2D)
@@ -528,15 +543,14 @@ bool ApplicationClass::Render()
 		{"ClipPlane", XMFLOAT4(0.0f, -1.0f, 0.0f, 2.5f)},
 		{"Translation", XMFLOAT2(0.0f, 0.0f)},
 		{"TranslationTimeMult", 0.0f},
-		{"Alpha", 1.0f}
+		{"Alpha", 1.0f},
+		{"WaterRRScale", 0.01f},
+		{"Name", ""}
 	};	
 
-	float reflectHeight = m_cubeGO->m_PosY + m_cubeGO->m_ScaleY;
-	result = m_RenderClass->Render(arguments, m_RenderTexReflection, reflectHeight);
+	result = m_RenderClass->Render(arguments);
 	if (!result)
 		return false;
-
-	m_TexSetReflection->Add(m_RenderTexReflection->GetShaderResourceView(), 4);
 	
 	return true;
 }

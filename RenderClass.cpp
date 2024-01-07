@@ -65,9 +65,23 @@ void RenderClass::AddDisplayPlane(DisplayPlaneClass* go)
 	m_AllDisplayPlaneList.push_back(go);
 }
 
-bool RenderClass::Render(unordered_map<string, any> arguments, RenderTextureClass* reflectionRendTex, float reflectHeight)
+void RenderClass::SubscribeToReflection(ID3D11Device* device, GameObjectClass* go, int texSetNum, int format)
 {
-	XMMATRIX viewMatrix, displayProjMatrix, projectionMatrix, orthoMatrix;
+	m_ReflectionList.push_back(go);
+
+	go->SubscribeToReflection(device, texSetNum, format);
+}
+
+void RenderClass::SubscribeToRefraction(ID3D11Device* device, GameObjectClass* go, int texSetNum, int format)
+{
+	m_RefractionList.push_back(go);
+
+	go->SubscribeToRefraction(device, texSetNum, format);
+}
+
+bool RenderClass::Render(unordered_map<string, any> arguments)
+{
+	XMMATRIX viewMatrix, displayProjMatrix, projectionMatrix, reflectViewMatrix;
 	bool result;	
 
 	m_Direct3D->BeginScene(FOG_COLOR_R, FOG_COLOR_G, FOG_COLOR_B, FOG_COLOR_A);
@@ -78,9 +92,31 @@ bool RenderClass::Render(unordered_map<string, any> arguments, RenderTextureClas
 
 	m_Frustum->ConstructFrustum(viewMatrix, projectionMatrix, SCREEN_DEPTH);
 
-	result = RenderToReflectionTexture(reflectionRendTex, reflectHeight, &arguments);
-	if (!result)
-		return false;		
+	if (REFLECTION_ENABLED)
+	{
+		for (auto go : m_ReflectionList)
+		{
+			m_Camera->RenderReflection(go->m_PosY + go->m_ScaleY);
+			m_Camera->GetReflectionViewMatrix(reflectViewMatrix);
+			arguments.insert({ "ReflectionMatrix_" + go->m_NameIdentifier, reflectViewMatrix });
+		}
+
+		for (auto go : m_RefractionList)
+		{
+			result = RenderToRefractionTexture(go->m_RendTexRefraction, go->m_PosY + go->m_ScaleY, arguments, go->m_NameIdentifier);
+			if (!result)
+				return false;
+			go->SetRefractionTex();
+		}
+
+		for (auto go : m_ReflectionList)
+		{
+			result = RenderToReflectionTexture(go->m_RendTexReflection, go->m_PosY + go->m_ScaleY, arguments, go->m_NameIdentifier);
+			if (!result)
+				return false;
+			go->SetReflectionTex();
+		}
+	}
 
 	result = RenderScene(viewMatrix, projectionMatrix, arguments);
 	if (!result)
@@ -107,7 +143,9 @@ bool RenderClass::RenderScene(XMMATRIX viewMatrix, XMMATRIX projectionMatrix, un
 			continue;
 
 		if (go->m_NameIdentifier == "Madeline2")
-			arguments.at("TranslationTimeMult") = 0.2f;
+			arguments.at("TranslationTimeMult") = 0.1f;
+		else if (go->m_NameIdentifier == "Water")
+			arguments.at("TranslationTimeMult") = (0.1f / go->m_ScaleX) / go->m_ScaleZ;
 		else
 			arguments.at("TranslationTimeMult") = 0.0f;
 
@@ -119,6 +157,8 @@ bool RenderClass::RenderScene(XMMATRIX viewMatrix, XMMATRIX projectionMatrix, un
 		if (go->m_NameIdentifier == skipGO)
 			continue;
 
+		arguments.at("Name") = go->m_NameIdentifier;
+
 		bool result = go->Render(m_Direct3D->GetDeviceContext(), viewMatrix, projectionMatrix, arguments);
 		if (!result)
 			return false;
@@ -127,25 +167,50 @@ bool RenderClass::RenderScene(XMMATRIX viewMatrix, XMMATRIX projectionMatrix, un
 	return true;
 }
 
-bool RenderClass::RenderToReflectionTexture(RenderTextureClass* rendTex, float height, unordered_map<string, any>* args)
+bool RenderClass::RenderToReflectionTexture(RenderTextureClass* rendTex, float height, unordered_map<string, any> args, string name)
 {
 	XMMATRIX reflectViewMatrix, projectionMatrix;
+
+	args.at("ClipPlane") = XMFLOAT4(0.0f, 1.0f, 0.0f, -height + 0.05f);
 
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
 	m_Camera->RenderReflection(height);		
-	m_Camera->GetReflectionViewMatrix(reflectViewMatrix);
-	args->insert({ "ReflectionMatrix", reflectViewMatrix });
+	m_Camera->GetReflectionViewMatrix(reflectViewMatrix);	
 
 	rendTex->SetRenderTarget(m_Direct3D->GetDeviceContext());
 	rendTex->ClearRenderTarget(m_Direct3D->GetDeviceContext(), FOG_COLOR_R, FOG_COLOR_G, FOG_COLOR_B, FOG_COLOR_A);
 
-	bool result = RenderScene(reflectViewMatrix, projectionMatrix, *args, "GlassCube");
+	bool result = RenderScene(reflectViewMatrix, projectionMatrix, args, name);
 	if (!result)
 		return false;
 
 	m_Direct3D->SetBackBufferRenderTarget();
 	m_Direct3D->ResetViewport();	
+
+	return true;
+}
+
+bool RenderClass::RenderToRefractionTexture(RenderTextureClass* rendTex, float height, unordered_map<string, any> args, string skipName)
+{
+	XMMATRIX viewMatrix, projectionMatrix;
+
+	args.at("ClipPlane") = XMFLOAT4(0.0f, -1.0f, 0.0f, height + 0.1f);
+
+	m_Direct3D->GetProjectionMatrix(projectionMatrix);
+
+	m_Camera->Render();
+	m_Camera->GetViewMatrix(viewMatrix);
+
+	rendTex->SetRenderTarget(m_Direct3D->GetDeviceContext());
+	rendTex->ClearRenderTarget(m_Direct3D->GetDeviceContext(), FOG_COLOR_R, FOG_COLOR_G, FOG_COLOR_B, FOG_COLOR_A);
+
+	bool result = RenderScene(viewMatrix, projectionMatrix, args, skipName);
+	if (!result)
+		return false;
+
+	m_Direct3D->SetBackBufferRenderTarget();
+	m_Direct3D->ResetViewport();
 
 	return true;
 }
