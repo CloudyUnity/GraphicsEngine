@@ -35,7 +35,7 @@ ApplicationClass::ApplicationClass()
 
 	m_startTime = std::chrono::high_resolution_clock::now();
 
-	ModelParser::ParseFile("C:\\Users\\finnw\\OneDrive\\Documents\\3D objects\\Plane.obj");
+	//ModelParser::ParseFile("C:\\Users\\finnw\\OneDrive\\Documents\\3D objects\\Plane.obj");
 }
 
 ApplicationClass::ApplicationClass(const ApplicationClass& other)

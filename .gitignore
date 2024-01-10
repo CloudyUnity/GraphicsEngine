@@ -1,0 +1,39 @@
+# Ignore compiled files and directories
+*.aps
+*.exe
+*.log
+*.ilk
+*.res
+*.tlog
+*.idb
+*.pdb
+x64/
+
+# Ignore Visual Studio files
+*.suo
+*.user
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.opendb
+*.vcxproj.user
+
+# Ignore compiled object files
+x64/Debug/
+
+# Ignore Windows-specific files
+Thumbs.db
+Desktop.ini
+
+# Ignore macOS-specific files
+.DS_Store
+
+# Ignore files generated during the build process
+GraphicsEngine.log
+GraphicsEngine.exe.recipe
+
+# Ignore backup files
+*~
+
+# Ignore Visual Studio Code settings
+.vscode/

@@ -90,6 +90,23 @@ private:
 		XMFLOAT3 padding;
 	};
 
+	struct ShaderParameters
+	{
+		MatrixBufferType matrix;
+		UtilBufferType utils;
+		LightColorBufferType lightColor;
+		LightPositionBufferType lightPos;
+		LightBufferType light;
+		CameraBufferType camera;
+		PixelBufferType pixel;
+		FogBufferType fog;
+		ClipPlaneBufferType clip;
+		TexTranslationBufferType textureTranslation;
+		AlphaBufferType alpha;
+		ReflectionBufferType reflection;
+		WaterBufferType water;
+	};
+
 public:
 	ShaderClass();
 	ShaderClass(const ShaderClass&);
