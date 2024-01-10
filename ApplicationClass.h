@@ -34,42 +34,43 @@ public:
 	ApplicationClass(const ApplicationClass&);
 	~ApplicationClass();
 
-	bool Initialize(int, int, HWND);
+	bool Initialize(HWND);
 	bool InitializeModel(HWND, ModelClass**, const char*);
+	bool InitializeShader(HWND, ShaderClass**, const char*, const char*);
+	void InitializeGameObject(ModelClass*, ShaderClass*, TextureSetClass*, const char*, GameObjectClass** ptr = nullptr);
+	bool InitializeTextClass(TextClass** ptr, ShaderClass* shader, FontClass*, int maxLength);
 	void Shutdown();
 	bool Frame(InputClass*);
 
 private:
 	bool Render();
-	bool UpdateFps();
 	bool UpdateMouseStrings(int, int, bool);
 
 private:
 	D3DClass* m_Direct3D;
 	CameraClass* m_Camera;
-	ModelClass* m_ModelMadeline, * m_ModelIcosphere, * m_ModelMountain, * m_ModelCube, * m_ModelWater;
-	GameObjectClass* m_MadelineGO1, * m_MadelineGO2, * m_IcosphereGO, * m_mountainGO, * m_transIcoGO, * m_cubeGO;
-	GameObjectClass2D* m_SpinnerObj, *m_MouseObj;
-
 	RenderClass* m_RenderClass;
-
-	ShaderClass* m_ShaderMain, * m_Shader2D, * m_ShaderFont, * m_ShaderReflect, * m_ShaderWater;
-	LightClass* m_Lights, *m_DirLight;
-	int m_numLights;
-	BitmapClass* m_Bitmap, *m_MouseCursor;
 	TimerClass* m_Timer;
-	FontClass* m_Font;
-	TextClass* m_TextString1, * m_TextString2, * m_TextStringMouseX, * m_TextStringMouseY, * m_TextStringMouseBttn;
 	FpsClass* m_Fps;
-	TextClass* m_FpsString;
-	int m_previousFps;
-	std::chrono::high_resolution_clock::time_point m_startTime;
 	FrustumClass* m_Frustum;
+	ShaderClass::ShaderParameters* m_Parameters;
+
+	int m_numLights;
+	std::chrono::high_resolution_clock::time_point m_startTime;
+
+	FontClass* m_Font;
+	LightClass* m_Lights, * m_DirLight;
 	RenderTextureClass* m_RenderTexDisplay;
 	DisplayPlaneClass* m_DisplayPlane;
-	TextureSetClass* m_TexSetMoss, * m_TexSetStars, * m_TexSetSnow, * m_TexSetReflection, * m_TexSetWater;
+
+	GameObjectClass* m_MadelineGO1, * m_MadelineGO2, * m_IcosphereGO, * m_mountainGO, * m_transIcoGO, * m_cubeGO;
+	GameObjectClass2D* m_SpinnerObj, *m_MouseObj;
+	BitmapClass* m_Bitmap, *m_MouseCursor;	
+	TextClass* m_TextString1, * m_TextString2, * m_TextStringMouseX, * m_TextStringMouseY, * m_TextStringMouseBttn, * m_FpsString;
+	TextureSetClass* m_TexSetMoss, * m_TexSetStars, * m_TexSetSnow, * m_TexSetReflection, * m_TexSetWater, * m_TexSetNone;
 
 	vector<ModelClass*> m_ModelList;
+	vector<ShaderClass*> m_ShaderList;
 };
 
 #endif

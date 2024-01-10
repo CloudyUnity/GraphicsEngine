@@ -24,18 +24,18 @@ void GameObjectClass::Initialize(ModelClass* model, ShaderClass* shaders, Textur
 	SetScale(1, 1, 1);
 }
 
-bool GameObjectClass::Render(ID3D11DeviceContext* deviceContext, XMMATRIX viewMatrix, XMMATRIX projMatrix, unordered_map<string, any> arguments)
+bool GameObjectClass::Render(ID3D11DeviceContext* deviceContext, ShaderClass::ShaderParameters* params)
 {
 	XMMATRIX scaleMatrix = XMMatrixScaling(m_ScaleX, m_ScaleY, m_ScaleZ);
 	XMMATRIX translateMatrix = XMMatrixTranslation(m_PosX, m_PosY, m_PosZ);
 	XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYaw(m_RotX * 0.0174532925f, m_RotY * 0.0174532925f, m_RotZ * 0.0174532925f); // ???
 	XMMATRIX srMatrix = XMMatrixMultiply(scaleMatrix, rotateMatrix);
-	XMMATRIX worldMatrix = XMMatrixMultiply(srMatrix, translateMatrix);
+	params->matrix.world = XMMatrixMultiply(srMatrix, translateMatrix);
 
 	// Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	m_Model->RenderBuffers(deviceContext);
 
-	return m_Shader->Render(deviceContext, m_Model->GetIndexCount(), worldMatrix, viewMatrix, projMatrix, m_Textures, arguments);
+	return m_Shader->Render(deviceContext, m_Model->GetIndexCount(), m_Textures, params);
 }
 
 void GameObjectClass::Shutdown() 
@@ -91,6 +91,15 @@ void GameObjectClass::SetScale(float x, float y, float z)
 	m_boundingRadius = m_Model->GetBoundingRadius() * max(max(m_ScaleX, m_ScaleY), m_ScaleZ);
 }
 
+void GameObjectClass::SetScale(float x)
+{
+	m_ScaleX = x;
+	m_ScaleY = x;
+	m_ScaleZ = x;
+
+	m_boundingRadius = m_Model->GetBoundingRadius() * max(max(m_ScaleX, m_ScaleY), m_ScaleZ);
+}
+
 float GameObjectClass::GetBoundingRadius() 
 {
 	return m_boundingRadius;
@@ -120,4 +129,14 @@ void GameObjectClass::SetReflectionTex()
 void GameObjectClass::SetRefractionTex()
 {
 	m_Textures->Add(m_RendTexRefraction->GetShaderResourceView(), m_texSetRefractionNum);
+}
+
+void GameObjectClass::SetReflectionMatrix(XMMATRIX matrix)
+{
+	m_reflectMatrix = matrix;
+}
+
+XMMATRIX GameObjectClass::GetReflectionMatrix()
+{
+	return m_reflectMatrix;
 }

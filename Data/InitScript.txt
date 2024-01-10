@@ -1,0 +1,19 @@
+# Init Script
+
+camPos 0 0 -5.0f
+# camRot 0 0 0
+
+shader "../GraphicsEngine/Fog.vs" "../GraphicsEngine/Fog.ps"
+# ...
+
+texset "../GraphicsEngine/Data/Celeste.tga", "../GraphicsEngine/Data/Celeste.tga", ...
+# ...
+
+model "../GraphicsEngine/Models/Madeline.txt"
+# ...
+
+# Model 0, Shader 0, Texset 0, Name "Madeline"
+go 0 0 0 "Madeline"
+
+# GO 0, posX, posY, posZ
+goPos 0 3 0 3

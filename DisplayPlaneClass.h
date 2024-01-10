@@ -21,7 +21,7 @@ public:
 
     bool Initialize(ID3D11Device*, float, float, RenderTextureClass*, ShaderClass*);
     void Shutdown();
-    bool Render(ID3D11DeviceContext*, XMMATRIX, XMMATRIX, unordered_map<string, any>);
+    bool Render(ID3D11DeviceContext*, ShaderClass::ShaderParameters*);
 
     void SetPosition(float, float, float);
     void SetRotation(float, float, float);

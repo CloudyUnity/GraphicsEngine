@@ -90,6 +90,7 @@ private:
 		XMFLOAT3 padding;
 	};
 
+public:
 	struct ShaderParameters
 	{
 		MatrixBufferType matrix;
@@ -114,7 +115,7 @@ public:
 
 	bool Initialize(ID3D11Device*, HWND, char*, char*);
 	void Shutdown();	
-	bool Render(ID3D11DeviceContext*, int, XMMATRIX, XMMATRIX, XMMATRIX, TextureSetClass*, unordered_map<string, any> = {});
+	bool Render(ID3D11DeviceContext*, int, TextureSetClass*, ShaderParameters*);
 
 private:
 	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
@@ -122,7 +123,7 @@ private:
 	void ShutdownShader();
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
-	bool SetShaderParameters(ID3D11DeviceContext*, XMMATRIX, XMMATRIX, XMMATRIX, TextureSetClass*, unordered_map<string, any>);
+	bool SetShaderParameters(ID3D11DeviceContext*, TextureSetClass*, ShaderParameters*);
 	void RenderShader(ID3D11DeviceContext*, int);
 
 	bool ShaderUsesBuffer(std::string, std::string);

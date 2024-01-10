@@ -93,6 +93,8 @@ float4 PS_MAIN(PixelInputType input) : SV_TARGET
     }
 
     float intensity = saturate(dot(bumpNormal, -lightDirection));
+    // return diffuseDirColor * intensity + float4(0,0,0,1) * (1 - intensity);
+
     if(intensity > 0.0f)
     {        
         colorSum += diffuseDirColor * intensity;

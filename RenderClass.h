@@ -33,13 +33,16 @@ public:
 	void SubscribeToReflection(ID3D11Device*, GameObjectClass*, int, int);
 	void SubscribeToRefraction(ID3D11Device*, GameObjectClass*, int, int);
 
-	bool Render(unordered_map<string, any>);
-	bool RenderScene(XMMATRIX, XMMATRIX, unordered_map<string, any>, string skipGO = "-N/A-");
-	bool RenderToTexture(RenderTextureClass*, unordered_map<string, any>);
-	bool RenderToReflectionTexture(RenderTextureClass*, float, unordered_map<string, any>, string);
-	bool RenderToRefractionTexture(RenderTextureClass*, float, unordered_map<string, any>, string);
-	bool RenderDisplayPlanes(unordered_map<string, any>);
-	bool Render2D(unordered_map<string, any>);
+	bool Render(ShaderClass::ShaderParameters*);
+	void RenderReflectionNextAvailableFrame();
+
+private:
+	bool RenderScene(XMMATRIX, XMMATRIX, ShaderClass::ShaderParameters*, string skipGO = "-N/A-");
+	bool RenderToTexture(RenderTextureClass*, ShaderClass::ShaderParameters*);
+	bool RenderToReflectionTexture(GameObjectClass*, ShaderClass::ShaderParameters*);
+	bool RenderToRefractionTexture(GameObjectClass*, ShaderClass::ShaderParameters*);
+	bool RenderDisplayPlanes(ShaderClass::ShaderParameters*);
+	bool Render2D(ShaderClass::ShaderParameters*);	
 
 private:
 	D3DClass* m_Direct3D;
@@ -53,6 +56,9 @@ private:
 	vector<GameObjectClass2D*> m_All2DGameObjectList;
 	vector<TextClass*> m_AllTextClassList;
 	vector<DisplayPlaneClass*> m_AllDisplayPlaneList;
+
+	int m_framesSinceReflectionRender;
+	bool m_renderReflectionImmediately;
 };
 
 #endif

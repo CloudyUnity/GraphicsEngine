@@ -130,7 +130,7 @@ float4 PS_MAIN(PixelInputType input) : SV_TARGET
 
     // finalColor = lerp(finalColor, refractionColor, 0.8f);
     // finalColor = lerp(finalColor, reflectionColor, 0.3f);
-    finalColor = lerp(refractionColor, reflectionColor, 0.6f);
+    finalColor = lerp(refractionColor, reflectionColor, 0.4f);
     finalColor.a = alphaBlend;
 
     float4 fogColor = float4(0.5f, 0.5f, 0.5f, 1.0f);    

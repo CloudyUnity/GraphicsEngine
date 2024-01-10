@@ -37,7 +37,7 @@ void DisplayPlaneClass::Shutdown()
     ShutdownBuffers();
 }
 
-bool DisplayPlaneClass::Render(ID3D11DeviceContext* deviceContext, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, unordered_map<string, any> arguments)
+bool DisplayPlaneClass::Render(ID3D11DeviceContext* deviceContext, ShaderClass::ShaderParameters* params)
 {
     // Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
     RenderBuffers(deviceContext);
@@ -46,11 +46,11 @@ bool DisplayPlaneClass::Render(ID3D11DeviceContext* deviceContext, XMMATRIX view
     XMMATRIX translateMatrix = XMMatrixTranslation(m_PosX, m_PosY, m_PosZ);
     XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYaw(m_RotX * 0.0174532925f, m_RotY * 0.0174532925f, m_RotZ * 0.0174532925f); // ???
     XMMATRIX srMatrix = XMMatrixMultiply(scaleMatrix, rotateMatrix);
-    XMMATRIX worldMatrix = XMMatrixMultiply(srMatrix, translateMatrix);
+    params->matrix.world = XMMatrixMultiply(srMatrix, translateMatrix);
 
     m_TexSet->Add(m_RenderTexture->GetShaderResourceView(), 0);
 
-    bool result = m_Shader->Render(deviceContext, GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_TexSet, arguments);
+    bool result = m_Shader->Render(deviceContext, GetIndexCount(), m_TexSet, params);
     if (!result)
         return false;
 

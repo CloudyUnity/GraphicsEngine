@@ -20,7 +20,7 @@ public:
 
     bool Initialize(ID3D11Device*, ID3D11DeviceContext*, int, int, int, ShaderClass* shader);
     void Shutdown();
-    bool Render(ID3D11DeviceContext*, XMMATRIX, XMMATRIX, unordered_map<string, any>);
+    bool Render(ID3D11DeviceContext*, ShaderClass::ShaderParameters*);
 
     int GetIndexCount();
 
@@ -29,6 +29,7 @@ public:
     void SetColor(float, float, float);
     void SetFont(FontClass* font);
     void SetText(char* text);
+    void SetText(const char* text);
     void SetShader(ShaderClass*);
     void SetScale(float, float);
     void SetRotation(float);
@@ -42,7 +43,7 @@ private:
 private:
     ID3D11Buffer* m_vertexBuffer, * m_indexBuffer;
     int m_screenWidth, m_screenHeight, m_maxLength, m_vertexCount, m_indexCount, m_PosX, m_PosY;
-    char* m_text;
+    string m_text;
     XMFLOAT4 m_pixelColor;
     FontClass* m_font;
     ID3D11DeviceContext* m_deviceContext;
