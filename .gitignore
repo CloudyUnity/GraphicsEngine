@@ -16,7 +16,6 @@ x64/
 *.opensdf
 *.VC.db
 *.VC.opendb
-*.vcxproj.user
 
 # Ignore compiled object files
 x64/Debug/
