@@ -5,8 +5,6 @@ ApplicationClass::ApplicationClass()
 {
 	m_Direct3D = 0;
 	m_Camera = 0;
-	m_ModelMadeline = 0;
-	m_ShaderMain = 0;
 	m_Lights = 0;
 	m_Bitmap = 0;
 	m_DirLight = 0;
@@ -26,11 +24,7 @@ ApplicationClass::ApplicationClass()
 	m_transIcoGO = 0;
 	m_MadelineGO1 = 0;
 	m_MadelineGO2 = 0;
-	m_ModelIcosphere = 0;
-	m_ModelCube = 0;
-	m_ModelMountain = 0;
 	m_cubeGO = 0;
-	m_ShaderReflect = 0;
 	m_RenderClass = 0;
 
 	m_startTime = std::chrono::high_resolution_clock::now();
@@ -47,14 +41,14 @@ ApplicationClass::~ApplicationClass()
 {
 }
 
-bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
+bool ApplicationClass::Initialize(HWND hwnd)
 {
-	char text[128];
 	char bitmapFilename[128];
-	char vertexShader[128], fragShader[128];
+
+	// GENERAL
 
 	m_Direct3D = new D3DClass;	
-	bool result = m_Direct3D->Initialize(screenWidth, screenHeight, V_SYNC, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+	bool result = m_Direct3D->Initialize(SCREEN_X, SCREEN_Y, V_SYNC, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize Direct3D", L"Error", MB_OK);
@@ -72,177 +66,166 @@ bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	m_Frustum = new FrustumClass;
 
+	m_Fps = new FpsClass();
+	m_Fps->Initialize();
+
 	m_RenderClass = new RenderClass;
 	result = m_RenderClass->Initialize(m_Direct3D, m_Camera, m_Frustum);
 	if (!result)
+		return false;	
+
+	ID3D11Device* device = m_Direct3D->GetDevice();
+	ID3D11DeviceContext* deviceContext = m_Direct3D->GetDeviceContext();
+
+	// PARAMETERS
+
+	m_Parameters = new ShaderClass::ShaderParameters;
+	m_Parameters->fog.fogStart = 0.0f;
+	m_Parameters->fog.fogEnd = 20.0f;
+	m_Parameters->clip.clipPlane = XMFLOAT4(0.0f, -1.0f, 0.0f, 999999.0f);
+	m_Parameters->textureTranslation.translation = XMFLOAT2(0, 0);
+	m_Parameters->textureTranslation.timeMultiplier = 0.0f;
+	m_Parameters->alpha.alphaBlend = 1.0f;
+	m_Parameters->water.reflectRefractScale = 0.01f;
+
+	// SHADERS
+
+	ShaderClass* shaderMain = 0, * shaderReflect = 0, * shaderWater = 0, * shader2D = 0, * shaderFont = 0, * shaderFractal = 0;
+	result = 
+		InitializeShader(hwnd, &shaderMain, "../GraphicsEngine/Fog.vs", "../GraphicsEngine/Fog.ps") &&
+		InitializeShader(hwnd, &shaderReflect, "../GraphicsEngine/Reflect.vs", "../GraphicsEngine/Reflect.ps") &&
+		InitializeShader(hwnd, &shaderWater, "../GraphicsEngine/Water.vs", "../GraphicsEngine/Water.ps") && 
+		InitializeShader(hwnd, &shader2D, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/2D.ps") &&
+		InitializeShader(hwnd, &shaderFont, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/Font.ps");
+		InitializeShader(hwnd, &shaderFractal, "../GraphicsEngine/Fog.vs", "../GraphicsEngine/Fractal.ps");
+	if (!result)
 		return false;
 
-	strcpy_s(vertexShader, "../GraphicsEngine/Fog.vs");
-	strcpy_s(fragShader, "../GraphicsEngine/Fog.ps");
-	m_ShaderMain = new ShaderClass;
-	result = m_ShaderMain->Initialize(m_Direct3D->GetDevice(), hwnd, vertexShader, fragShader);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
-		return false;
-	}
-
-	strcpy_s(vertexShader, "../GraphicsEngine/Reflect.vs");
-	strcpy_s(fragShader, "../GraphicsEngine/Reflect.ps");
-	m_ShaderReflect = new ShaderClass;
-	result = m_ShaderReflect->Initialize(m_Direct3D->GetDevice(), hwnd, vertexShader, fragShader);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
-		return false;
-	}
-
-	strcpy_s(vertexShader, "../GraphicsEngine/Water.vs");
-	strcpy_s(fragShader, "../GraphicsEngine/Water.ps");
-	m_ShaderWater = new ShaderClass;
-	result = m_ShaderWater->Initialize(m_Direct3D->GetDevice(), hwnd, vertexShader, fragShader);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
-		return false;
-	}
-
-	strcpy_s(vertexShader, "../GraphicsEngine/Simple.vs");
-	strcpy_s(fragShader, "../GraphicsEngine/2D.ps");
-	m_Shader2D = new ShaderClass;
-	result = m_Shader2D->Initialize(m_Direct3D->GetDevice(), hwnd, vertexShader, fragShader);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
-		return false;
-	}
-
-	strcpy_s(vertexShader, "../GraphicsEngine/Simple.vs");
-	strcpy_s(fragShader, "../GraphicsEngine/Font.ps");
-	m_ShaderFont = new ShaderClass;
-	result = m_ShaderFont->Initialize(m_Direct3D->GetDevice(), hwnd, vertexShader, fragShader);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
-		return false;
-	}
+	// TEXSETS
 
 	m_TexSetMoss = new TextureSetClass;
-	m_TexSetMoss->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/Celeste.tga");
-	m_TexSetMoss->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/Moss.tga");
-	m_TexSetMoss->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/DefaultAlphaMap.tga");
-	m_TexSetMoss->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/MossNormal.tga");
+	m_TexSetMoss->Add(device, deviceContext, "../GraphicsEngine/Data/Celeste.tga");
+	m_TexSetMoss->Add(device, deviceContext, "../GraphicsEngine/Data/Moss.tga");
+	m_TexSetMoss->Add(device, deviceContext, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
+	m_TexSetMoss->Add(device, deviceContext, "../GraphicsEngine/Data/MossNormal.tga");
 
 	m_TexSetStars = new TextureSetClass;
-	m_TexSetStars->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/Celeste.tga");
-	m_TexSetStars->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/Celeste.tga");
-	m_TexSetStars->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/DefaultAlphaMap.tga");
-	m_TexSetStars->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/RockNormal.tga");
+	m_TexSetStars->Add(device, deviceContext, "../GraphicsEngine/Data/Celeste.tga");
+	m_TexSetStars->Add(device, deviceContext, "../GraphicsEngine/Data/Celeste.tga");
+	m_TexSetStars->Add(device, deviceContext, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
+	m_TexSetStars->Add(device, deviceContext, "../GraphicsEngine/Data/RockNormal.tga");
 
 	m_TexSetSnow = new TextureSetClass;
-	m_TexSetSnow->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/Snow.tga");
-	m_TexSetSnow->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/Snow.tga");
-	m_TexSetSnow->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/DefaultAlphaMap.tga");
-	m_TexSetSnow->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/DefaultNormal.tga");
+	m_TexSetSnow->Add(device, deviceContext, "../GraphicsEngine/Data/Snow.tga");
+	m_TexSetSnow->Add(device, deviceContext, "../GraphicsEngine/Data/Snow.tga");
+	m_TexSetSnow->Add(device, deviceContext, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
+	m_TexSetSnow->Add(device, deviceContext, "../GraphicsEngine/Data/DefaultNormal.tga");
 
 	m_TexSetReflection = new TextureSetClass;
-	m_TexSetReflection->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/Glass.tga");
-	m_TexSetReflection->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/Glass.tga");
-	m_TexSetReflection->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/DefaultAlphaMap.tga");
-	m_TexSetReflection->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/GlassNormal.tga");
+	m_TexSetReflection->Add(device, deviceContext, "../GraphicsEngine/Data/Glass.tga");
+	m_TexSetReflection->Add(device, deviceContext, "../GraphicsEngine/Data/Glass.tga");
+	m_TexSetReflection->Add(device, deviceContext, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
+	m_TexSetReflection->Add(device, deviceContext, "../GraphicsEngine/Data/GlassNormal.tga");
 
 	m_TexSetWater = new TextureSetClass;
-	m_TexSetWater->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/WaterBlue.tga");
-	m_TexSetWater->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/WaterBlue.tga");
-	m_TexSetWater->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/DefaultAlphaMap.tga");
-	m_TexSetWater->Add(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../GraphicsEngine/Data/WaterNormal.tga");
+	m_TexSetWater->Add(device, deviceContext, "../GraphicsEngine/Data/WaterBlue.tga");
+	m_TexSetWater->Add(device, deviceContext, "../GraphicsEngine/Data/WaterBlue.tga");
+	m_TexSetWater->Add(device, deviceContext, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
+	m_TexSetWater->Add(device, deviceContext, "../GraphicsEngine/Data/WaterNormal.tga");
 
+	m_TexSetNone = new TextureSetClass;
+
+	// MODELS
+
+	ModelClass* modelMadeline =0, * modelMountain =0, * modelCube =0, * modelIcosphere =0, * modelPlane =0;
 	result = 
-		InitializeModel(hwnd, &m_ModelMadeline, "../GraphicsEngine/Models/Madeline.txt") &&
-		InitializeModel(hwnd, &m_ModelMountain, "../GraphicsEngine/Models/MountFuji.txt") &&
-		InitializeModel(hwnd, &m_ModelCube, "../GraphicsEngine/Models/Cube.txt") &&
-		InitializeModel(hwnd, &m_ModelIcosphere, "../GraphicsEngine/Models/Icosphere.txt") &&
-		InitializeModel(hwnd, &m_ModelWater, "../GraphicsEngine/Models/Plane.txt");
+		InitializeModel(hwnd, &modelMadeline, "../GraphicsEngine/Models/Madeline.txt") &&
+		InitializeModel(hwnd, &modelMountain, "../GraphicsEngine/Models/MountFuji.txt") &&
+		InitializeModel(hwnd, &modelCube, "../GraphicsEngine/Models/Cube.txt") &&
+		InitializeModel(hwnd, &modelIcosphere, "../GraphicsEngine/Models/Icosphere.txt") &&
+		InitializeModel(hwnd, &modelPlane, "../GraphicsEngine/Models/Plane.txt");
 	if (!result)
 		return false;
 
-	m_MadelineGO1 = new GameObjectClass;
-	m_MadelineGO1->Initialize(m_ModelMadeline, m_ShaderMain, m_TexSetMoss, "Madeline1");
-
-	m_MadelineGO2 = new GameObjectClass;
-	m_MadelineGO2->Initialize(m_ModelMadeline, m_ShaderMain, m_TexSetStars, "Madeline2");
-	m_MadelineGO2->SetPosition(3, 0, 3);
-	m_MadelineGO2->SetScale(0.5f, 0.5f, 0.5f);
-
-	m_IcosphereGO = new GameObjectClass;
-	m_IcosphereGO->Initialize(m_ModelIcosphere, m_ShaderMain, m_TexSetMoss, "IcosphereBig");
-	m_IcosphereGO->SetScale(5, 5, 5);
-	m_IcosphereGO->SetPosition(0, 0, 15);
-
-	m_transIcoGO = new GameObjectClass;
-	m_transIcoGO->Initialize(m_ModelIcosphere, m_ShaderMain, m_TexSetSnow, "IcosphereTrans");
-	m_transIcoGO->SetPosition(3, 0.5f, 3);
-	m_transIcoGO->SetScale(1.0f, 1.0f, 1.0f);	
-
-	m_mountainGO = new GameObjectClass;
-	m_mountainGO->Initialize(m_ModelMountain, m_ShaderMain, m_TexSetSnow, "Mountain");
-	m_mountainGO->SetScale(0.3f, 0.3f, 0.3f);
-	m_mountainGO->SetPosition(1, -13, 15);
-
-	m_cubeGO = new GameObjectClass;
-	m_cubeGO->Initialize(m_ModelCube, m_ShaderReflect, m_TexSetReflection, "GlassCube");
-	m_cubeGO->SetScale(1.5f, 0.5f, 1.5f);
-	m_cubeGO->SetPosition(0, -0.5f, 0);
-
-	float waterSize = 2;
-	GameObjectClass* waterGO = new GameObjectClass;
-	waterGO->Initialize(m_ModelWater, m_ShaderWater, m_TexSetWater, "Water");
-	waterGO->SetPosition(6, 0.5f, -0.5f);
-	waterGO->SetScale(waterSize, 0.000000000001f, waterSize);
-
-	auto waterCube = new GameObjectClass;
-	waterCube->Initialize(m_ModelMadeline, m_ShaderMain, m_TexSetMoss, "WaterCube");
-	waterCube->SetScale(0.5f, 0.5f, 0.5f);
-	waterCube->SetPosition(6, 0, -0.5f);
-
-	m_RenderClass->AddGameObject(m_MadelineGO1);
-	m_RenderClass->AddGameObject(m_MadelineGO2);
-	m_RenderClass->AddGameObject(m_IcosphereGO);
-	m_RenderClass->AddGameObject(m_transIcoGO);
-	m_RenderClass->AddGameObject(m_mountainGO);
-	m_RenderClass->AddGameObject(m_cubeGO);
-	m_RenderClass->AddGameObject(waterGO);
-	m_RenderClass->AddGameObject(waterCube);
-
-	int texSetIndex = 4;
-	int format = 1;
-	m_RenderClass->SubscribeToReflection(m_Direct3D->GetDevice(), m_cubeGO, texSetIndex, format);
-	m_RenderClass->SubscribeToReflection(m_Direct3D->GetDevice(), waterGO, texSetIndex, format);
-	texSetIndex = 5;
-	m_RenderClass->SubscribeToRefraction(m_Direct3D->GetDevice(), waterGO, texSetIndex, format);
+	// BITMAPS
 
 	strcpy_s(bitmapFilename, "../GraphicsEngine/Animations/Spinner.txt");
 	m_Bitmap = new BitmapClass;
-	result = m_Bitmap->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, bitmapFilename);
+	result = m_Bitmap->Initialize(device, deviceContext, SCREEN_X, SCREEN_Y, bitmapFilename);
 	if (!result)
 		return false;
-	m_SpinnerObj = new GameObjectClass2D;
-	m_SpinnerObj->Initialize(m_Bitmap, m_Shader2D);
-	m_SpinnerObj->SetPosition(1000, 50);
-	m_SpinnerObj->SetScale(0.75f, 0.75f);
 
 	strcpy_s(bitmapFilename, "../GraphicsEngine/Animations/MouseAnim.txt");
 	m_MouseCursor = new BitmapClass;
-	result = m_MouseCursor->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, bitmapFilename);
+	result = m_MouseCursor->Initialize(device, deviceContext, SCREEN_X, SCREEN_Y, bitmapFilename);
 	if (!result)
 		return false;
+
+	// GAMEOBJECTS
+
+	GameObjectClass* waterGO =0, * waterCubeGO =0, * fractalGO =0;
+	float waterSize = 2;
+
+	InitializeGameObject(modelMadeline, shaderMain, m_TexSetMoss, "Madeline1", &m_MadelineGO1);
+	InitializeGameObject(modelMadeline, shaderMain, m_TexSetStars, "Madeline2", &m_MadelineGO2);
+	InitializeGameObject(modelIcosphere, shaderMain, m_TexSetMoss, "IcosphereBig", &m_IcosphereGO);
+	InitializeGameObject(modelIcosphere, shaderMain, m_TexSetSnow, "IcosphereTrans", &m_transIcoGO);
+	InitializeGameObject(modelMountain, shaderMain, m_TexSetSnow, "Mountain", &m_mountainGO);
+	InitializeGameObject(modelPlane, shaderWater, m_TexSetWater, "Water", &waterGO);
+	InitializeGameObject(modelCube, shaderReflect, m_TexSetReflection, "GlassCube", &m_cubeGO);
+	InitializeGameObject(modelCube, shaderMain, m_TexSetMoss, "WaterCube", &waterCubeGO);
+	InitializeGameObject(modelIcosphere, shaderFractal, m_TexSetNone, "Fractal", &fractalGO);
+
+	m_MadelineGO2->SetPosition(3, 0, 3);
+	m_MadelineGO2->SetScale(0.5f, 0.5f, 0.5f);
+
+	m_IcosphereGO->SetScale(5, 5, 5);
+	m_IcosphereGO->SetPosition(0, 0, 15);
+
+	m_transIcoGO->SetPosition(3, 0.5f, 3);
+	m_transIcoGO->SetScale(1.0f, 1.0f, 1.0f);	
+
+	m_mountainGO->SetScale(0.3f, 0.3f, 0.3f);
+	m_mountainGO->SetPosition(1, -13, 15);
+
+	m_cubeGO->SetScale(1.5f, 0.5f, 1.5f);
+	m_cubeGO->SetPosition(0, -0.5f, 0);
+
+	waterGO->SetPosition(6, 0.5f, -0.5f);
+	waterGO->SetScale(waterSize, 0.000000000001f, waterSize);
+
+	waterCubeGO->SetScale(0.5f, 0.5f, 0.5f);
+	waterCubeGO->SetPosition(6, 0.5f, -0.5f);
+
+	fractalGO->SetPosition(25,0,0);
+	fractalGO->SetScale(10);
+
+	// SUBSCRIPTIONS
+
+	int texSetIndex = 4;
+	int format = 1;
+	m_RenderClass->SubscribeToReflection(device, m_cubeGO, texSetIndex, format);
+	m_RenderClass->SubscribeToReflection(device, waterGO, texSetIndex, format);
+
+	texSetIndex = 5;
+	m_RenderClass->SubscribeToRefraction(device, waterGO, texSetIndex, format);
+
+	// 2D GAMEOBJECTS
+
+	m_SpinnerObj = new GameObjectClass2D;
+	m_SpinnerObj->Initialize(m_Bitmap, shader2D);
+	m_SpinnerObj->SetPosition(1000, 50);
+	m_SpinnerObj->SetScale(0.75f, 0.75f);
+
 	m_MouseObj = new GameObjectClass2D;
-	m_MouseObj->Initialize(m_MouseCursor, m_Shader2D);
+	m_MouseObj->Initialize(m_MouseCursor, shader2D);
 	m_MouseObj->SetScale(0.1f, 0.1f);
 	m_MouseObj->SetRotation(225);
 
 	m_RenderClass->AddGameObject2D(m_SpinnerObj);
 	m_RenderClass->AddGameObject2D(m_MouseObj);
+
+	// LIGHTS
 
 	m_numLights = 4;
 	m_Lights = new LightClass[m_numLights];
@@ -266,70 +249,43 @@ bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_DirLight->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_DirLight->SetSpecularPower(32.0f);
 
+	// FONTS
+
 	m_Font = new FontClass;
-	result = m_Font->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), 0);
+	result = m_Font->Initialize(device, deviceContext, 0);
+	if (!result)
+		return false;
+
+	// TEXT
+
+	int maxLength = 32;
+	result =
+		InitializeTextClass(&m_TextString1, shaderFont, m_Font, maxLength) &&
+		InitializeTextClass(&m_TextString2, shaderFont, m_Font, maxLength) &&
+		InitializeTextClass(&m_FpsString, shaderFont, m_Font, maxLength) &&
+		InitializeTextClass(&m_TextStringMouseX, shaderFont, m_Font, maxLength) &&
+		InitializeTextClass(&m_TextStringMouseY, shaderFont, m_Font, maxLength) &&
+		InitializeTextClass(&m_TextStringMouseBttn, shaderFont, m_Font, maxLength);
 	if (!result)
 		return false;
 	
-	strcpy_s(text, "Sample Text 1");
-	m_TextString1 = new TextClass;
-	int maxLength = 32;
-	result = m_TextString1->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, maxLength, m_ShaderFont);
-	if (!result)
-		return false;
 	m_TextString1->SetColor(1, 0, 0);
-	m_TextString1->SetFont(m_Font);
 	m_TextString1->SetPosition(10, 10);
-	m_TextString1->SetText(text);
+	m_TextString1->SetText("Cool 3D Graphics Project");
 	m_TextString1->UpdateText();	
 
-	strcpy_s(text, "Sample Text 2");
-	m_TextString2 = new TextClass;
-	result = m_TextString2->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, maxLength, m_ShaderFont);
-	if (!result)
-		return false;
 	m_TextString2->SetColor(0, 1, 0);
-	m_TextString2->SetFont(m_Font);
 	m_TextString2->SetPosition(15, 30);
-	m_TextString2->SetText(text);
+	m_TextString2->SetText("by Finn Wright");
 	m_TextString2->UpdateText();	
 
-	m_Fps = new FpsClass();
-	m_Fps->Initialize();
-	m_previousFps = -1;
-
-	m_FpsString = new TextClass;
-	result = m_FpsString->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, maxLength, m_ShaderFont);
-	if (!result)
-		return false;
-	m_FpsString->SetFont(m_Font);
 	m_FpsString->SetPosition(10, 60);	
 
-	m_TextStringMouseX = new TextClass;
-	m_TextStringMouseY = new TextClass;
-	m_TextStringMouseBttn = new TextClass;
-	result = m_TextStringMouseX->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, maxLength, m_ShaderFont);
-	if (!result)
-		return false;
-	result = m_TextStringMouseY->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, maxLength, m_ShaderFont);
-	if (!result)
-		return false;
-	result = m_TextStringMouseBttn->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, maxLength, m_ShaderFont);
-	if (!result)
-		return false;	
-	m_TextStringMouseX->SetFont(m_Font);
-	m_TextStringMouseY->SetFont(m_Font);
-	m_TextStringMouseBttn->SetFont(m_Font);
 	m_TextStringMouseX->SetPosition(10, 80);
 	m_TextStringMouseY->SetPosition(10, 100);
 	m_TextStringMouseBttn->SetPosition(10, 120);
 
-	m_RenderClass->AddTextClass(m_TextString1);
-	m_RenderClass->AddTextClass(m_TextString2);
-	m_RenderClass->AddTextClass(m_FpsString);
-	m_RenderClass->AddTextClass(m_TextStringMouseX);
-	m_RenderClass->AddTextClass(m_TextStringMouseY);
-	m_RenderClass->AddTextClass(m_TextStringMouseBttn);
+	// RENDER TEXTURES
 
 	int texHeight = 256;
 	int texWidth = 256;
@@ -338,12 +294,14 @@ bool ApplicationClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	int displayHeight = 1;
 
 	m_RenderTexDisplay = new RenderTextureClass;
-	result = m_RenderTexDisplay->Initialize(m_Direct3D->GetDevice(), texWidth, texHeight, SCREEN_DEPTH, SCREEN_NEAR, format);
+	result = m_RenderTexDisplay->Initialize(device, texWidth, texHeight, SCREEN_DEPTH, SCREEN_NEAR, format);
 	if (!result)
 		return false;
 
+	// DISPLAY PLANES
+
 	m_DisplayPlane = new DisplayPlaneClass;
-	result = m_DisplayPlane->Initialize(m_Direct3D->GetDevice(), displayWidth, displayHeight, m_RenderTexDisplay, m_Shader2D);
+	result = m_DisplayPlane->Initialize(device, displayWidth, displayHeight, m_RenderTexDisplay, shader2D);
 	if (!result)
 		return false;
 	m_DisplayPlane->SetPosition(0, 0, 5);
@@ -371,6 +329,49 @@ bool ApplicationClass::InitializeModel(HWND hwnd, ModelClass** ptr, const char* 
 	return true;
 }
 
+bool ApplicationClass::InitializeShader(HWND hwnd, ShaderClass** ptr, const char* vertexName, const char* fragName)
+{
+	char vertexShader[128], fragShader[128];
+
+	strcpy_s(vertexShader, vertexName);
+	strcpy_s(fragShader, fragName);
+
+	*ptr = new ShaderClass;
+	bool result = (*ptr)->Initialize(m_Direct3D->GetDevice(), hwnd, vertexShader, fragShader);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
+		return false;
+	}
+
+	m_ShaderList.push_back(*ptr);
+
+	return true;
+}
+
+void ApplicationClass::InitializeGameObject(ModelClass* model, ShaderClass* shader, TextureSetClass* texSet, const char* name, GameObjectClass** ptr)
+{
+	*ptr = new GameObjectClass;
+
+	(*ptr)->Initialize(model, shader, texSet, name);
+
+	m_RenderClass->AddGameObject(*ptr);
+}
+
+bool ApplicationClass::InitializeTextClass(TextClass** ptr, ShaderClass* shader, FontClass* font, int maxLength)
+{
+	*ptr = new TextClass;
+	bool result = (*ptr)->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), SCREEN_X, SCREEN_Y, maxLength, shader);
+	if (!result)
+		return false;
+
+	(*ptr)->SetFont(font);
+
+	m_RenderClass->AddTextClass(*ptr);
+
+	return true;
+}
+
 void ApplicationClass::Shutdown()
 {
 	if (m_RenderClass)
@@ -386,12 +387,11 @@ void ApplicationClass::Shutdown()
 		delete model;
 	}
 
-	if (m_ShaderMain)
+	for (auto shader : m_ShaderList)
 	{
-		m_ShaderMain->Shutdown();
-		delete m_ShaderMain;
-		m_ShaderMain = 0;
-	}
+		shader->Shutdown();
+		delete shader;
+	}	
 
 	if (m_DisplayPlane)
 	{
@@ -407,18 +407,10 @@ void ApplicationClass::Shutdown()
 		m_RenderTexDisplay = 0;
 	}
 
-	if (m_Shader2D)
+	if (m_Parameters)
 	{
-		m_Shader2D->Shutdown();
-		delete m_Shader2D;
-		m_Shader2D = 0;
-	}
-
-	if (m_ShaderFont)
-	{
-		m_ShaderFont->Shutdown();
-		delete m_ShaderFont;
-		m_ShaderFont = 0;
+		delete m_Parameters;
+		m_Parameters = 0;
 	}
 
 	if (m_Timer)
@@ -459,13 +451,6 @@ void ApplicationClass::Shutdown()
 		m_DirLight = 0;
 	}
 
-	if (m_ShaderMain)
-	{
-		m_ShaderMain->Shutdown();
-		delete m_ShaderMain;
-		m_ShaderMain = 0;
-	}
-
 	if (m_Camera)
 	{
 		delete m_Camera;
@@ -490,23 +475,21 @@ bool ApplicationClass::Frame(InputClass* Input)
 	static float rotation = 0.0f;
 	rotation -= 0.0174532925f;
 	if (rotation < 0.0f)
-	{
 		rotation += 360.0f;
-	}
 
 	static float time = 0.0f;
 	time += 0.1f;
 
 	m_MadelineGO1->SetRotation(0, rotation * 10.0f, 0);
 	m_IcosphereGO->SetRotation(rotation * 50.0f, 0, 0);
-	//m_SpinnerObj->SetPosition(m_SpinnerObj->m_PosX + time, m_SpinnerObj->m_PosY);
-
-	int mouseX, mouseY;
-	bool mouseDown;
+	
 	if (Input->IsKeyPressed(DIK_ESCAPE))
 		return false;
+
+	int mouseX, mouseY;
 	Input->GetMouseLocation(mouseX, mouseY);
-	mouseDown = Input->IsMousePressed();
+
+	bool mouseDown = Input->IsMousePressed();
 	if (!UpdateMouseStrings(mouseX, mouseY, mouseDown))
 		return false;
 	
@@ -514,92 +497,37 @@ bool ApplicationClass::Frame(InputClass* Input)
 
 	m_Camera->Frame(Input, frameTime);
 
-	return Render() && UpdateFps();
+	m_Fps->Frame();
+
+	return Render() && m_Fps->UpdateFPS(m_FpsString);
 }
 
 bool ApplicationClass::Render()
 {
 	bool result;
 
-	XMFLOAT4 diffuseColor[4], lightPosition[4];
 	for (int i = 0; i < m_numLights; i++)
 	{
-		diffuseColor[i] = m_Lights[i].GetDiffuseColor();
-		lightPosition[i] = m_Lights[i].GetPosition();
+		m_Parameters->lightColor.diffuseColor[i] = m_Lights[i].GetDiffuseColor();
+		m_Parameters->lightPos.lightPosition[i] = m_Lights[i].GetPosition();
 	}
 
+	m_Parameters->light.ambientColor = m_DirLight->GetAmbientColor();
+	m_Parameters->light.diffuseColor = m_DirLight->GetDiffuseColor();
+	m_Parameters->light.lightDirection = m_DirLight->GetDirection();
+	m_Parameters->light.specularColor = m_DirLight->GetSpecularColor();
+	m_Parameters->light.specularPower = m_DirLight->GetSpecularPower();
+
 	auto now = std::chrono::high_resolution_clock::now();
-	float time = std::chrono::duration_cast<std::chrono::duration<float>>(now - m_startTime).count();
+	m_Parameters->utils.time = std::chrono::duration_cast<std::chrono::duration<float>>(now - m_startTime).count();
 
-	unordered_map<string, any> arguments =
-	{
-		{"CameraPos", m_Camera->GetPosition()},
-		{"DiffuseColor", diffuseColor},
-		{"LightPosition", lightPosition},
-		{"DirLight", m_DirLight},
-		{"Time", time},
-		{"FogStart", 0.0f},
-		{"FogEnd", 20.0f},
-		{"ClipPlane", XMFLOAT4(0.0f, -1.0f, 0.0f, 2.5f)},
-		{"Translation", XMFLOAT2(0.0f, 0.0f)},
-		{"TranslationTimeMult", 0.0f},
-		{"Alpha", 1.0f},
-		{"WaterRRScale", 0.01f},
-		{"Name", ""}
-	};	
+	m_Parameters->camera.cameraPosition = m_Camera->GetPosition();	
 
-	result = m_RenderClass->Render(arguments);
+	result = m_RenderClass->Render(m_Parameters);
 	if (!result)
 		return false;
 	
 	return true;
-}
-
-bool ApplicationClass::UpdateFps()
-{
-	char tempString[16], finalString[16];
-	float red, green, blue;
-
-	m_Fps->Frame();
-	int fps = m_Fps->GetFps();
-
-	if (m_previousFps == fps)
-		return true;
-
-	m_previousFps = fps;
-
-	if (fps > 99999)
-		fps = 99999;
-
-	sprintf_s(tempString, "%d", fps);
-	strcpy_s(finalString, "Fps: ");
-	strcat_s(finalString, tempString);
-
-	if (fps >= 60)
-	{
-		red = 0.0f;
-		green = 1.0f;
-		blue = 0.0f;
-	}
-
-	if (fps < 60)
-	{
-		red = 1.0f;
-		green = 1.0f;
-		blue = 0.0f;
-	}
-
-	if (fps < 30)
-	{
-		red = 1.0f;
-		green = 0.0f;
-		blue = 0.0f;
-	}
-
-	m_FpsString->SetColor(red, green, blue);
-	m_FpsString->SetText(finalString);
-
-	return m_FpsString->UpdateText();
 }
 
 bool ApplicationClass::UpdateMouseStrings(int mouseX, int mouseY, bool mouseDown)
@@ -607,7 +535,6 @@ bool ApplicationClass::UpdateMouseStrings(int mouseX, int mouseY, bool mouseDown
 	char tempString[16], finalString[32];
 	bool result;
 
-	// Convert the mouse X integer to string format.
 	sprintf_s(tempString, "%d", mouseX);
 
 	strcpy_s(finalString, "Mouse X: ");
@@ -618,7 +545,6 @@ bool ApplicationClass::UpdateMouseStrings(int mouseX, int mouseY, bool mouseDown
 	if (!result)
 		return false;
 
-	// Convert the mouse Y integer to string format.
 	sprintf_s(tempString, "%d", mouseY);
 
 	strcpy_s(finalString, "Mouse Y: ");
@@ -629,7 +555,6 @@ bool ApplicationClass::UpdateMouseStrings(int mouseX, int mouseY, bool mouseDown
 	if (!result)
 		return false;
 
-	// Setup the mouse button string.
 	sprintf_s(finalString, sizeof(finalString), "Mouse Button: %s", (mouseDown ? "Yes" : "No"));
 
 	m_TextStringMouseBttn->SetText(finalString);

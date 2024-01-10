@@ -1,22 +1,4 @@
-﻿  ApplicationClass.cpp
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(346,77): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(346,63): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(513,48): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(513,33): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-  DisplayPlaneClass.cpp
-  GameObjectClass.cpp
-  GameObjectClass2D.cpp
-  RenderClass.cpp
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\RenderClass.cpp(84,23): warning C4101: 'displayProjMatrix': unreferenced local variable
-  SystemClass.cpp
-  TextClass.cpp
-  TextureShaderClass.cpp
+﻿  TextureShaderClass.cpp
 C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\TextureShaderClass.cpp(34,7): warning C4101: 'result': unreferenced local variable
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\TextureShaderClass.cpp(246,35): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
-  d3dclass.cpp
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\d3dclass.cpp(85,20): warning C4018: '<': signed/unsigned mismatch
-  main.cpp
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\main.cpp(10,1): warning C4297: 'WinMain': function assumed not to throw an exception but does
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\main.cpp(10,1): message : __declspec(nothrow), throw(), noexcept(true), or noexcept was specified on the function
-  Generating Code...
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\TextureShaderClass.cpp(245,35): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
   GraphicsEngine.vcxproj -> C:\Users\finnw\source\repos\GraphicsEngine\x64\Debug\GraphicsEngine.exe

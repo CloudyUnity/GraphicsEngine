@@ -24,7 +24,7 @@ void GameObjectClass2D::Initialize(BitmapClass* bitmap, ShaderClass* shaders)
 	m_TexSet = new TextureSetClass;
 }
 
-bool GameObjectClass2D::Render(ID3D11DeviceContext* deviceContext, XMMATRIX viewMatrix, XMMATRIX projMatrix, unordered_map<string, any> args)
+bool GameObjectClass2D::Render(ID3D11DeviceContext* deviceContext, ShaderClass::ShaderParameters* params)
 {
 	/*float posX = fmodf(m_PosX, SCREEN_X / m_ScaleX);
 	float posY = fmodf(m_PosY, SCREEN_Y / m_ScaleY);
@@ -38,7 +38,7 @@ bool GameObjectClass2D::Render(ID3D11DeviceContext* deviceContext, XMMATRIX view
 	XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYaw(0, 0, m_RotZ * 0.0174532925f);
 
 	XMMATRIX srMatrix = XMMatrixMultiply(rotateMatrix, scaleMatrix);
-	XMMATRIX worldMatrix = XMMatrixMultiply(srMatrix, translateMatrix);
+	params->matrix.world = XMMatrixMultiply(srMatrix, translateMatrix);
 
 	// Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	m_BitMap->SetRenderLocation(0, 0);
@@ -46,7 +46,7 @@ bool GameObjectClass2D::Render(ID3D11DeviceContext* deviceContext, XMMATRIX view
 
 	m_TexSet->Add(m_BitMap->GetTexture(), 0);
 
-	return m_Shader->Render(deviceContext, m_BitMap->GetIndexCount(), worldMatrix, viewMatrix, projMatrix, m_TexSet, args);
+	return m_Shader->Render(deviceContext, m_BitMap->GetIndexCount(), m_TexSet, params);
 }
 
 void GameObjectClass2D::Shutdown()

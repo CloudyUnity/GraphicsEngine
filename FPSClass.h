@@ -5,6 +5,7 @@
 
 #include <windows.h>
 #include <mmsystem.h>
+#include "TextClass.h"
 
 class FpsClass
 {
@@ -17,9 +18,12 @@ public:
     void Frame();
     int GetFps();
 
+    bool UpdateFPS(TextClass*);
+
 private:
     int m_fps, m_count;
     unsigned long m_startTime;
+    int m_previousFPS;
 };
 
 #endif

@@ -189,6 +189,7 @@
     <None Include="Fog.ps" />
     <None Include="Fog.vs" />
     <None Include="Font.ps" />
+    <None Include="Fractal.ps" />
     <None Include="Light.vs" />
     <None Include="MultiTex.ps" />
     <None Include="README.md" />

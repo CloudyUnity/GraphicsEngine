@@ -16,7 +16,7 @@ public:
 	~GameObjectClass2D();
 
 	void Initialize(BitmapClass*, ShaderClass*);
-	bool Render(ID3D11DeviceContext*, XMMATRIX, XMMATRIX, unordered_map<string, any>);
+	bool Render(ID3D11DeviceContext*, ShaderClass::ShaderParameters*);
 	void Shutdown();
 
 	void SetPosition(float, float);

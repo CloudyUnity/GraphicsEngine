@@ -19,17 +19,20 @@ public:
 	~GameObjectClass();
 
 	void Initialize(ModelClass*, ShaderClass*, TextureSetClass*, std::string);
-	bool Render(ID3D11DeviceContext*, XMMATRIX, XMMATRIX, unordered_map<string, any>);
+	bool Render(ID3D11DeviceContext*, ShaderClass::ShaderParameters* params);
 	void Shutdown();
 
 	void SetPosition(float, float, float);
 	void SetRotation(float, float, float);
 	void SetScale(float, float, float);
+	void SetScale(float);
 
 	void SubscribeToReflection(ID3D11Device*, int, int);
 	void SubscribeToRefraction(ID3D11Device*, int, int);
 	void SetReflectionTex();
 	void SetRefractionTex();
+	void SetReflectionMatrix(XMMATRIX);
+	XMMATRIX GetReflectionMatrix();
 
 	float GetBoundingRadius();
 
@@ -50,6 +53,7 @@ private:
 
 	int m_texSetReflectionNum;
 	int m_texSetRefractionNum;
+	XMMATRIX m_reflectMatrix;
 };
 
 #endif

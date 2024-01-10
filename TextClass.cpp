@@ -44,18 +44,18 @@ void TextClass::Shutdown()
     }
 }
 
-bool TextClass::Render(ID3D11DeviceContext* deviceContext, XMMATRIX viewMatrix, XMMATRIX projMatrix, unordered_map<string, any> args)
+bool TextClass::Render(ID3D11DeviceContext* deviceContext, ShaderClass::ShaderParameters* params)
 {    
     XMMATRIX scaleMatrix = XMMatrixScaling(m_ScaleX, m_ScaleY, 1.0f);
     XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYaw(0, 0, m_RotZ * 0.0174532925f);
-    XMMATRIX worldMatrix = XMMatrixMultiply(rotateMatrix, scaleMatrix);
+    params->matrix.world = XMMatrixMultiply(rotateMatrix, scaleMatrix);
 
-    args.insert({ "Pixel", GetPixelColor() });
+    params->pixel.pixelColor = GetPixelColor();
 
     RenderBuffers(deviceContext);
     m_TexSet->Add(m_font->GetTexture()->GetTexture(), 0);
 
-    return m_Shader->Render(deviceContext, GetIndexCount(), worldMatrix, viewMatrix, projMatrix, m_TexSet, args);
+    return m_Shader->Render(deviceContext, GetIndexCount(), m_TexSet, params);
 }
 
 int TextClass::GetIndexCount()
@@ -143,7 +143,7 @@ bool TextClass::UpdateText()
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     VertexType* verticesPtr;
 
-    numLetters = (int)strlen(m_text);
+    numLetters = m_text.size();
     if (numLetters > m_maxLength)
         return false;
 
@@ -153,7 +153,7 @@ bool TextClass::UpdateText()
     drawX = (float)(((m_screenWidth / 2) * -1) + m_PosX);
     drawY = (float)((m_screenHeight / 2) - m_PosY);
 
-    m_font->BuildVertexArray((void*)vertices, m_text, drawX, drawY);
+    m_font->BuildVertexArray((void*)vertices, &m_text.front(), drawX, drawY);
 
     result = m_deviceContext->Map(m_vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
     if (FAILED(result))
@@ -185,6 +185,11 @@ void TextClass::SetFont(FontClass* font)
 }
 
 void TextClass::SetText(char* text)
+{
+    m_text = text;
+}
+
+void TextClass::SetText(const char* text)
 {
     m_text = text;
 }
