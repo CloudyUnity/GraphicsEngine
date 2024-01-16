@@ -36,9 +36,11 @@ public:
 
 	bool Initialize(HWND);
 	bool InitializeModel(HWND, ModelClass**, const char*);
-	bool InitializeShader(HWND, ShaderClass**, const char*, const char*);
+	bool InitializeShader(HWND, ShaderClass**, const char*, const char*, bool clampSamplerMode = false);
 	void InitializeGameObject(ModelClass*, ShaderClass*, TextureSetClass*, const char*, GameObjectClass** ptr = nullptr);
+	void InitializeGameObject2D(BitmapClass*, ShaderClass*, GameObjectClass2D** ptr = nullptr);
 	bool InitializeTextClass(TextClass** ptr, ShaderClass* shader, FontClass*, int maxLength);
+	bool InitializeBitmap(BitmapClass**, const char*);
 	void Shutdown();
 	bool Frame(InputClass*);
 
@@ -63,14 +65,15 @@ private:
 	RenderTextureClass* m_RenderTexDisplay;
 	DisplayPlaneClass* m_DisplayPlane;
 
-	GameObjectClass* m_MadelineGO1, * m_MadelineGO2, * m_IcosphereGO, * m_mountainGO, * m_transIcoGO, * m_cubeGO;
-	GameObjectClass2D* m_SpinnerObj, *m_MouseObj;
-	BitmapClass* m_Bitmap, *m_MouseCursor;	
+	GameObjectClass* m_MadelineGO1, * m_MadelineGO2, * m_IcosphereGO, * m_mountainGO, * m_transIcoGO, * m_cubeGO, * m_fractalGO;
+	GameObjectClass2D* m_spinnerGO2D, *m_cursorGO2D;
+	BitmapClass* m_BitmapSpinner, *m_BitmapCursor;	
 	TextClass* m_TextString1, * m_TextString2, * m_TextStringMouseX, * m_TextStringMouseY, * m_TextStringMouseBttn, * m_FpsString;
 	TextureSetClass* m_TexSetMoss, * m_TexSetStars, * m_TexSetSnow, * m_TexSetReflection, * m_TexSetWater, * m_TexSetNone;
 
 	vector<ModelClass*> m_ModelList;
 	vector<ShaderClass*> m_ShaderList;
+	vector<BitmapClass*> m_BitmapList;
 };
 
 #endif

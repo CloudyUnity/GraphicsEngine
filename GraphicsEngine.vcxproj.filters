@@ -210,5 +210,14 @@
     <None Include="Fractal.ps">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Fire.ps">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Depth.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Depth.ps">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -3,6 +3,7 @@
 
 #include <directxmath.h>
 #include "InputClass.h"
+#include "Constants.h"
 using namespace DirectX;
 
 class CameraClass

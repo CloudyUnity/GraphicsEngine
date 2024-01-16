@@ -41,6 +41,8 @@ struct VertexInputType
 struct PixelInputType
 {
     float4 position : SV_POSITION;
+    float4 worldPos : POSITION1;
+
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
@@ -75,6 +77,7 @@ PixelInputType VS_MAIN(VertexInputType input)
     output.binormal = normalize(output.binormal);
 
     worldPosition = mul(input.position, worldMatrix);
+    output.worldPos = worldPosition;
 
     for(int i=0; i<NUM_LIGHTS; i++)
     {

@@ -29,7 +29,7 @@ ShaderClass::~ShaderClass()
 {
 }
 
-bool ShaderClass::Initialize(ID3D11Device* device, HWND hwnd, char* vertexName, char* fragName)
+bool ShaderClass::Initialize(ID3D11Device* device, HWND hwnd, char* vertexName, char* fragName, bool clampSamplerMode)
 {
 	bool result;
 	wchar_t vsFilename[128];
@@ -58,7 +58,7 @@ bool ShaderClass::Initialize(ID3D11Device* device, HWND hwnd, char* vertexName, 
 	if (error != 0)
 		return false;
 
-	return InitializeShader(device, hwnd, vsFilename, psFilename);
+	return InitializeShader(device, hwnd, vsFilename, psFilename, clampSamplerMode);
 }
 
 void ShaderClass::Shutdown()
@@ -76,7 +76,7 @@ bool ShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, Tex
 	return true;
 }
 
-bool ShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
+bool ShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename, bool clampSamplerMode)
 {
 	HRESULT result;
 	ID3D10Blob* errorMessage = 0;
@@ -198,6 +198,9 @@ bool ShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFil
 		TryCreateBuffer(device, bufferDesc, &m_texTransBuffer, sizeof(TexTranslationBufferType), m_fragName, "TexTranslation") &&
 		TryCreateBuffer(device, bufferDesc, &m_alphaBuffer, sizeof(AlphaBufferType), m_fragName, "Alpha") &&		
 		TryCreateBuffer(device, bufferDesc, &m_waterBuffer, sizeof(WaterBufferType), m_fragName, "Water") &&		
+		TryCreateBuffer(device, bufferDesc, &m_fireBuffer, sizeof(FireBufferType), m_fragName, "Fire") &&		
+		TryCreateBuffer(device, bufferDesc, &m_shadowBuffer, sizeof(ShadowBufferType), m_fragName, "Shadow") &&		
+		TryCreateBuffer(device, bufferDesc, &m_shadowBuffer, sizeof(ShadowBufferType), m_vertexName, "Shadow") &&		
 		TryCreateBuffer(device, bufferDesc, &m_lightPositionBuffer, sizeof(LightPositionBufferType), m_fragName, "LightPosition");
 
 	if (!bufferCreationResult)
@@ -205,13 +208,13 @@ bool ShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFil
 
 	// Create a texture sampler state description.
 	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	if (SAMPLER_MODE == 1)
+	if (clampSamplerMode)
 	{
 		samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 		samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 		samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 	}
-	else if (SAMPLER_MODE == 0)
+	else
 	{
 		samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 		samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -296,7 +299,7 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned int bufferNumber;
 
-	for (int i = 0; i < textures->GetCount(); i++)
+	for (int i = 0; textures && i < textures->GetCount(); i++)
 	{
 		ID3D11ShaderResourceView* tex = textures->GetTexture(i);
 		deviceContext->PSSetShaderResources(i, 1, &tex);
@@ -477,6 +480,39 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_waterBuffer);
 	}
 
+	if (ShaderUsesBuffer(m_fragName, "Fire"))
+	{
+		result = deviceContext->Map(m_fireBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		if (FAILED(result))
+			return false;
+		auto ptr = (FireBufferType*)mappedResource.pData;
+		ptr->distortion1 = params->fire.distortion1;
+		ptr->distortion2 = params->fire.distortion2;
+		ptr->distortion3 = params->fire.distortion3;
+		ptr->distortionScale = params->fire.distortionScale;
+		ptr->distortionBias= params->fire.distortionBias;
+		deviceContext->Unmap(m_fireBuffer, 0);
+		bufferNumber = 1;
+		deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_fireBuffer);
+	}
+
+	if (ShaderUsesBuffer(m_fragName, "Shadow"))
+	{
+		result = deviceContext->Map(m_shadowBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		if (FAILED(result))
+			return false;
+		auto ptr = (ShadowBufferType*)mappedResource.pData;
+		ptr->shadowView = XMMatrixTranspose(params->shadow.shadowView);
+		ptr->shadowProj = XMMatrixTranspose(params->shadow.shadowProj);
+		for (int i = 0; i < NUM_POISSON_SAMPLES; i++)
+			ptr->poissonDisk[i] = params->shadow.poissonDisk[i];
+
+		ptr->usingShadows = params->shadow.usingShadows;
+		deviceContext->Unmap(m_shadowBuffer, 0);
+		bufferNumber = 5;
+		deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_shadowBuffer);
+	}
+
 	return true;
 }
 
@@ -524,13 +560,29 @@ bool ShaderClass::ShaderUsesBuffer(std::string shader, std::string buffer)
 			buffer == "Reflection";
 	}
 
-	if (shader == "MultiTex.ps" || shader == "Fog.ps" || shader == "Reflect.ps" || shader == "Fractal.ps") {
+	if (shader == "MultiTex.ps" || shader == "Reflect.ps" || shader == "Fractal.ps") {
 		return buffer == "LightColor" ||
 			buffer == "Util" ||
 			buffer == "Light" ||
 			buffer == "LightPosition" ||
 			buffer == "TexTranslation" ||
 			buffer == "Alpha";
+	}
+
+	if (shader == "Fog.ps")
+	{
+		return buffer == "LightColor" ||
+			buffer == "Util" ||
+			buffer == "Light" ||
+			buffer == "LightPosition" ||
+			buffer == "TexTranslation" ||
+			buffer == "Shadow" ||
+			buffer == "Alpha";
+	}
+
+	if (shader == "Depth.vs")
+	{
+		return buffer == "Matrix";
 	}
 
 	if (shader == "Water.ps")
@@ -550,6 +602,12 @@ bool ShaderClass::ShaderUsesBuffer(std::string shader, std::string buffer)
 
 	if (shader == "2D.ps") {
 		return buffer == "Util";
+	}
+
+	if (shader == "Fire.ps")
+	{
+		return buffer == "Util" ||
+			buffer == "Fire";
 	}
 
 	return false;

@@ -31,9 +31,9 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	IDXGIFactory* factory;
 	IDXGIAdapter* adapter;
 	IDXGIOutput* adapterOutput;
-	unsigned int numModes, numerator = 0, denominator = 1;
+	unsigned int numModes = 0, numerator = 0, denominator = 1;
 	unsigned long long stringLength;
-	DXGI_MODE_DESC* displayModeList;
+	DXGI_MODE_DESC* displayModeList = 0;
 	DXGI_ADAPTER_DESC adapterDesc;
 	int error;
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
