@@ -19,7 +19,7 @@ public:
 	~GameObjectClass();
 
 	void Initialize(ModelClass*, ShaderClass*, TextureSetClass*, std::string);
-	bool Render(ID3D11DeviceContext*, ShaderClass::ShaderParameters* params);
+	bool Render(ID3D11DeviceContext*, ShaderClass::ShaderParameters* params, ShaderClass* overwriteShader = nullptr);
 	void Shutdown();
 
 	void SetPosition(float, float, float);
@@ -29,10 +29,16 @@ public:
 
 	void SubscribeToReflection(ID3D11Device*, int, int);
 	void SubscribeToRefraction(ID3D11Device*, int, int);
+	void SubscribeToShadows(int);
 	void SetReflectionTex();
 	void SetRefractionTex();
+	void SetShadowTex(RenderTextureClass*);
 	void SetReflectionMatrix(XMMATRIX);
 	XMMATRIX GetReflectionMatrix();
+
+	bool IsSubscribedToShadows();
+
+	void SetBillBoarding(bool);
 
 	float GetBoundingRadius();
 
@@ -44,6 +50,8 @@ public:
 
 	RenderTextureClass* m_RendTexReflection, * m_RendTexRefraction;
 
+	bool m_BillboardingEnabled;
+
 private:
 	float m_boundingRadius;
 
@@ -53,7 +61,8 @@ private:
 
 	int m_texSetReflectionNum;
 	int m_texSetRefractionNum;
-	XMMATRIX m_reflectMatrix;
+	int m_texSetShadowNum;
+	XMMATRIX m_reflectMatrix;	
 };
 
 #endif

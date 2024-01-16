@@ -5,6 +5,9 @@ GameObjectClass::GameObjectClass()
 	m_Model = 0;
 	m_Shader = 0;
 	m_boundingRadius = 0;	
+	m_texSetReflectionNum = -1;
+	m_texSetRefractionNum = -1;
+	m_texSetShadowNum = -1;
 }
 
 GameObjectClass::GameObjectClass(const GameObjectClass&)
@@ -24,16 +27,28 @@ void GameObjectClass::Initialize(ModelClass* model, ShaderClass* shaders, Textur
 	SetScale(1, 1, 1);
 }
 
-bool GameObjectClass::Render(ID3D11DeviceContext* deviceContext, ShaderClass::ShaderParameters* params)
+bool GameObjectClass::Render(ID3D11DeviceContext* deviceContext, ShaderClass::ShaderParameters* params, ShaderClass* overwriteShader)
 {
 	XMMATRIX scaleMatrix = XMMatrixScaling(m_ScaleX, m_ScaleY, m_ScaleZ);
-	XMMATRIX translateMatrix = XMMatrixTranslation(m_PosX, m_PosY, m_PosZ);
-	XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYaw(m_RotX * 0.0174532925f, m_RotY * 0.0174532925f, m_RotZ * 0.0174532925f); // ???
+	XMMATRIX translateMatrix = XMMatrixTranslation(m_PosX, m_PosY, m_PosZ);	
+	XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYaw(m_RotX * DEG_TO_RAD, m_RotY * DEG_TO_RAD, m_RotZ * DEG_TO_RAD);
+
+	if (m_BillboardingEnabled)
+	{
+		float angle = atan2(m_PosX - params->camera.cameraPosition.x, m_PosZ - params->camera.cameraPosition.z);
+		rotateMatrix = XMMatrixMultiply(rotateMatrix, XMMatrixRotationY(angle));
+	}
+
 	XMMATRIX srMatrix = XMMatrixMultiply(scaleMatrix, rotateMatrix);
 	params->matrix.world = XMMatrixMultiply(srMatrix, translateMatrix);
 
 	// Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	m_Model->RenderBuffers(deviceContext);
+
+	if (overwriteShader)
+	{
+		return overwriteShader->Render(deviceContext, m_Model->GetIndexCount(), nullptr, params);
+	}
 
 	return m_Shader->Render(deviceContext, m_Model->GetIndexCount(), m_Textures, params);
 }
@@ -121,6 +136,11 @@ void GameObjectClass::SubscribeToRefraction(ID3D11Device* device, int texSetNum,
 	m_texSetRefractionNum = texSetNum;
 }
 
+void GameObjectClass::SubscribeToShadows(int texSetNum)
+{	
+	m_texSetShadowNum = texSetNum;
+}
+
 void GameObjectClass::SetReflectionTex()
 {
 	m_Textures->Add(m_RendTexReflection->GetShaderResourceView(), m_texSetReflectionNum);
@@ -131,6 +151,11 @@ void GameObjectClass::SetRefractionTex()
 	m_Textures->Add(m_RendTexRefraction->GetShaderResourceView(), m_texSetRefractionNum);
 }
 
+void GameObjectClass::SetShadowTex(RenderTextureClass* rendTex)
+{
+	m_Textures->Add(rendTex->GetShaderResourceView(), m_texSetShadowNum);
+}
+
 void GameObjectClass::SetReflectionMatrix(XMMATRIX matrix)
 {
 	m_reflectMatrix = matrix;
@@ -139,4 +164,14 @@ void GameObjectClass::SetReflectionMatrix(XMMATRIX matrix)
 XMMATRIX GameObjectClass::GetReflectionMatrix()
 {
 	return m_reflectMatrix;
+}
+
+bool GameObjectClass::IsSubscribedToShadows()
+{
+	return m_texSetShadowNum != -1;
+}
+
+void GameObjectClass::SetBillBoarding(bool billboarding)
+{
+	m_BillboardingEnabled = billboarding;
 }

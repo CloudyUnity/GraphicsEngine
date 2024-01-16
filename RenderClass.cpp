@@ -22,7 +22,7 @@ bool RenderClass::Initialize(D3DClass* d3d, CameraClass* cam, FrustumClass* frus
 {
 	m_Direct3D = d3d;
 	m_Camera = cam;
-	m_Frustum = frustum;
+	m_Frustum = frustum;		
 
 	return true;
 }
@@ -45,6 +45,13 @@ void RenderClass::Shutdown()
 	{
 		go->Shutdown();
 		delete go;
+	}
+
+	if (m_shadowMapDisplay)
+	{
+		m_shadowMapDisplay->Shutdown();
+		delete m_shadowMapDisplay;
+		m_shadowMapDisplay = 0;
 	}
 }
 
@@ -80,6 +87,13 @@ void RenderClass::SubscribeToRefraction(ID3D11Device* device, GameObjectClass* g
 	m_RefractionList.push_back(go);
 
 	go->SubscribeToRefraction(device, texSetNum, format);
+}
+
+void RenderClass::SubscribeToShadow(GameObjectClass* go, int texSetNum)
+{
+	m_ShadowList.push_back(go);
+
+	go->SubscribeToShadows(texSetNum);
 }
 
 void RenderClass::RenderReflectionNextAvailableFrame()
@@ -135,6 +149,28 @@ bool RenderClass::Render(ShaderClass::ShaderParameters* params)
 		m_renderReflectionImmediately = false;
 	}
 
+	if (SHADOWS_ENABLED)
+	{
+		result = RenderToShadowTexture(params);
+		if (!result)
+			return false;
+
+		for (auto go : m_ShadowList)
+		{			
+			go->SetShadowTex(m_shadowMapDisplay->m_RenderTexture);
+		}
+
+		if (SHOW_SHADOW_MAP)
+		{
+			params->matrix.view = viewMatrix;
+			params->matrix.projection = projectionMatrix;
+
+			result = m_shadowMapDisplay->Render(m_Direct3D->GetDeviceContext(), params);
+			if (!result)
+				return false;
+		}
+	}
+
 	result = RenderScene(viewMatrix, projectionMatrix, params);
 	if (!result)
 		return false;
@@ -164,7 +200,7 @@ bool RenderClass::RenderScene(XMMATRIX viewMatrix, XMMATRIX projectionMatrix, Sh
 		if (go->m_NameIdentifier == skipGO)
 			continue;
 
-		if (!m_Frustum->CheckSphere(go->m_PosX, go->m_PosY, go->m_PosZ, go->GetBoundingRadius()))
+		if (FRUSTUM_CULLING && !m_Frustum->CheckSphere(go->m_PosX, go->m_PosY, go->m_PosZ, go->GetBoundingRadius()))
 			continue;
 
 		if (go->m_NameIdentifier == "Madeline2")
@@ -179,8 +215,31 @@ bool RenderClass::RenderScene(XMMATRIX viewMatrix, XMMATRIX projectionMatrix, Sh
 			params->clip.clipPlane = XMFLOAT4(0.0f, -1.0f, 0.0f, 2.5f);
 
 		params->reflection.reflectionMatrix = go->GetReflectionMatrix();
+		params->shadow.usingShadows = SHADOWS_ENABLED && go->IsSubscribedToShadows();
 
 		bool result = go->Render(m_Direct3D->GetDeviceContext(), params);
+		if (!result)
+			return false;
+
+		*params = savedParams;
+	}
+
+	return true;
+}
+
+bool RenderClass::RenderSceneDepth(ShaderClass::ShaderParameters* params)
+{	
+	params->matrix.view = params->shadow.shadowView;
+	params->matrix.projection = params->shadow.shadowProj;
+
+	auto savedParams = *params;	
+
+	for (auto go : m_AllGameObjectList)
+	{
+		if (go->m_NameIdentifier == "IcosphereBig")
+			params->clip.clipPlane = XMFLOAT4(0.0f, -1.0f, 0.0f, 2.5f);
+
+		bool result = go->Render(m_Direct3D->GetDeviceContext(), params, m_depthShader);
 		if (!result)
 			return false;
 
@@ -246,6 +305,21 @@ bool RenderClass::RenderToRefractionTexture(GameObjectClass* go, ShaderClass::Sh
 	m_Direct3D->ResetViewport();
 
 	params->clip.clipPlane = clipPlane;
+
+	return true;
+}
+
+bool RenderClass::RenderToShadowTexture(ShaderClass::ShaderParameters* params)
+{
+	m_shadowMapDisplay->m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+	m_shadowMapDisplay->m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 1, 1, 1, 1);
+
+	bool result = RenderSceneDepth(params);
+	if (!result)
+		return false;
+
+	m_Direct3D->SetBackBufferRenderTarget();
+	m_Direct3D->ResetViewport();
 
 	return true;
 }
@@ -322,4 +396,14 @@ bool RenderClass::Render2D(ShaderClass::ShaderParameters* params)
 	m_Direct3D->TurnZBufferOn();	
 
 	return true;
+}
+
+void RenderClass::SetDepthShader(ShaderClass* shader)
+{
+	m_depthShader = shader;
+}
+
+void RenderClass::SetShadowMapDisplayPlane(DisplayPlaneClass* display)
+{
+	m_shadowMapDisplay = display;
 }

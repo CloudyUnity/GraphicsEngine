@@ -186,6 +186,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="2D.ps" />
+    <None Include="Depth.ps" />
+    <None Include="Depth.vs" />
+    <None Include="Fire.ps" />
     <None Include="Fog.ps" />
     <None Include="Fog.vs" />
     <None Include="Font.ps" />

@@ -89,6 +89,17 @@ private:
 		float reflectRefractScale;
 		XMFLOAT3 padding;
 	};
+	struct FireBufferType
+	{
+		XMFLOAT2 distortion1, distortion2, distortion3;
+		float distortionScale, distortionBias;
+	};
+	struct ShadowBufferType
+	{
+		XMMATRIX shadowView, shadowProj;
+		float usingShadows, padding, padding2, padding3;
+		XMFLOAT2 poissonDisk[NUM_POISSON_SAMPLES];		
+	};
 
 public:
 	struct ShaderParameters
@@ -106,6 +117,8 @@ public:
 		AlphaBufferType alpha;
 		ReflectionBufferType reflection;
 		WaterBufferType water;
+		FireBufferType fire;
+		ShadowBufferType shadow;
 	};
 
 public:
@@ -113,12 +126,12 @@ public:
 	ShaderClass(const ShaderClass&);
 	~ShaderClass();
 
-	bool Initialize(ID3D11Device*, HWND, char*, char*);
+	bool Initialize(ID3D11Device*, HWND, char*, char*, bool clampSamplerMode = false);
 	void Shutdown();	
 	bool Render(ID3D11DeviceContext*, int, TextureSetClass*, ShaderParameters*);
 
 private:
-	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
+	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*, bool);
 	bool TryCreateBuffer(ID3D11Device* device, D3D11_BUFFER_DESC bufferDesc, ID3D11Buffer** ptr, size_t structSize, string, string);
 	void ShutdownShader();
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
@@ -133,7 +146,7 @@ private:
 	ID3D11PixelShader* m_pixelShader;
 	ID3D11InputLayout* m_layout;
 	ID3D11Buffer* m_matrixBuffer, * m_utilBuffer, * m_lightColorBuffer, * m_lightPositionBuffer, * m_lightBuffer, * m_cameraBuffer, * m_pixelBuffer, * m_fogBuffer;
-	ID3D11Buffer* m_clipBuffer, * m_texTransBuffer, * m_alphaBuffer, * m_reflectionBuffer, * m_waterBuffer;
+	ID3D11Buffer* m_clipBuffer, * m_texTransBuffer, * m_alphaBuffer, * m_reflectionBuffer, * m_waterBuffer, * m_fireBuffer, * m_shadowBuffer;
 	ID3D11SamplerState* m_sampleState;
 
 	std::string m_vertexName, m_fragName;
