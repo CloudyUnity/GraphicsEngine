@@ -16,10 +16,12 @@ inline constexpr bool FULL_SCREEN = false;
 
 // RENDERING:
 inline constexpr bool BLENDING_ON = true;
-inline constexpr bool REFLECTION_ENABLED = true;
 inline constexpr bool SHADOWS_ENABLED = true;
-inline constexpr int REFLECTION_FRAME_DELAY = 3; // Frames between each rendering of reflection textures for optimization. (15-30) is reccomended
 inline constexpr bool FRUSTUM_CULLING = true;
+inline constexpr bool FOG_ENABLED = true;
+inline constexpr bool REFLECTION_ENABLED = true;
+inline constexpr bool POST_PROCESSING_ENABLED = true;
+inline constexpr int REFLECTION_FRAME_DELAY = 3; // Frames between each rendering of reflection textures for optimization
 
 // 0 - CULL_NONE
 // 1 - CULL_BACK_FACE
@@ -27,12 +29,12 @@ inline constexpr bool FRUSTUM_CULLING = true;
 inline constexpr int RENDER_MODE = 1;
 
 // SHADOWS:
-inline constexpr int SHADOW_MAP_SCENE_SIZE = 50; // Passed into depth view matrix
-inline constexpr int SHADOW_MAP_RENDER_X = 4096; // Passed into render texture
-inline constexpr int SHADOW_MAP_RENDER_Y = 4096; // Passed into render texture
-inline constexpr float SHADOW_MAP_DEPTH = 50.0f; // Far clip-plane
-inline constexpr float SHADOW_MAP_NEAR = 5.0f; // Near clip-plane
-inline constexpr float SHADOW_MAP_DISTANCE = 15.0f; // Distance the light position is away from the origin for the view matrix
+inline constexpr int SHADOW_MAP_SCENE_SIZE = 60; // Passed into depth view matrix
+inline constexpr int SHADOW_MAP_RENDER_X = 2048; // Passed into render texture
+inline constexpr int SHADOW_MAP_RENDER_Y = 2048; // Passed into render texture
+inline constexpr float SHADOW_MAP_DEPTH = 75.0f; // Far clip-plane
+inline constexpr float SHADOW_MAP_NEAR = 1.0f; // Near clip-plane
+inline constexpr float SHADOW_MAP_DISTANCE = 28.0f; // Distance the light position is away from the origin for the view matrix
 inline constexpr int NUM_POISSON_SAMPLES = 4;
 inline constexpr bool SHOW_SHADOW_MAP = false;
 
@@ -41,10 +43,11 @@ inline constexpr float FOG_COLOR_R = 0.5f;
 inline constexpr float FOG_COLOR_G = 0.5f;
 inline constexpr float FOG_COLOR_B = 0.5f;
 inline constexpr float FOG_COLOR_A = 1.0f;
+inline constexpr int NUM_POINT_LIGHTS = 4;
 
-inline constexpr float DIR_LIGHT_X = 1.0f;
-inline constexpr float DIR_LIGHT_Y = -1.0f;
-inline constexpr float DIR_LIGHT_Z = 1.0f;
+// POST PROCESSING
+inline constexpr float DOWN_SCALE_MULT = 0.5f;
+inline constexpr int BLUR_SAMPLE_SPREAD = 4;
 
 // GAMEPLAY
 inline constexpr float CAMERA_SPEED = 4.0f;

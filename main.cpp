@@ -7,7 +7,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	if (system->Initialize())
 		system->Run();
 	else
-		throw new std::exception("Failed to initliaze system");
+		return 400;
 
 	system->Shutdown();
 	delete system;

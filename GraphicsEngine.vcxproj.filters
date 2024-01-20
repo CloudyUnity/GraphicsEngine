@@ -49,7 +49,7 @@
     <ClInclude Include="CameraClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TextureShaderClass.h">
+    <ClInclude Include="ShaderClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TextureClass.h">
@@ -123,7 +123,7 @@
     <ClCompile Include="CameraClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TextureShaderClass.cpp">
+    <ClCompile Include="ShaderClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TextureClass.cpp">
@@ -217,6 +217,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="Depth.ps">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="PostProcessing.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="PostProcessing.ps">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

@@ -156,7 +156,7 @@
     <ClInclude Include="TextClass.h" />
     <ClInclude Include="TextureClass.h" />
     <ClInclude Include="TextureSetClass.h" />
-    <ClInclude Include="TextureShaderClass.h" />
+    <ClInclude Include="ShaderClass.h" />
     <ClInclude Include="TimerClass.h" />
   </ItemGroup>
   <ItemGroup>
@@ -181,7 +181,7 @@
     <ClCompile Include="TextClass.cpp" />
     <ClCompile Include="TextureClass.cpp" />
     <ClCompile Include="TextureSetClass.cpp" />
-    <ClCompile Include="TextureShaderClass.cpp" />
+    <ClCompile Include="ShaderClass.cpp" />
     <ClCompile Include="TimerClass.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -195,6 +195,8 @@
     <None Include="Fractal.ps" />
     <None Include="Light.vs" />
     <None Include="MultiTex.ps" />
+    <None Include="PostProcessing.ps" />
+    <None Include="PostProcessing.vs" />
     <None Include="README.md" />
     <None Include="Reflect.ps" />
     <None Include="Reflect.vs" />

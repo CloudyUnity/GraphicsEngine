@@ -3,7 +3,7 @@
 
 #include <d3d11.h>
 #include <directxmath.h>
-#include "TextureShaderClass.h"
+#include "shaderclass.h"
 #include "ModelClass.h"
 #include "TextureSetClass.h"
 #include <string>
@@ -15,7 +15,6 @@ class GameObjectClass
 {
 public:
 	GameObjectClass();
-	GameObjectClass(const GameObjectClass&);
 	~GameObjectClass();
 
 	void Initialize(ModelClass*, ShaderClass*, TextureSetClass*, std::string);

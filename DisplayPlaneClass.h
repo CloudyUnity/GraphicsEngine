@@ -3,7 +3,7 @@
 
 #include "d3dclass.h"
 #include "RenderTextureClass.h"
-#include "TextureShaderClass.h"
+#include "shaderclass.h"
 
 class DisplayPlaneClass
 {

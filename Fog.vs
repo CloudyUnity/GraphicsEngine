@@ -40,17 +40,18 @@ struct VertexInputType
 
 struct PixelInputType
 {
-    float4 position : SV_POSITION;
+    float4 position : SV_POSITION0;
     float4 worldPos : POSITION1;
 
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
-    float3 binormal : BINORMAL;
-    float3 lightPos[NUM_LIGHTS] : TEXCOORD2;
+    float3 binormal : BINORMAL;    
     float3 viewDirection : TEXCOORD1;
     float fogFactor : FOG;
     float clip : SV_ClipDistance0;
+
+    float3 lightPos[NUM_LIGHTS] : TEXCOORD2;
 };
 
 PixelInputType VS_MAIN(VertexInputType input)

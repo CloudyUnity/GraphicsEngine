@@ -9,13 +9,11 @@ CameraClass::CameraClass()
 	m_rotationX = 0.0f;
 	m_rotationY = 0.0f;
 	m_rotationZ = 0.0f;
+
+	m_2DViewMatrix = XMMatrixIdentity();
+	m_reflectionViewMatrix = XMMatrixIdentity();
+	m_viewMatrix = XMMatrixIdentity();
 }
-
-
-CameraClass::CameraClass(const CameraClass& other)
-{
-}
-
 
 CameraClass::~CameraClass()
 {
@@ -79,9 +77,9 @@ void CameraClass::Render()
 	lookAtVector = XMLoadFloat3(&lookAt);
 
 	// Set the yaw (Y axis), pitch (X axis), and roll (Z axis) rotations in radians.
-	pitch = m_rotationX * DEG_TO_RAD;
-	yaw = m_rotationY * DEG_TO_RAD;
-	roll = m_rotationZ * DEG_TO_RAD;
+	pitch = m_rotationX * (float)DEG_TO_RAD;
+	yaw = m_rotationY * (float)DEG_TO_RAD;
+	roll = m_rotationZ * (float)DEG_TO_RAD;
 
 	// Create the rotation matrix from the yaw, pitch, and roll values.
 	rotationMatrix = XMMatrixRotationRollPitchYaw(pitch, yaw, roll);
@@ -112,12 +110,12 @@ void CameraClass::Frame(InputClass* Input, float frameTime)
 	float speed = CAMERA_SPEED * frameTime;
 	float rotSpeed = CAMERA_ROTATION_SPEED * frameTime;
 
-	float sinX = sin(m_rotationX * DEG_TO_RAD);
-	float cosX = cos(m_rotationX * DEG_TO_RAD);
-	float sinY = sin(m_rotationY * DEG_TO_RAD);
-	float cosY = cos(m_rotationY * DEG_TO_RAD);	
-	float sinZ = sin(m_rotationZ * DEG_TO_RAD);
-	float cosZ = cos(m_rotationZ * DEG_TO_RAD);
+	float sinX = (float)sin(m_rotationX * (float)DEG_TO_RAD);
+	float cosX = (float)cos(m_rotationX * (float)DEG_TO_RAD);
+	float sinY = (float)sin(m_rotationY * (float)DEG_TO_RAD);
+	float cosY = (float)cos(m_rotationY * (float)DEG_TO_RAD);
+	float sinZ = (float)sin(m_rotationZ * (float)DEG_TO_RAD);
+	float cosZ = (float)cos(m_rotationZ * (float)DEG_TO_RAD);
 
 	if (Input->IsKeyPressed(DIK_C))
 	{
@@ -133,8 +131,8 @@ void CameraClass::Frame(InputClass* Input, float frameTime)
 		if (Input->IsKeyPressed(DIK_S))
 			m_rotationX -= rotSpeed;
 
-		m_rotationX = fmod(m_rotationX, 360);
-		m_rotationZ = fmod(m_rotationZ, 360);
+		m_rotationX = (float)fmod(m_rotationX, 360);
+		m_rotationZ = (float)fmod(m_rotationZ, 360);
 
 		return;
 	}
@@ -177,7 +175,7 @@ void CameraClass::Frame(InputClass* Input, float frameTime)
 	if (Input->IsKeyPressed(DIK_Z))
 		m_rotationY -= rotSpeed;
 
-	m_rotationY = fmod(m_rotationY, 360);
+	m_rotationY = (float)fmod(m_rotationY, 360);
 
 	if (Input->IsKeyPressed(DIK_R)) {
 		m_positionX = 0;
@@ -214,9 +212,9 @@ void CameraClass::RenderReflection(float height)
 	lookAtVector = XMLoadFloat3(&lookAt);
 
 	// Set the yaw (Y axis), pitch (X axis), and roll (Z axis) rotations in radians.
-	pitch = (-1.0f * m_rotationX) * DEG_TO_RAD;  // Invert for reflection
-	yaw = m_rotationY * DEG_TO_RAD;
-	roll = m_rotationZ * DEG_TO_RAD;
+	pitch = (-1.0f * m_rotationX) * (float)DEG_TO_RAD;  // Invert for reflection
+	yaw = m_rotationY * (float)DEG_TO_RAD;
+	roll = m_rotationZ * (float)DEG_TO_RAD;
 	rotationMatrix = XMMatrixRotationRollPitchYaw(pitch, yaw, roll);
 
 	// Transform the lookAt and up vector by the rotation matrix so the view is correctly rotated at the origin.

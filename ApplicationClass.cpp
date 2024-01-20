@@ -5,37 +5,47 @@ ApplicationClass::ApplicationClass()
 {
 	m_Direct3D = 0;
 	m_Camera = 0;
-	m_Lights = 0;
-	m_BitmapSpinner = 0;
-	m_DirLight = 0;
 	m_Timer = 0;
 	m_Font = 0;
-	m_TextString1 = 0;
-	m_TextString2 = 0;
 	m_Fps = 0;
+	m_RenderClass = 0;
+	m_Frustum = 0;
+	m_Parameters = 0;
+
+	m_Lights = 0;
+	m_DirLight = 0;
+
+	m_BitmapSpinner = 0;
+	m_BitmapCursor = 0;	
+	
+	m_TextString1 = 0;
+	m_TextString2 = 0;	
 	m_FpsString = 0;
 	m_TextStringMouseBttn = 0;
 	m_TextStringMouseX = 0;
 	m_TextStringMouseY = 0;
+
 	m_RenderTexDisplay = 0;
+
 	m_DisplayPlane = 0;
+
 	m_mountainGO = 0;
 	m_IcosphereGO = 0;
 	m_transIcoGO = 0;
 	m_MadelineGO1 = 0;
 	m_MadelineGO2 = 0;
-	m_cubeGO = 0;
-	m_RenderClass = 0;
+	m_cubeGO = 0;	
+	m_fractalGO = 0;
 
-	m_startTime = std::chrono::high_resolution_clock::now();
+	m_cursorGO2D = 0;
+	m_spinnerGO2D = 0;
+
+	m_dirLightX = 0;
+	m_dirLightY = 0;
+	m_dirLightZ = 0;
 
 	//ModelParser::ParseFile("C:\\Users\\finnw\\OneDrive\\Documents\\3D objects\\Plane.obj");
 }
-
-ApplicationClass::ApplicationClass(const ApplicationClass& other)
-{
-}
-
 
 ApplicationClass::~ApplicationClass()
 {
@@ -75,11 +85,25 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	if (!result)
 		return false;		
 
+	// VARIABLES
+
+	m_startTime = std::chrono::high_resolution_clock::now();
+	m_dirLightX = -1.0f;
+	m_dirLightY = -1.0f;
+	m_dirLightZ = -1.0f;
+
 	// PARAMETERS
 
 	m_Parameters = new ShaderClass::ShaderParameters;
+
 	m_Parameters->fog.fogStart = 0.0f;
 	m_Parameters->fog.fogEnd = 40.0f;
+	if (!FOG_ENABLED)
+	{
+		m_Parameters->fog.fogStart = -9999999.0f;
+		m_Parameters->fog.fogEnd = 999999999.0f;
+	}
+
 	m_Parameters->clip.clipPlane = XMFLOAT4(0.0f, -1.0f, 0.0f, 999999.0f);
 	m_Parameters->textureTranslation.translation = XMFLOAT2(0, 0);
 	m_Parameters->textureTranslation.timeMultiplier = 0.0f;
@@ -92,24 +116,30 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	m_Parameters->fire.distortionScale = 0.8f;
 	m_Parameters->fire.distortionBias = 0.5f;
 
-	XMVECTOR lightPos = XMVectorSet(DIR_LIGHT_X, DIR_LIGHT_Y, DIR_LIGHT_Z, 0);
-	lightPos = XMVectorScale(lightPos, -SHADOW_MAP_DISTANCE);
-	XMMATRIX lightView = XMMatrixLookAtLH(lightPos, XMVectorSet(0, 0, 0, 0), XMVectorSet(0, 1, 0, 0));
-	m_Parameters->shadow.shadowView = lightView;
-
+	InitializeShadowMapViewMatrix();
 	XMMATRIX lightProjection = XMMatrixOrthographicLH(SHADOW_MAP_SCENE_SIZE, SHADOW_MAP_SCENE_SIZE, SHADOW_MAP_NEAR, SHADOW_MAP_DEPTH);
 	m_Parameters->shadow.shadowProj = lightProjection;
+	m_Parameters->shadow.poissonDisk[0] = XMFLOAT4(-0.94201624f, -0.39906216f, 0, 0);
+	m_Parameters->shadow.poissonDisk[1] = XMFLOAT4(0.94558609f, -0.76890725f, 0, 0);
+	m_Parameters->shadow.poissonDisk[2] = XMFLOAT4(-0.094184101f, -0.92938870f, 0, 0);
+	m_Parameters->shadow.poissonDisk[3] = XMFLOAT4(0.34495938f, 0.29387760f, 0, 0);
+	m_Parameters->shadow.poissonSpread = 4096;
+	m_Parameters->shadow.shadowBias = 0.005f;
+	m_Parameters->shadow.shadowCutOff = 0.01f;	
 
-	m_Parameters->shadow.poissonDisk[0] = XMFLOAT2(-0.94201624, -0.39906216);
-	m_Parameters->shadow.poissonDisk[1] = XMFLOAT2(0.94558609, -0.76890725);
-	m_Parameters->shadow.poissonDisk[2] = XMFLOAT2(-0.094184101, -0.92938870);
-	m_Parameters->shadow.poissonDisk[3] = XMFLOAT2(0.34495938, 0.29387760);
-	
+	m_Parameters->blur.screenWidth = SCREEN_X;
+	m_Parameters->blur.screenHeight = SCREEN_Y;
+	m_Parameters->blur.blurMode = 0;
+
+	m_Parameters->blur.weights[0] = XMFLOAT4(1.0f,0,0,0);
+	m_Parameters->blur.weights[1] = XMFLOAT4(0.9f, 0, 0, 0);
+	m_Parameters->blur.weights[2] = XMFLOAT4(0.55f, 0, 0, 0);
+	m_Parameters->blur.weights[3] = XMFLOAT4(0.18f, 0, 0, 0);
 
 	// SHADERS	
 
 	bool clampSamplerMode = true;
-	ShaderClass* shaderMain = 0, * shaderReflect = 0, * shaderWater = 0, * shader2D = 0, * shaderFont = 0, * shaderFractal = 0, * shaderFire = 0, *shaderDepth = 0;
+	ShaderClass* shaderMain = 0, * shaderReflect = 0, * shaderWater = 0, * shader2D = 0, * shaderFont = 0, * shaderFractal = 0, * shaderFire = 0, * shaderDepth = 0, * shaderPostProcessing = 0;
 	result = 
 		InitializeShader(hwnd, &shaderMain, "../GraphicsEngine/Fog.vs", "../GraphicsEngine/Fog.ps") &&
 		InitializeShader(hwnd, &shaderReflect, "../GraphicsEngine/Reflect.vs", "../GraphicsEngine/Reflect.ps") &&
@@ -118,6 +148,7 @@ bool ApplicationClass::Initialize(HWND hwnd)
 		InitializeShader(hwnd, &shaderFont, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/Font.ps") &&
 		InitializeShader(hwnd, &shaderFire, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/Fire.ps", clampSamplerMode) &&
 		InitializeShader(hwnd, &shaderDepth, "../GraphicsEngine/Depth.vs", "../GraphicsEngine/Depth.ps") &&
+		InitializeShader(hwnd, &shaderPostProcessing, "../GraphicsEngine/PostProcessing.vs", "../GraphicsEngine/PostProcessing.ps") &&
 		InitializeShader(hwnd, &shaderFractal, "../GraphicsEngine/Fog.vs", "../GraphicsEngine/Fractal.ps");
 	if (!result)
 		return false;
@@ -126,39 +157,41 @@ bool ApplicationClass::Initialize(HWND hwnd)
 
 	// TEXSETS
 
-	m_TexSetMoss = new TextureSetClass;
-	m_TexSetMoss->Add(device, deviceContext, "../GraphicsEngine/Data/Celeste.tga");
-	m_TexSetMoss->Add(device, deviceContext, "../GraphicsEngine/Data/Moss.tga");
-	m_TexSetMoss->Add(device, deviceContext, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
-	m_TexSetMoss->Add(device, deviceContext, "../GraphicsEngine/Data/MossNormal.tga");
+	TextureSetClass* texSetMoss, * texSetStars, * texSetSnow, * texSetReflection, * texSetWater, * texSetNone, * texSetPostProcessingInput, * texSetFire;
+	InitializeTexSet(&texSetMoss);
+	InitializeTexSet(&texSetStars);
+	InitializeTexSet(&texSetSnow);
+	InitializeTexSet(&texSetReflection);
+	InitializeTexSet(&texSetWater);
+	InitializeTexSet(&texSetNone);
+	InitializeTexSet(&texSetPostProcessingInput);
+	InitializeTexSet(&texSetFire);
 
-	m_TexSetStars = new TextureSetClass;
-	m_TexSetStars->Add(device, deviceContext, "../GraphicsEngine/Data/Celeste.tga");
-	m_TexSetStars->Add(device, deviceContext, "../GraphicsEngine/Data/Celeste.tga");
-	m_TexSetStars->Add(device, deviceContext, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
-	m_TexSetStars->Add(device, deviceContext, "../GraphicsEngine/Data/RockNormal.tga");
+	texSetMoss->Add(device, deviceContext, "../GraphicsEngine/Data/Celeste.tga");
+	texSetMoss->Add(device, deviceContext, "../GraphicsEngine/Data/Moss.tga");
+	texSetMoss->Add(device, deviceContext, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
+	texSetMoss->Add(device, deviceContext, "../GraphicsEngine/Data/MossNormal.tga");
 
-	m_TexSetSnow = new TextureSetClass;
-	m_TexSetSnow->Add(device, deviceContext, "../GraphicsEngine/Data/Snow.tga");
-	m_TexSetSnow->Add(device, deviceContext, "../GraphicsEngine/Data/Snow.tga");
-	m_TexSetSnow->Add(device, deviceContext, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
-	m_TexSetSnow->Add(device, deviceContext, "../GraphicsEngine/Data/DefaultNormal.tga");
+	texSetStars->Add(device, deviceContext, "../GraphicsEngine/Data/Celeste.tga");
+	texSetStars->Add(device, deviceContext, "../GraphicsEngine/Data/Celeste.tga");
+	texSetStars->Add(device, deviceContext, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
+	texSetStars->Add(device, deviceContext, "../GraphicsEngine/Data/RockNormal.tga");
 
-	m_TexSetReflection = new TextureSetClass;
-	m_TexSetReflection->Add(device, deviceContext, "../GraphicsEngine/Data/Glass.tga");
-	m_TexSetReflection->Add(device, deviceContext, "../GraphicsEngine/Data/Glass.tga");
-	m_TexSetReflection->Add(device, deviceContext, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
-	m_TexSetReflection->Add(device, deviceContext, "../GraphicsEngine/Data/GlassNormal.tga");
+	texSetSnow->Add(device, deviceContext, "../GraphicsEngine/Data/Snow.tga");
+	texSetSnow->Add(device, deviceContext, "../GraphicsEngine/Data/Snow.tga");
+	texSetSnow->Add(device, deviceContext, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
+	texSetSnow->Add(device, deviceContext, "../GraphicsEngine/Data/DefaultNormal.tga");
 
-	m_TexSetWater = new TextureSetClass;
-	m_TexSetWater->Add(device, deviceContext, "../GraphicsEngine/Data/WaterBlue.tga");
-	m_TexSetWater->Add(device, deviceContext, "../GraphicsEngine/Data/WaterBlue.tga");
-	m_TexSetWater->Add(device, deviceContext, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
-	m_TexSetWater->Add(device, deviceContext, "../GraphicsEngine/Data/WaterNormal.tga");
+	texSetReflection->Add(device, deviceContext, "../GraphicsEngine/Data/Glass.tga");
+	texSetReflection->Add(device, deviceContext, "../GraphicsEngine/Data/Glass.tga");
+	texSetReflection->Add(device, deviceContext, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
+	texSetReflection->Add(device, deviceContext, "../GraphicsEngine/Data/GlassNormal.tga");
 
-	m_TexSetNone = new TextureSetClass;
+	texSetWater->Add(device, deviceContext, "../GraphicsEngine/Data/WaterBlue.tga");
+	texSetWater->Add(device, deviceContext, "../GraphicsEngine/Data/WaterBlue.tga");
+	texSetWater->Add(device, deviceContext, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
+	texSetWater->Add(device, deviceContext, "../GraphicsEngine/Data/WaterNormal.tga");
 
-	auto texSetFire = new TextureSetClass;
 	texSetFire->Add(device, deviceContext, "../GraphicsEngine/Data/NoiseAlt.tga");
 	texSetFire->Add(device, deviceContext, "../GraphicsEngine/Data/fireColor.tga");
 	texSetFire->Add(device, deviceContext, "../GraphicsEngine/Data/flameAlpha.tga");
@@ -188,17 +221,17 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	GameObjectClass* waterGO = 0, * waterCubeGO = 0, * fireGO, * floorGO;
 	float waterSize = 2;
 
-	InitializeGameObject(modelMadeline, shaderMain, m_TexSetMoss, "Madeline1", &m_MadelineGO1);
-	InitializeGameObject(modelMadeline, shaderMain, m_TexSetStars, "Madeline2", &m_MadelineGO2);
-	InitializeGameObject(modelIcosphere, shaderMain, m_TexSetMoss, "IcosphereBig", &m_IcosphereGO);
-	InitializeGameObject(modelIcosphere, shaderMain, m_TexSetSnow, "IcosphereTrans", &m_transIcoGO);
-	InitializeGameObject(modelMountain, shaderMain, m_TexSetSnow, "Mountain", &m_mountainGO);
-	InitializeGameObject(modelPlane, shaderWater, m_TexSetWater, "Water", &waterGO);
-	InitializeGameObject(modelCube, shaderReflect, m_TexSetReflection, "GlassCube", &m_cubeGO);
-	InitializeGameObject(modelCube, shaderMain, m_TexSetMoss, "WaterCube", &waterCubeGO);
-	InitializeGameObject(modelCube, shaderFractal, m_TexSetNone, "Fractal", &m_fractalGO);
+	InitializeGameObject(modelMadeline, shaderMain, texSetMoss, "Madeline1", &m_MadelineGO1);
+	InitializeGameObject(modelMadeline, shaderMain, texSetStars, "Madeline2", &m_MadelineGO2);
+	InitializeGameObject(modelIcosphere, shaderMain, texSetMoss, "IcosphereBig", &m_IcosphereGO);
+	InitializeGameObject(modelIcosphere, shaderMain, texSetSnow, "IcosphereTrans", &m_transIcoGO);
+	InitializeGameObject(modelMountain, shaderMain, texSetSnow, "Mountain", &m_mountainGO);
+	InitializeGameObject(modelPlane, shaderWater, texSetWater, "Water", &waterGO);
+	InitializeGameObject(modelCube, shaderReflect, texSetReflection, "GlassCube", &m_cubeGO);
+	InitializeGameObject(modelCube, shaderMain, texSetMoss, "WaterCube", &waterCubeGO);
+	InitializeGameObject(modelCube, shaderFractal, texSetNone, "Fractal", &m_fractalGO);
 	InitializeGameObject(modelPlane, shaderFire, texSetFire, "Fire", &fireGO);
-	InitializeGameObject(modelPlane, shaderMain, m_TexSetSnow, "Floor", &floorGO);
+	InitializeGameObject(modelPlane, shaderMain, texSetSnow, "Floor", &floorGO);
 
 	m_MadelineGO2->SetPosition(3, 0, 3);
 	m_MadelineGO2->SetScale(0.5f, 0.5f, 0.5f);
@@ -262,8 +295,7 @@ bool ApplicationClass::Initialize(HWND hwnd)
 
 	// LIGHTS
 
-	m_numLights = 4;
-	m_Lights = new LightClass[m_numLights];
+	m_Lights = new LightClass[NUM_POINT_LIGHTS];
 
 	m_Lights[0].SetDiffuseColor(0.0f, 0.0f, 0.0f, 0.0f);
 	m_Lights[0].SetPosition(100.0f, 0.0f, 0.0f);
@@ -280,7 +312,7 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	m_DirLight = new LightClass();
 	m_DirLight->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
 	m_DirLight->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-	m_DirLight->SetDirection(DIR_LIGHT_X, DIR_LIGHT_Y, DIR_LIGHT_Z);
+	m_DirLight->SetDirection(m_dirLightX, m_dirLightY, m_dirLightZ);
 	m_DirLight->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_DirLight->SetSpecularPower(32.0f);
 
@@ -339,10 +371,15 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	if (!result)
 		return false;
 
+	auto rendPostProcessing = new RenderTextureClass;
+	result = rendPostProcessing->Initialize(device, SCREEN_X * DOWN_SCALE_MULT, SCREEN_Y * DOWN_SCALE_MULT, SCREEN_DEPTH, SCREEN_NEAR, format);
+	if (!result)
+		return false;	
+
 	// DISPLAY PLANES
 
-	int displayWidth = 1;
-	int displayHeight = 1;
+	float displayWidth = 1.0f;
+	float displayHeight = 1.0f;
 
 	m_DisplayPlane = new DisplayPlaneClass;
 	result = m_DisplayPlane->Initialize(device, displayWidth, displayHeight, m_RenderTexDisplay, shader2D);
@@ -358,9 +395,26 @@ bool ApplicationClass::Initialize(HWND hwnd)
 		return false;
 	shadowMapDisplay->SetPosition(0, 4, 0);
 
+	auto displayPostProcessing = new DisplayPlaneClass;
+	result = displayPostProcessing->Initialize(device, SCREEN_X, SCREEN_Y, rendPostProcessing, shaderPostProcessing);
+	if (!result)
+		return false;
+
+	float displaySize = 0.5f;
+	displayPostProcessing->SetScale(displaySize, displaySize, displaySize);
+
 	m_RenderClass->SetShadowMapDisplayPlane(shadowMapDisplay);
+	m_RenderClass->SetPostProcessingDisplayPlane(displayPostProcessing);
 
 	return true;
+}
+
+void ApplicationClass::InitializeShadowMapViewMatrix()
+{
+	XMVECTOR lightPos = XMVectorSet(m_dirLightX, m_dirLightY, m_dirLightZ, 0);
+	lightPos = XMVectorScale(lightPos, -SHADOW_MAP_DISTANCE);
+	XMMATRIX lightView = XMMatrixLookAtLH(lightPos, XMVectorSet(0, 0, 0, 0), XMVectorSet(0, 1, 0, 0));
+	m_Parameters->shadow.shadowView = lightView;
 }
 
 bool ApplicationClass::InitializeModel(HWND hwnd, ModelClass** ptr, const char* name)
@@ -432,6 +486,13 @@ bool ApplicationClass::InitializeTextClass(TextClass** ptr, ShaderClass* shader,
 	return true;
 }
 
+void ApplicationClass::InitializeTexSet(TextureSetClass** ptr)
+{
+	*ptr = new TextureSetClass;
+
+	m_TexSetList.push_back(*ptr);
+}
+
 bool ApplicationClass::InitializeBitmap(BitmapClass** ptr, const char* filename)
 {
 	char bitmapFilename[128];
@@ -472,6 +533,12 @@ void ApplicationClass::Shutdown()
 	{
 		bitmap->Shutdown();
 		delete bitmap;
+	}
+
+	for (auto texSet : m_TexSetList)
+	{
+		texSet->Shutdown();
+		delete texSet;
 	}
 
 	if (m_DisplayPlane)
@@ -554,9 +621,15 @@ bool ApplicationClass::Frame(InputClass* Input)
 	static float time = 0.0f;
 	time += 0.1f;
 
-	m_MadelineGO1->SetRotation(0, rotation * 10.0f, 0);
-	m_IcosphereGO->SetRotation(rotation * 50.0f, 0, 0);
-	m_fractalGO->SetRotation(0, rotation * sin(time * 0.01f) * 5, 0);
+	if (m_MadelineGO1)
+		m_MadelineGO1->SetRotation(0, rotation * 10.0f, 0);
+	if (m_IcosphereGO)
+		m_IcosphereGO->SetRotation(rotation * 50.0f, 0, 0);
+	if (m_fractalGO)
+		m_fractalGO->SetRotation(0, rotation * sin(time * 0.01f) * 5, 0);
+
+	float sunSpeed = 0.005f;
+	SetDirLight(cos(time * sunSpeed), -0.75f, sin(time * sunSpeed));
 	
 	if (Input->IsKeyPressed(DIK_ESCAPE))
 		return false;
@@ -568,7 +641,7 @@ bool ApplicationClass::Frame(InputClass* Input)
 	if (!UpdateMouseStrings(mouseX, mouseY, mouseDown))
 		return false;
 	
-	m_cursorGO2D->SetPosition(mouseX - 635, -mouseY + 400);
+	m_cursorGO2D->SetPosition(mouseX - 635.0f, -mouseY + 400.0f);
 
 	m_Camera->Frame(Input, frameTime);
 
@@ -577,11 +650,21 @@ bool ApplicationClass::Frame(InputClass* Input)
 	return Render() && m_Fps->UpdateFPS(m_FpsString);
 }
 
+void ApplicationClass::SetDirLight(float x, float y, float z)
+{
+	m_dirLightX = x;
+	m_dirLightY = y;
+	m_dirLightZ = z;
+
+	InitializeShadowMapViewMatrix();
+	m_DirLight->SetDirection(x, y, z);
+}
+
 bool ApplicationClass::Render()
 {
 	bool result;
 
-	for (int i = 0; i < m_numLights; i++)
+	for (int i = 0; i < NUM_POINT_LIGHTS; i++)
 	{
 		m_Parameters->lightColor.diffuseColor[i] = m_Lights[i].GetDiffuseColor();
 		m_Parameters->lightPos.lightPosition[i] = m_Lights[i].GetPosition();
