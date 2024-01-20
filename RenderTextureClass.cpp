@@ -7,13 +7,12 @@ RenderTextureClass::RenderTextureClass()
     m_shaderResourceView = 0;
     m_depthStencilBuffer = 0;
     m_depthStencilView = 0;
+
+    m_orthoMatrix = XMMatrixIdentity();
+    m_projectionMatrix = XMMatrixIdentity();
+    m_textureHeight = 0;
+    m_textureWidth = 0;
 }
-
-
-RenderTextureClass::RenderTextureClass(const RenderTextureClass& other)
-{
-}
-
 
 RenderTextureClass::~RenderTextureClass()
 {
@@ -170,9 +169,16 @@ void RenderTextureClass::Shutdown()
 
 void RenderTextureClass::SetRenderTarget(ID3D11DeviceContext* deviceContext)
 {
+    UnsetRenderTarget(deviceContext);
+
     // Bind the render target view and depth stencil buffer to the output render pipeline.
     deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
     deviceContext->RSSetViewports(1, &m_viewport);
+}
+
+void RenderTextureClass::UnsetRenderTarget(ID3D11DeviceContext* deviceContext)
+{
+    deviceContext->OMSetRenderTargets(1, &m_renderTargetView, nullptr);
 }
 
 void RenderTextureClass::ClearRenderTarget(ID3D11DeviceContext* deviceContext, float red, float green, float blue, float alpha)

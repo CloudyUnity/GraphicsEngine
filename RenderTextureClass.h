@@ -9,13 +9,13 @@ class RenderTextureClass
 {
 public:
     RenderTextureClass();
-    RenderTextureClass(const RenderTextureClass&);
     ~RenderTextureClass();
 
     bool Initialize(ID3D11Device*, int, int, float, float, int);
     void Shutdown();
 
     void SetRenderTarget(ID3D11DeviceContext*);
+    void UnsetRenderTarget(ID3D11DeviceContext* deviceContext);
     void ClearRenderTarget(ID3D11DeviceContext*, float, float, float, float);
     ID3D11ShaderResourceView* GetShaderResourceView();
 

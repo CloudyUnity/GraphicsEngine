@@ -5,7 +5,7 @@
 #include "cameraclass.h"
 #include "modelclass.h"
 #include "colorshaderclass.h"
-#include "textureshaderclass.h"
+#include "shaderclass.h"
 #include "lightclass.h"
 #include "bitmapclass.h"
 #include "timerclass.h"
@@ -31,18 +31,21 @@ class ApplicationClass
 {
 public:
 	ApplicationClass();
-	ApplicationClass(const ApplicationClass&);
 	~ApplicationClass();
 
 	bool Initialize(HWND);
+	void InitializeShadowMapViewMatrix();
 	bool InitializeModel(HWND, ModelClass**, const char*);
 	bool InitializeShader(HWND, ShaderClass**, const char*, const char*, bool clampSamplerMode = false);
 	void InitializeGameObject(ModelClass*, ShaderClass*, TextureSetClass*, const char*, GameObjectClass** ptr = nullptr);
 	void InitializeGameObject2D(BitmapClass*, ShaderClass*, GameObjectClass2D** ptr = nullptr);
 	bool InitializeTextClass(TextClass** ptr, ShaderClass* shader, FontClass*, int maxLength);
+	void InitializeTexSet(TextureSetClass** ptr);
 	bool InitializeBitmap(BitmapClass**, const char*);
+
 	void Shutdown();
 	bool Frame(InputClass*);
+	void SetDirLight(float, float, float);
 
 private:
 	bool Render();
@@ -57,8 +60,8 @@ private:
 	FrustumClass* m_Frustum;
 	ShaderClass::ShaderParameters* m_Parameters;
 
-	int m_numLights;
 	std::chrono::high_resolution_clock::time_point m_startTime;
+	float m_dirLightX, m_dirLightY, m_dirLightZ;
 
 	FontClass* m_Font;
 	LightClass* m_Lights, * m_DirLight;
@@ -69,11 +72,11 @@ private:
 	GameObjectClass2D* m_spinnerGO2D, *m_cursorGO2D;
 	BitmapClass* m_BitmapSpinner, *m_BitmapCursor;	
 	TextClass* m_TextString1, * m_TextString2, * m_TextStringMouseX, * m_TextStringMouseY, * m_TextStringMouseBttn, * m_FpsString;
-	TextureSetClass* m_TexSetMoss, * m_TexSetStars, * m_TexSetSnow, * m_TexSetReflection, * m_TexSetWater, * m_TexSetNone;
 
 	vector<ModelClass*> m_ModelList;
 	vector<ShaderClass*> m_ShaderList;
 	vector<BitmapClass*> m_BitmapList;
+	vector<TextureSetClass*> m_TexSetList;
 };
 
 #endif

@@ -8,10 +8,23 @@ GameObjectClass::GameObjectClass()
 	m_texSetReflectionNum = -1;
 	m_texSetRefractionNum = -1;
 	m_texSetShadowNum = -1;
-}
 
-GameObjectClass::GameObjectClass(const GameObjectClass&)
-{
+	m_BillboardingEnabled = false;
+	m_PosX = 0;
+	m_PosY = 0;
+	m_PosZ = 0;
+	m_RotX = 0;
+	m_RotY = 0;
+	m_RotZ = 0;
+	m_ScaleX = 1;
+	m_ScaleY = 1;
+	m_ScaleZ = 1;
+
+	m_RendTexReflection = 0;
+	m_RendTexRefraction = 0;
+	m_Textures = 0;
+	
+	m_reflectMatrix = XMMatrixIdentity();
 }
 
 GameObjectClass::~GameObjectClass()
@@ -31,7 +44,7 @@ bool GameObjectClass::Render(ID3D11DeviceContext* deviceContext, ShaderClass::Sh
 {
 	XMMATRIX scaleMatrix = XMMatrixScaling(m_ScaleX, m_ScaleY, m_ScaleZ);
 	XMMATRIX translateMatrix = XMMatrixTranslation(m_PosX, m_PosY, m_PosZ);	
-	XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYaw(m_RotX * DEG_TO_RAD, m_RotY * DEG_TO_RAD, m_RotZ * DEG_TO_RAD);
+	XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYaw(m_RotX * (float)DEG_TO_RAD, m_RotY * (float)DEG_TO_RAD, m_RotZ * (float)DEG_TO_RAD);
 
 	if (m_BillboardingEnabled)
 	{

@@ -20,7 +20,6 @@ class RenderClass
 {
 public:
 	RenderClass();
-	RenderClass(const RenderClass&);
 	~RenderClass();
 
 	bool Initialize(D3DClass*, CameraClass*, FrustumClass*);
@@ -39,6 +38,9 @@ public:
 
 	void SetDepthShader(ShaderClass*);
 	void SetShadowMapDisplayPlane(DisplayPlaneClass*);
+	void SetPostProcessingDisplayPlane(DisplayPlaneClass*);
+
+	void ClearShaderResources();
 
 private:
 	bool RenderScene(XMMATRIX, XMMATRIX, ShaderClass::ShaderParameters*, string skipGO = "-N/A-");
@@ -49,6 +51,9 @@ private:
 	bool RenderToShadowTexture(ShaderClass::ShaderParameters*);
 	bool RenderDisplayPlanes(ShaderClass::ShaderParameters*);
 	bool Render2D(ShaderClass::ShaderParameters*);	
+	bool RenderPostProcessing(ShaderClass::ShaderParameters*);
+
+	void ResetViewport();
 
 private:
 	D3DClass* m_Direct3D;
@@ -66,6 +71,7 @@ private:
 
 	ShaderClass* m_depthShader;
 	DisplayPlaneClass* m_shadowMapDisplay;
+	DisplayPlaneClass* m_postProcessingDisplay;
 
 	int m_framesSinceReflectionRender;
 	bool m_renderReflectionImmediately;

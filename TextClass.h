@@ -2,7 +2,7 @@
 #define _TEXTCLASS_H_
 
 #include "fontclass.h"
-#include "TextureShaderClass.h"
+#include "shaderclass.h"
 
 class TextClass
 {
@@ -15,7 +15,6 @@ private:
 
 public:
     TextClass();
-    TextClass(const TextClass&);
     ~TextClass();
 
     bool Initialize(ID3D11Device*, ID3D11DeviceContext*, int, int, int, ShaderClass* shader);

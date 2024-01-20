@@ -4,13 +4,24 @@ TextClass::TextClass()
 {
     m_vertexBuffer = 0;
     m_indexBuffer = 0;    
+
+    m_PosX = 0;
+    m_PosY = 0;
+    m_RotZ = 0;
+    m_ScaleX = 1;
+    m_ScaleY = 1;
+
+    m_Shader = 0;
+    m_TexSet = 0;
+    m_deviceContext = 0;
+    m_font = 0;
+    m_indexCount = 0;
+    m_maxLength = 0;
+    m_pixelColor = XMFLOAT4(0, 0, 0, 1);
+    m_screenHeight = 0;
+    m_screenWidth = 0;
+    m_vertexCount = 0;
 }
-
-
-TextClass::TextClass(const TextClass& other)
-{
-}
-
 
 TextClass::~TextClass()
 {
@@ -143,7 +154,7 @@ bool TextClass::UpdateText()
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     VertexType* verticesPtr;
 
-    numLetters = m_text.size();
+    numLetters = (int)m_text.size();
     if (numLetters > m_maxLength)
         return false;
 

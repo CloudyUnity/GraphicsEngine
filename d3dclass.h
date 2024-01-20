@@ -8,13 +8,14 @@
 #include <d3d11.h>
 #include <directxmath.h>
 #include "Constants.h"
+#include <vector>
 using namespace DirectX;
+using std::vector;
 
 class D3DClass
 {
 public:
     D3DClass();
-    D3DClass(const D3DClass&);
     ~D3DClass();
 
     bool Initialize(int, int, bool, HWND, bool, float, float);

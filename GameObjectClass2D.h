@@ -3,7 +3,7 @@
 
 #include <d3d11.h>
 #include <directxmath.h>
-#include "TextureShaderClass.h"
+#include "shaderclass.h"
 #include "bitmapclass.h"
 #include "Constants.h"
 using namespace DirectX;

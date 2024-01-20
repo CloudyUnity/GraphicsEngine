@@ -10,7 +10,6 @@ class CameraClass
 {
 public:
 	CameraClass();
-	CameraClass(const CameraClass&);
 	~CameraClass();
 
 	void SetPosition(float, float, float);

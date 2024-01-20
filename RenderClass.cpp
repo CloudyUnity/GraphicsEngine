@@ -8,10 +8,10 @@ RenderClass::RenderClass()
 
 	m_framesSinceReflectionRender = 0;
 	m_renderReflectionImmediately = false;
-}
 
-RenderClass::RenderClass(const RenderClass&)
-{
+	m_depthShader = 0;
+	m_shadowMapDisplay = 0;
+	m_postProcessingDisplay = 0;
 }
 
 RenderClass::~RenderClass()
@@ -103,10 +103,8 @@ void RenderClass::RenderReflectionNextAvailableFrame()
 
 bool RenderClass::Render(ShaderClass::ShaderParameters* params)
 {
-	XMMATRIX viewMatrix, displayProjMatrix, projectionMatrix, reflectViewMatrix;
-	bool result;	
-
-	m_Direct3D->BeginScene(FOG_COLOR_R, FOG_COLOR_G, FOG_COLOR_B, FOG_COLOR_A);
+	XMMATRIX viewMatrix, projectionMatrix, reflectViewMatrix;
+	bool result;		
 
 	m_Camera->Render();
 	m_Camera->GetViewMatrix(viewMatrix);
@@ -114,8 +112,18 @@ bool RenderClass::Render(ShaderClass::ShaderParameters* params)
 
 	m_Frustum->ConstructFrustum(viewMatrix, projectionMatrix, SCREEN_DEPTH);
 
-	m_framesSinceReflectionRender++;
+	if (POST_PROCESSING_ENABLED)
+	{
+		m_Direct3D->BeginScene(1, 0, 0, 1);
 
+		ClearShaderResources();
+		m_postProcessingDisplay->m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+		m_postProcessingDisplay->m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), FOG_COLOR_R, FOG_COLOR_G, FOG_COLOR_B, FOG_COLOR_A);
+	}
+	else
+		m_Direct3D->BeginScene(FOG_COLOR_R, FOG_COLOR_G, FOG_COLOR_B, FOG_COLOR_A);
+
+	m_framesSinceReflectionRender++;
 	bool renderReflection = m_framesSinceReflectionRender >= REFLECTION_FRAME_DELAY || m_renderReflectionImmediately;
 	if (REFLECTION_ENABLED && renderReflection)
 	{
@@ -125,7 +133,7 @@ bool RenderClass::Render(ShaderClass::ShaderParameters* params)
 			m_Camera->RenderReflection(go->m_PosY + go->m_ScaleY);
 			m_Camera->GetReflectionViewMatrix(reflectViewMatrix);
 			go->SetReflectionMatrix(reflectViewMatrix);
-		}
+		}				
 
 		// Refraction comes first
 		for (auto go : m_RefractionList)
@@ -134,7 +142,7 @@ bool RenderClass::Render(ShaderClass::ShaderParameters* params)
 			if (!result)
 				return false;
 			go->SetRefractionTex();
-		}
+		}	
 
 		// Then reflection
 		for (auto go : m_ReflectionList)
@@ -178,6 +186,13 @@ bool RenderClass::Render(ShaderClass::ShaderParameters* params)
 	result = RenderDisplayPlanes(params);
 	if (!result)
 		return false;
+
+	if (POST_PROCESSING_ENABLED)
+	{
+		result = RenderPostProcessing(params);
+		if (!result)
+			return false;
+	}
 
 	result = Render2D(params);
 	if (!result)
@@ -264,6 +279,7 @@ bool RenderClass::RenderToReflectionTexture(GameObjectClass* go, ShaderClass::Sh
 	m_Camera->RenderReflection(height);		
 	m_Camera->GetReflectionViewMatrix(reflectViewMatrix);	
 
+	ClearShaderResources();
 	go->m_RendTexReflection->SetRenderTarget(m_Direct3D->GetDeviceContext());
 	go->m_RendTexReflection->ClearRenderTarget(m_Direct3D->GetDeviceContext(), FOG_COLOR_R, FOG_COLOR_G, FOG_COLOR_B, FOG_COLOR_A);
 
@@ -271,8 +287,7 @@ bool RenderClass::RenderToReflectionTexture(GameObjectClass* go, ShaderClass::Sh
 	if (!result)
 		return false;
 
-	m_Direct3D->SetBackBufferRenderTarget();
-	m_Direct3D->ResetViewport();	
+	ResetViewport();
 
 	params->clip.clipPlane = clipPlane;
 
@@ -294,6 +309,7 @@ bool RenderClass::RenderToRefractionTexture(GameObjectClass* go, ShaderClass::Sh
 	m_Camera->Render();
 	m_Camera->GetViewMatrix(viewMatrix);
 
+	ClearShaderResources();
 	go->m_RendTexRefraction->SetRenderTarget(m_Direct3D->GetDeviceContext());
 	go->m_RendTexRefraction->ClearRenderTarget(m_Direct3D->GetDeviceContext(), FOG_COLOR_R, FOG_COLOR_G, FOG_COLOR_B, FOG_COLOR_A);
 
@@ -301,8 +317,7 @@ bool RenderClass::RenderToRefractionTexture(GameObjectClass* go, ShaderClass::Sh
 	if (!result)
 		return false;
 
-	m_Direct3D->SetBackBufferRenderTarget();
-	m_Direct3D->ResetViewport();
+	ResetViewport();
 
 	params->clip.clipPlane = clipPlane;
 
@@ -311,6 +326,7 @@ bool RenderClass::RenderToRefractionTexture(GameObjectClass* go, ShaderClass::Sh
 
 bool RenderClass::RenderToShadowTexture(ShaderClass::ShaderParameters* params)
 {
+	ClearShaderResources();
 	m_shadowMapDisplay->m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
 	m_shadowMapDisplay->m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 1, 1, 1, 1);
 
@@ -318,8 +334,7 @@ bool RenderClass::RenderToShadowTexture(ShaderClass::ShaderParameters* params)
 	if (!result)
 		return false;
 
-	m_Direct3D->SetBackBufferRenderTarget();
-	m_Direct3D->ResetViewport();
+	ResetViewport();
 
 	return true;
 }
@@ -330,6 +345,7 @@ bool RenderClass::RenderToTexture(RenderTextureClass* rendTex, ShaderClass::Shad
 
 	m_Camera->GetViewMatrix(viewMatrix);
 
+	ClearShaderResources();
 	rendTex->SetRenderTarget(m_Direct3D->GetDeviceContext());
 	rendTex->ClearRenderTarget(m_Direct3D->GetDeviceContext(), FOG_COLOR_R, FOG_COLOR_G, FOG_COLOR_B, FOG_COLOR_A);
 	rendTex->GetProjectionMatrix(displayProjMatrix);
@@ -338,8 +354,7 @@ bool RenderClass::RenderToTexture(RenderTextureClass* rendTex, ShaderClass::Shad
 	if (!result)
 		return false;
 
-	m_Direct3D->SetBackBufferRenderTarget();
-	m_Direct3D->ResetViewport();	
+	ResetViewport();
 
 	return true;
 }
@@ -398,6 +413,29 @@ bool RenderClass::Render2D(ShaderClass::ShaderParameters* params)
 	return true;
 }
 
+bool RenderClass::RenderPostProcessing(ShaderClass::ShaderParameters* params)
+{
+	XMMATRIX viewMatrix2D, orthoMatrix;
+	bool result;
+
+	m_Direct3D->TurnZBufferOff();
+	m_Camera->Get2DViewMatrix(viewMatrix2D);
+	m_Direct3D->GetOrthoMatrix(orthoMatrix);
+
+	params->matrix.view = viewMatrix2D;
+	params->matrix.projection = orthoMatrix;
+
+	ClearShaderResources();
+	m_Direct3D->SetBackBufferRenderTarget();
+	m_Direct3D->ResetViewport();
+
+	result = m_postProcessingDisplay->Render(m_Direct3D->GetDeviceContext(), params);
+	if (!result)
+		return false;	
+
+	return true;
+}
+
 void RenderClass::SetDepthShader(ShaderClass* shader)
 {
 	m_depthShader = shader;
@@ -406,4 +444,27 @@ void RenderClass::SetDepthShader(ShaderClass* shader)
 void RenderClass::SetShadowMapDisplayPlane(DisplayPlaneClass* display)
 {
 	m_shadowMapDisplay = display;
+}
+
+void RenderClass::SetPostProcessingDisplayPlane(DisplayPlaneClass* display)
+{
+	m_postProcessingDisplay = display;
+}
+
+void RenderClass::ResetViewport()
+{
+	if (POST_PROCESSING_ENABLED)
+	{
+		m_postProcessingDisplay->m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+		return;
+	}
+
+	m_Direct3D->SetBackBufferRenderTarget();
+	m_Direct3D->ResetViewport();
+}
+
+void RenderClass::ClearShaderResources()
+{
+	ID3D11ShaderResourceView* nullSRV[6] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+	m_Direct3D->GetDeviceContext()->PSSetShaderResources(0, 6, nullSRV);
 }
