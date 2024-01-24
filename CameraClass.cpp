@@ -105,10 +105,10 @@ void CameraClass::Get2DViewMatrix(XMMATRIX & viewMatrix)
 	viewMatrix = m_2DViewMatrix;
 }
 
-void CameraClass::Frame(InputClass* Input, float frameTime) 
+void CameraClass::Frame(InputClass* Input, float frameTime, float camSpeed, float camRotSpeed) 
 {
-	float speed = CAMERA_SPEED * frameTime;
-	float rotSpeed = CAMERA_ROTATION_SPEED * frameTime;
+	float speed = camSpeed * frameTime;
+	float rotSpeed = camRotSpeed * frameTime;
 
 	float sinX = (float)sin(m_rotationX * (float)DEG_TO_RAD);
 	float cosX = (float)cos(m_rotationX * (float)DEG_TO_RAD);

@@ -33,27 +33,27 @@ public:
 	void SubscribeToRefraction(ID3D11Device*, GameObjectClass*, int, int);
 	void SubscribeToShadow(GameObjectClass*, int);
 
-	bool Render(ShaderClass::ShaderParameters*);
+	bool Render(Settings*, ShaderClass::ShaderParameters*);
 	void RenderReflectionNextAvailableFrame();
 
 	void SetDepthShader(ShaderClass*);
 	void SetShadowMapDisplayPlane(DisplayPlaneClass*);
-	void SetPostProcessingDisplayPlane(DisplayPlaneClass*);
+	void SetPostProcessingDisplayPlanes(DisplayPlaneClass*, DisplayPlaneClass*, DisplayPlaneClass*);
 
 	void ClearShaderResources();
 
 private:
-	bool RenderScene(XMMATRIX, XMMATRIX, ShaderClass::ShaderParameters*, string skipGO = "-N/A-");
+	bool RenderScene(Settings*, XMMATRIX, XMMATRIX, ShaderClass::ShaderParameters*, string skipGO = "-N/A-");
 	bool RenderSceneDepth(ShaderClass::ShaderParameters*);
-	bool RenderToTexture(RenderTextureClass*, ShaderClass::ShaderParameters*);
-	bool RenderToReflectionTexture(GameObjectClass*, ShaderClass::ShaderParameters*);
-	bool RenderToRefractionTexture(GameObjectClass*, ShaderClass::ShaderParameters*);
-	bool RenderToShadowTexture(ShaderClass::ShaderParameters*);
-	bool RenderDisplayPlanes(ShaderClass::ShaderParameters*);
+	bool RenderToTexture(RenderTextureClass*, ShaderClass::ShaderParameters*, Settings*);
+	bool RenderToReflectionTexture(GameObjectClass*, ShaderClass::ShaderParameters*, Settings*);
+	bool RenderToRefractionTexture(GameObjectClass*, ShaderClass::ShaderParameters*, Settings*);
+	bool RenderToShadowTexture(ShaderClass::ShaderParameters*, Settings*);
+	bool RenderDisplayPlanes(ShaderClass::ShaderParameters*, Settings*);
 	bool Render2D(ShaderClass::ShaderParameters*);	
-	bool RenderPostProcessing(ShaderClass::ShaderParameters*);
+	bool RenderPostProcessing(ShaderClass::ShaderParameters*, Settings*);
 
-	void ResetViewport();
+	void ResetViewport(Settings*);
 
 private:
 	D3DClass* m_Direct3D;
@@ -71,7 +71,9 @@ private:
 
 	ShaderClass* m_depthShader;
 	DisplayPlaneClass* m_shadowMapDisplay;
-	DisplayPlaneClass* m_postProcessingDisplay;
+	DisplayPlaneClass* m_ppFirstPassBlurDisplay;
+	DisplayPlaneClass* m_ppSecondPassBlurDisplay;
+	DisplayPlaneClass* m_ppThirdPassFilterDisplay;
 
 	int m_framesSinceReflectionRender;
 	bool m_renderReflectionImmediately;

@@ -12,7 +12,7 @@ const int NUM_LIGHTS = 4;
 #include <unordered_map>
 #include <any>
 #include "TextureSetClass.h"
-#include "Constants.h"
+#include "settings.h"
 using namespace DirectX;
 using std::ofstream;
 using std::string;
@@ -32,9 +32,10 @@ private:
 	};
 	struct UtilBufferType // 16 bytes
 	{
-		float time, pad2, pad3;
-
-		bool is2D, pad1, pad4, pad5;
+		float time;
+		float texelSizeX;
+		float texelSizeY;
+		float padding;
 	};
 	struct LightColorBufferType // 16n bytes
 	{
@@ -107,13 +108,19 @@ private:
 	};
 	struct BlurBufferType // 16 + 16n bytes 
 	{
-		float screenWidth;
-		float screenHeight;
 		float blurMode;
 
-		float pad3;
+		XMFLOAT3 pad3;
 
 		XMFLOAT4 weights[BLUR_SAMPLE_SPREAD];
+	};
+	struct FilterBufferType
+	{
+		BOOL grainEnabled, monochromeEnabled, sharpnessEnabled, chromaticEnabled, vignetteEnabled;
+
+		float vignetteStrength, vignetteSmoothness, padding;
+
+		float sharpnessKernalN, sharpnessKernalP, sharpnessStrength, grainIntensity;
 	};
 
 public:
@@ -135,6 +142,9 @@ public:
 		FireBufferType fire;
 		ShadowBufferType shadow;
 		BlurBufferType blur;
+		FilterBufferType filter;
+
+		bool reflectionEnabled;
 	};
 
 public:
@@ -161,7 +171,7 @@ private:
 	ID3D11PixelShader* m_pixelShader;
 	ID3D11InputLayout* m_layout;
 	ID3D11Buffer* m_matrixBuffer, * m_utilBuffer, * m_lightColorBuffer, * m_lightPositionBuffer, * m_lightBuffer, * m_cameraBuffer, * m_pixelBuffer, * m_fogBuffer;
-	ID3D11Buffer* m_clipBuffer, * m_texTransBuffer, * m_alphaBuffer, * m_reflectionBuffer, * m_waterBuffer, * m_fireBuffer, * m_shadowBuffer, * m_blurBuffer;
+	ID3D11Buffer* m_clipBuffer, * m_texTransBuffer, * m_alphaBuffer, * m_reflectionBuffer, * m_waterBuffer, * m_fireBuffer, * m_shadowBuffer, * m_blurBuffer, * m_filterBuffer;
 	ID3D11SamplerState* m_sampleState;
 
 	std::string m_vertexName, m_fragName;

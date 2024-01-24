@@ -21,6 +21,7 @@
 #include "rendertextureclass.h"
 #include "displayplaneclass.h"
 #include "RenderClass.h"
+#include "Settings.h"
 using std::vector;
 using std::string;
 using std::unordered_map;
@@ -43,8 +44,11 @@ public:
 	void InitializeTexSet(TextureSetClass** ptr);
 	bool InitializeBitmap(BitmapClass**, const char*);
 
+	void UpdateParameters();
+
 	void Shutdown();
 	bool Frame(InputClass*);
+	bool LateFrame(InputClass*, float);
 	void SetDirLight(float, float, float);
 
 private:
@@ -59,6 +63,7 @@ private:
 	FpsClass* m_Fps;
 	FrustumClass* m_Frustum;
 	ShaderClass::ShaderParameters* m_Parameters;
+	Settings* m_Settings;
 
 	std::chrono::high_resolution_clock::time_point m_startTime;
 	float m_dirLightX, m_dirLightY, m_dirLightZ;
@@ -68,7 +73,7 @@ private:
 	RenderTextureClass* m_RenderTexDisplay;
 	DisplayPlaneClass* m_DisplayPlane;
 
-	GameObjectClass* m_MadelineGO1, * m_MadelineGO2, * m_IcosphereGO, * m_mountainGO, * m_transIcoGO, * m_cubeGO, * m_fractalGO;
+	GameObjectClass* m_MadelineGO1, * m_MadelineGO2, * m_IcosphereGO, * m_mountainGO, * m_transIcoGO, * m_cubeGO, * m_fractalGO, *m_skyboxGO;
 	GameObjectClass2D* m_spinnerGO2D, *m_cursorGO2D;
 	BitmapClass* m_BitmapSpinner, *m_BitmapCursor;	
 	TextClass* m_TextString1, * m_TextString2, * m_TextStringMouseX, * m_TextStringMouseY, * m_TextStringMouseBttn, * m_FpsString;
@@ -77,6 +82,8 @@ private:
 	vector<ShaderClass*> m_ShaderList;
 	vector<BitmapClass*> m_BitmapList;
 	vector<TextureSetClass*> m_TexSetList;
+	vector<DisplayPlaneClass*> m_DisplayList;
+	vector<RenderTextureClass*> m_RendTexList;
 };
 
 #endif

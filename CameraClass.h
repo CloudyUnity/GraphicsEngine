@@ -3,7 +3,7 @@
 
 #include <directxmath.h>
 #include "InputClass.h"
-#include "Constants.h"
+#include "settings.h"
 using namespace DirectX;
 
 class CameraClass
@@ -26,7 +26,7 @@ public:
 
 	void Initialize2DView();
 
-	void Frame(InputClass*, float);
+	void Frame(InputClass*, float, float, float);
 
 private:
 	float m_positionX, m_positionY, m_positionZ;

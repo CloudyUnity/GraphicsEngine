@@ -5,7 +5,7 @@
 #include <directxmath.h>
 #include "shaderclass.h"
 #include "bitmapclass.h"
-#include "Constants.h"
+#include "settings.h"
 using namespace DirectX;
 
 class GameObjectClass2D

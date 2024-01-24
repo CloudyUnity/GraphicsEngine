@@ -19,7 +19,9 @@ public:
 
 	void Shutdown();
 	void ReleaseTexture();
-	void Add(ID3D11Device*, ID3D11DeviceContext*, const char*, int setIndex = -1);
+	bool Add(ID3D11Device*, ID3D11DeviceContext*, const char*, int setIndex = -1);
+	bool AddCubemap(ID3D11Device*, ID3D11DeviceContext*, const char*, int setIndex = -1);
+	bool Add(ID3D11Device*, ID3D11DeviceContext*, vector<const char*>, int setIndex = -1);
 	void Add(ID3D11ShaderResourceView*, int setIndex = -1);
 	void ClearList();
 

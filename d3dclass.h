@@ -7,7 +7,7 @@
 
 #include <d3d11.h>
 #include <directxmath.h>
-#include "Constants.h"
+#include "settings.h"
 #include <vector>
 using namespace DirectX;
 using std::vector;
@@ -41,6 +41,8 @@ public:
     void EnableAlphaBlending();
     void DisableAlphaBlending();
 
+    void SetBackCulling(bool, bool);
+
 private:
     bool m_vsync_enabled;
     int m_videoCardMemory;
@@ -50,7 +52,10 @@ private:
     ID3D11Device* m_device;
     ID3D11DeviceContext* m_deviceContext;
     ID3D11RenderTargetView* m_renderTargetView;
-    ID3D11RasterizerState* m_rasterState;
+
+    ID3D11RasterizerState* m_rasterStateCullNone;
+    ID3D11RasterizerState* m_rasterStateCullBack;
+    ID3D11RasterizerState* m_rasterStateWireframe;
 
     XMMATRIX m_projectionMatrix;
     XMMATRIX m_worldMatrix;
