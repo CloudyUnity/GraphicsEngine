@@ -4,7 +4,7 @@ https://www.rastertek.com/tutdx11win10.html
 Refactoring and additions provided by Finn Wright
 WIP as of Jan 2024
 
-Change some constants in Constants.h
+Change some settings in settings.h
 
 Controls:
 WASD - Move left/right/forward/back

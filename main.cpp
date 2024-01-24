@@ -7,11 +7,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	if (system->Initialize())
 		system->Run();
 	else
+	{
+		system->Shutdown();
+		delete system;
+		system = 0;
 		return 400;
+	}		
 
 	system->Shutdown();
 	delete system;
 	system = 0;
-
 	return 0;
 }

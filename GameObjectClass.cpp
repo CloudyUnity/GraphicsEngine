@@ -188,3 +188,8 @@ void GameObjectClass::SetBillBoarding(bool billboarding)
 {
 	m_BillboardingEnabled = billboarding;
 }
+
+void GameObjectClass::SetBackCulling(bool enabled)
+{
+	m_BackCullingDisabled = !enabled;
+}

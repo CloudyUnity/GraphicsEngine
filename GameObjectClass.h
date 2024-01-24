@@ -8,7 +8,7 @@
 #include "TextureSetClass.h"
 #include <string>
 #include "RenderTextureClass.h"
-#include "Constants.h"
+#include "settings.h"
 using namespace DirectX;
 
 class GameObjectClass
@@ -38,6 +38,7 @@ public:
 	bool IsSubscribedToShadows();
 
 	void SetBillBoarding(bool);
+	void SetBackCulling(bool);
 
 	float GetBoundingRadius();
 
@@ -50,6 +51,7 @@ public:
 	RenderTextureClass* m_RendTexReflection, * m_RendTexRefraction;
 
 	bool m_BillboardingEnabled;
+	bool m_BackCullingDisabled;
 
 private:
 	float m_boundingRadius;

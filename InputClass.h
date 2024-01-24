@@ -20,6 +20,7 @@ public:
     bool Frame();
 
     bool IsKeyPressed(unsigned char keyCode);
+    bool IsNumberPressed(int& outNumber);
     void GetMouseLocation(int&, int&);
     bool IsMousePressed();
 

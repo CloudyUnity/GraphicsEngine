@@ -23,6 +23,7 @@ ShaderClass::ShaderClass()
 	m_fireBuffer = 0;
 	m_shadowBuffer = 0;
 	m_blurBuffer = 0;
+	m_filterBuffer = 0;
 }
 
 ShaderClass::~ShaderClass()
@@ -206,6 +207,7 @@ bool ShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFil
 		TryCreateBuffer(device, bufferDesc, &m_fireBuffer, sizeof(FireBufferType), m_fragName, "Fire") &&		
 		TryCreateBuffer(device, bufferDesc, &m_shadowBuffer, sizeof(ShadowBufferType), m_fragName, "Shadow") &&		
 		TryCreateBuffer(device, bufferDesc, &m_blurBuffer, sizeof(BlurBufferType), m_fragName, "Blur") &&		
+		TryCreateBuffer(device, bufferDesc, &m_filterBuffer, sizeof(FilterBufferType), m_fragName, "Filter") &&		
 		TryCreateBuffer(device, bufferDesc, &m_lightPositionBuffer, sizeof(LightPositionBufferType), m_fragName, "LightPosition");
 
 	if (!bufferCreationResult)
@@ -250,7 +252,7 @@ bool ShaderClass::TryCreateBuffer(ID3D11Device* device, D3D11_BUFFER_DESC buffer
 
 	m_bufferList.push_back(*ptr);
 
-	bufferDesc.ByteWidth = structSize;
+	bufferDesc.ByteWidth = (UINT)structSize;
 	HRESULT result = device->CreateBuffer(&bufferDesc, NULL, ptr);
 	return !FAILED(result);
 }
@@ -266,7 +268,28 @@ void ShaderClass::ShutdownShader()
 	for (auto buffer : m_bufferList)
 	{
 		if (buffer)
+		{
 			buffer->Release();
+			delete buffer;
+		}
+	}
+
+	if (m_vertexShader)
+	{
+		m_vertexShader->Release();
+		m_vertexShader = 0;
+	}
+
+	if (m_pixelShader)
+	{
+		m_pixelShader->Release();
+		m_pixelShader = 0;
+	}
+
+	if (m_layout)
+	{
+		m_layout->Release();
+		m_layout = 0;
 	}
 }
 
@@ -361,7 +384,7 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		UnmapBuffer(deviceContext, 4, &m_clipBuffer, setVS);
 	}
 
-	if (ShaderUsesBuffer(m_vertexName, "Reflection") && REFLECTION_ENABLED)
+	if (ShaderUsesBuffer(m_vertexName, "Reflection") && params->reflectionEnabled)
 	{
 		ReflectionBufferType* ptr;
 		if (!TryMapBuffer(deviceContext, &m_reflectionBuffer, &ptr))
@@ -380,6 +403,8 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 			return false;
 
 		ptr->time = params->utils.time;
+		ptr->texelSizeX = params->utils.texelSizeX;
+		ptr->texelSizeY = params->utils.texelSizeY;
 
 		UnmapBuffer(deviceContext, 0, &m_utilBuffer, setPS);
 	}
@@ -513,14 +538,35 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		if (!TryMapBuffer(deviceContext, &m_blurBuffer, &ptr))
 			return false;
 
-		ptr->screenWidth = params->blur.screenWidth;
-		ptr->screenHeight = params->blur.screenHeight;
 		ptr->blurMode = params->blur.blurMode;
 
 		for (int i = 0; i < BLUR_SAMPLE_SPREAD; i++)
 			ptr->weights[i] = params->blur.weights[i];
 
 		UnmapBuffer(deviceContext, 1, &m_blurBuffer, setPS);
+	}
+
+	if (ShaderUsesBuffer(m_fragName, "Filter"))
+	{
+		FilterBufferType* ptr;
+		if (!TryMapBuffer(deviceContext, &m_filterBuffer, &ptr))
+			return false;
+
+		ptr->grainEnabled = params->filter.grainEnabled;
+		ptr->monochromeEnabled = params->filter.monochromeEnabled;
+		ptr->sharpnessEnabled = params->filter.sharpnessEnabled;
+		ptr->chromaticEnabled = params->filter.chromaticEnabled;
+
+		ptr->sharpnessKernalN = params->filter.sharpnessKernalN;
+		ptr->sharpnessKernalP = params->filter.sharpnessKernalP;
+		ptr->sharpnessStrength = params->filter.sharpnessStrength;
+
+		ptr->vignetteEnabled = params->filter.vignetteEnabled;
+		ptr->vignetteSmoothness = params->filter.vignetteSmoothness;
+		ptr->vignetteStrength = params->filter.vignetteStrength;
+		ptr->grainIntensity = params->filter.grainIntensity;
+
+		UnmapBuffer(deviceContext, 1, &m_filterBuffer, setPS);
 	}
 
 	return true;
@@ -614,12 +660,13 @@ bool ShaderClass::ShaderUsesBuffer(std::string shader, std::string buffer)
 		return buffer == "Util";
 	}
 
-	if (shader == "PostProcessing.vs")
+	if (shader == "Filter.ps")
 	{
-		return buffer == "Matrix";
+		return buffer == "Util" ||
+			buffer == "Filter";
 	}
 
-	if (shader == "PostProcessing.ps")
+	if (shader == "Blur.ps")
 	{
 		return buffer == "Util" ||
 			buffer == "Blur";
@@ -629,6 +676,11 @@ bool ShaderClass::ShaderUsesBuffer(std::string shader, std::string buffer)
 	{
 		return buffer == "Util" ||
 			buffer == "Fire";
+	}
+
+	if (shader == "Skybox.vs")
+	{
+		return buffer == "Matrix";
 	}
 
 	return false;

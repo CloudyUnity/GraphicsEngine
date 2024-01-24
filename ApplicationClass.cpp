@@ -36,6 +36,7 @@ ApplicationClass::ApplicationClass()
 	m_MadelineGO2 = 0;
 	m_cubeGO = 0;	
 	m_fractalGO = 0;
+	m_skyboxGO = 0;
 
 	m_cursorGO2D = 0;
 	m_spinnerGO2D = 0;
@@ -54,6 +55,8 @@ ApplicationClass::~ApplicationClass()
 bool ApplicationClass::Initialize(HWND hwnd)
 {
 	// GENERAL
+
+	m_Settings = new Settings(4);
 
 	m_Direct3D = new D3DClass;	
 	bool result = m_Direct3D->Initialize(SCREEN_X, SCREEN_Y, V_SYNC, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
@@ -95,51 +98,13 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	// PARAMETERS
 
 	m_Parameters = new ShaderClass::ShaderParameters;
-
-	m_Parameters->fog.fogStart = 0.0f;
-	m_Parameters->fog.fogEnd = 40.0f;
-	if (!FOG_ENABLED)
-	{
-		m_Parameters->fog.fogStart = -9999999.0f;
-		m_Parameters->fog.fogEnd = 999999999.0f;
-	}
-
-	m_Parameters->clip.clipPlane = XMFLOAT4(0.0f, -1.0f, 0.0f, 999999.0f);
-	m_Parameters->textureTranslation.translation = XMFLOAT2(0, 0);
-	m_Parameters->textureTranslation.timeMultiplier = 0.0f;
-	m_Parameters->alpha.alphaBlend = 1.0f;
-	m_Parameters->water.reflectRefractScale = 0.01f;
-
-	m_Parameters->fire.distortion1 = XMFLOAT2(0.1f, 0.2f);
-	m_Parameters->fire.distortion2 = XMFLOAT2(0.1f, 0.3f);
-	m_Parameters->fire.distortion3 = XMFLOAT2(0.1f, 0.1f);
-	m_Parameters->fire.distortionScale = 0.8f;
-	m_Parameters->fire.distortionBias = 0.5f;
-
-	InitializeShadowMapViewMatrix();
-	XMMATRIX lightProjection = XMMatrixOrthographicLH(SHADOW_MAP_SCENE_SIZE, SHADOW_MAP_SCENE_SIZE, SHADOW_MAP_NEAR, SHADOW_MAP_DEPTH);
-	m_Parameters->shadow.shadowProj = lightProjection;
-	m_Parameters->shadow.poissonDisk[0] = XMFLOAT4(-0.94201624f, -0.39906216f, 0, 0);
-	m_Parameters->shadow.poissonDisk[1] = XMFLOAT4(0.94558609f, -0.76890725f, 0, 0);
-	m_Parameters->shadow.poissonDisk[2] = XMFLOAT4(-0.094184101f, -0.92938870f, 0, 0);
-	m_Parameters->shadow.poissonDisk[3] = XMFLOAT4(0.34495938f, 0.29387760f, 0, 0);
-	m_Parameters->shadow.poissonSpread = 4096;
-	m_Parameters->shadow.shadowBias = 0.005f;
-	m_Parameters->shadow.shadowCutOff = 0.01f;	
-
-	m_Parameters->blur.screenWidth = SCREEN_X;
-	m_Parameters->blur.screenHeight = SCREEN_Y;
-	m_Parameters->blur.blurMode = 0;
-
-	m_Parameters->blur.weights[0] = XMFLOAT4(1.0f,0,0,0);
-	m_Parameters->blur.weights[1] = XMFLOAT4(0.9f, 0, 0, 0);
-	m_Parameters->blur.weights[2] = XMFLOAT4(0.55f, 0, 0, 0);
-	m_Parameters->blur.weights[3] = XMFLOAT4(0.18f, 0, 0, 0);
+	UpdateParameters();
 
 	// SHADERS	
 
 	bool clampSamplerMode = true;
-	ShaderClass* shaderMain = 0, * shaderReflect = 0, * shaderWater = 0, * shader2D = 0, * shaderFont = 0, * shaderFractal = 0, * shaderFire = 0, * shaderDepth = 0, * shaderPostProcessing = 0;
+	ShaderClass* shaderMain = 0, * shaderReflect = 0, * shaderWater = 0, * shader2D = 0, * shaderFont = 0,
+		* shaderFractal = 0, * shaderFire = 0, * shaderDepth = 0, * shaderBlur = 0, * shaderFilter = 0, * shaderSkybox = 0;
 	result = 
 		InitializeShader(hwnd, &shaderMain, "../GraphicsEngine/Fog.vs", "../GraphicsEngine/Fog.ps") &&
 		InitializeShader(hwnd, &shaderReflect, "../GraphicsEngine/Reflect.vs", "../GraphicsEngine/Reflect.ps") &&
@@ -148,7 +113,9 @@ bool ApplicationClass::Initialize(HWND hwnd)
 		InitializeShader(hwnd, &shaderFont, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/Font.ps") &&
 		InitializeShader(hwnd, &shaderFire, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/Fire.ps", clampSamplerMode) &&
 		InitializeShader(hwnd, &shaderDepth, "../GraphicsEngine/Depth.vs", "../GraphicsEngine/Depth.ps") &&
-		InitializeShader(hwnd, &shaderPostProcessing, "../GraphicsEngine/PostProcessing.vs", "../GraphicsEngine/PostProcessing.ps") &&
+		InitializeShader(hwnd, &shaderBlur, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/Blur.ps") &&
+		InitializeShader(hwnd, &shaderFilter, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/Filter.ps") &&
+		InitializeShader(hwnd, &shaderSkybox, "../GraphicsEngine/Skybox.vs", "../GraphicsEngine/Skybox.ps", clampSamplerMode) &&
 		InitializeShader(hwnd, &shaderFractal, "../GraphicsEngine/Fog.vs", "../GraphicsEngine/Fractal.ps");
 	if (!result)
 		return false;
@@ -157,15 +124,15 @@ bool ApplicationClass::Initialize(HWND hwnd)
 
 	// TEXSETS
 
-	TextureSetClass* texSetMoss, * texSetStars, * texSetSnow, * texSetReflection, * texSetWater, * texSetNone, * texSetPostProcessingInput, * texSetFire;
+	TextureSetClass* texSetMoss, * texSetStars, * texSetSnow, * texSetReflection, * texSetWater, * texSetNone, * texSetFire, * texSetSkybox;
 	InitializeTexSet(&texSetMoss);
 	InitializeTexSet(&texSetStars);
 	InitializeTexSet(&texSetSnow);
 	InitializeTexSet(&texSetReflection);
 	InitializeTexSet(&texSetWater);
 	InitializeTexSet(&texSetNone);
-	InitializeTexSet(&texSetPostProcessingInput);
 	InitializeTexSet(&texSetFire);
+	InitializeTexSet(&texSetSkybox);
 
 	texSetMoss->Add(device, deviceContext, "../GraphicsEngine/Data/Celeste.tga");
 	texSetMoss->Add(device, deviceContext, "../GraphicsEngine/Data/Moss.tga");
@@ -196,10 +163,14 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	texSetFire->Add(device, deviceContext, "../GraphicsEngine/Data/fireColor.tga");
 	texSetFire->Add(device, deviceContext, "../GraphicsEngine/Data/flameAlpha.tga");
 
+	result = texSetSkybox->AddCubemap(device, deviceContext, "../GraphicsEngine/Data/Skybox/Skybox.tga");
+	if (!result)
+		return false;
+
 	// MODELS
 
-	ModelClass* modelMadeline =0, * modelMountain =0, * modelCube =0, * modelIcosphere =0, * modelPlane =0;
-	result = 
+	ModelClass* modelMadeline = 0, * modelMountain = 0, * modelCube = 0, * modelIcosphere = 0, * modelPlane = 0;
+	result =
 		InitializeModel(hwnd, &modelMadeline, "../GraphicsEngine/Models/Madeline.txt") &&
 		InitializeModel(hwnd, &modelMountain, "../GraphicsEngine/Models/MountFuji.txt") &&
 		InitializeModel(hwnd, &modelCube, "../GraphicsEngine/Models/Cube.txt") &&
@@ -232,6 +203,7 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	InitializeGameObject(modelCube, shaderFractal, texSetNone, "Fractal", &m_fractalGO);
 	InitializeGameObject(modelPlane, shaderFire, texSetFire, "Fire", &fireGO);
 	InitializeGameObject(modelPlane, shaderMain, texSetSnow, "Floor", &floorGO);
+	InitializeGameObject(modelCube, shaderSkybox, texSetSkybox, "Skybox", &m_skyboxGO);
 
 	m_MadelineGO2->SetPosition(3, 0, 3);
 	m_MadelineGO2->SetScale(0.5f, 0.5f, 0.5f);
@@ -263,6 +235,9 @@ bool ApplicationClass::Initialize(HWND hwnd)
 
 	floorGO->SetPosition(0, -10, 0);
 	floorGO->SetScale(25, 1, 25);
+
+	m_skyboxGO->SetScale(500);
+	m_skyboxGO->SetBackCulling(false);
 
 	// SUBSCRIPTIONS
 
@@ -363,18 +338,37 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	if (!result)
 		return false;
 
-	texHeight = SHADOW_MAP_RENDER_X;
-	texWidth = SHADOW_MAP_RENDER_Y;
+	texHeight = m_Settings->m_CurrentData.ShadowMapRenderX;
+	texWidth = m_Settings->m_CurrentData.ShadowMapRenderY;
 
 	auto rendShadowMap = new RenderTextureClass;
-	result = rendShadowMap->Initialize(device, texWidth, texHeight, SHADOW_MAP_DEPTH, SHADOW_MAP_NEAR, format);
+	result = rendShadowMap->Initialize(device, texWidth, texHeight, m_Settings->m_CurrentData.ShadowMapDepth, m_Settings->m_CurrentData.ShadowMapNear, format);
 	if (!result)
 		return false;
 
+	texHeight = (int)(SCREEN_X * m_Settings->m_CurrentData.DownScaleMult);
+	texWidth = (int)(SCREEN_Y * m_Settings->m_CurrentData.DownScaleMult);
+
 	auto rendPostProcessing = new RenderTextureClass;
-	result = rendPostProcessing->Initialize(device, SCREEN_X * DOWN_SCALE_MULT, SCREEN_Y * DOWN_SCALE_MULT, SCREEN_DEPTH, SCREEN_NEAR, format);
+	result = rendPostProcessing->Initialize(device, texWidth, texHeight, SCREEN_DEPTH, SCREEN_NEAR, format);
 	if (!result)
 		return false;	
+
+	auto rendPostProcessing2 = new RenderTextureClass;
+	result = rendPostProcessing2->Initialize(device, texWidth, texHeight, SCREEN_DEPTH, SCREEN_NEAR, format);
+	if (!result)
+		return false;
+
+	auto rendPostProcessing3 = new RenderTextureClass;
+	result = rendPostProcessing3->Initialize(device, texWidth, texHeight, SCREEN_DEPTH, SCREEN_NEAR, format);
+	if (!result)
+		return false;
+
+	m_RendTexList.push_back(m_RenderTexDisplay);
+	m_RendTexList.push_back(rendShadowMap);
+	m_RendTexList.push_back(rendPostProcessing);
+	m_RendTexList.push_back(rendPostProcessing2);
+	m_RendTexList.push_back(rendPostProcessing3);
 
 	// DISPLAY PLANES
 
@@ -396,15 +390,32 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	shadowMapDisplay->SetPosition(0, 4, 0);
 
 	auto displayPostProcessing = new DisplayPlaneClass;
-	result = displayPostProcessing->Initialize(device, SCREEN_X, SCREEN_Y, rendPostProcessing, shaderPostProcessing);
+	result = displayPostProcessing->Initialize(device, SCREEN_X, SCREEN_Y, rendPostProcessing, shaderBlur);
+	if (!result)
+		return false;
+
+	auto displayPostProcessing2 = new DisplayPlaneClass;
+	result = displayPostProcessing2->Initialize(device, SCREEN_X, SCREEN_Y, rendPostProcessing2, shaderBlur);
+	if (!result)
+		return false;
+
+	auto displayPostProcessing3 = new DisplayPlaneClass;
+	result = displayPostProcessing3->Initialize(device, SCREEN_X, SCREEN_Y, rendPostProcessing3, shaderFilter);
 	if (!result)
 		return false;
 
 	float displaySize = 0.5f;
 	displayPostProcessing->SetScale(displaySize, displaySize, displaySize);
+	displayPostProcessing2->SetScale(displaySize, displaySize, displaySize);
+	displayPostProcessing3->SetScale(displaySize, displaySize, displaySize);
 
 	m_RenderClass->SetShadowMapDisplayPlane(shadowMapDisplay);
-	m_RenderClass->SetPostProcessingDisplayPlane(displayPostProcessing);
+	m_RenderClass->SetPostProcessingDisplayPlanes(displayPostProcessing, displayPostProcessing2, displayPostProcessing3);
+
+	m_DisplayList.push_back(shadowMapDisplay);
+	m_DisplayList.push_back(displayPostProcessing);
+	m_DisplayList.push_back(displayPostProcessing2);
+	m_DisplayList.push_back(displayPostProcessing3);
 
 	return true;
 }
@@ -412,7 +423,7 @@ bool ApplicationClass::Initialize(HWND hwnd)
 void ApplicationClass::InitializeShadowMapViewMatrix()
 {
 	XMVECTOR lightPos = XMVectorSet(m_dirLightX, m_dirLightY, m_dirLightZ, 0);
-	lightPos = XMVectorScale(lightPos, -SHADOW_MAP_DISTANCE);
+	lightPos = XMVectorScale(lightPos, -m_Settings->m_CurrentData.ShadowMapDistance);
 	XMMATRIX lightView = XMMatrixLookAtLH(lightPos, XMVectorSet(0, 0, 0, 0), XMVectorSet(0, 1, 0, 0));
 	m_Parameters->shadow.shadowView = lightView;
 }
@@ -508,6 +519,72 @@ bool ApplicationClass::InitializeBitmap(BitmapClass** ptr, const char* filename)
 	return true;
 }
 
+void ApplicationClass::UpdateParameters()
+{
+	m_Parameters->utils.texelSizeX = 1.0f / (SCREEN_X * m_Settings->m_CurrentData.DownScaleMult);
+	m_Parameters->utils.texelSizeY = 1.0f / (SCREEN_Y * m_Settings->m_CurrentData.DownScaleMult);
+	
+	if (!m_Settings->m_CurrentData.FogEnabled)
+	{
+		m_Parameters->fog.fogStart = -9999999.0f;
+		m_Parameters->fog.fogEnd = 999999999.0f;
+	}
+	else
+	{
+		m_Parameters->fog.fogStart = 0.0f;
+		m_Parameters->fog.fogEnd = 40.0f;
+	}
+
+	m_Parameters->clip.clipPlane = XMFLOAT4(0.0f, -1.0f, 0.0f, 999999.0f);
+	m_Parameters->textureTranslation.translation = XMFLOAT2(0, 0);
+	m_Parameters->textureTranslation.timeMultiplier = 0.0f;
+	m_Parameters->alpha.alphaBlend = 1.0f;
+	m_Parameters->water.reflectRefractScale = 0.01f;
+	m_Parameters->reflectionEnabled = m_Settings->m_CurrentData.ReflectionEnabled;
+
+	m_Parameters->fire.distortion1 = XMFLOAT2(0.1f, 0.2f);
+	m_Parameters->fire.distortion2 = XMFLOAT2(0.1f, 0.3f);
+	m_Parameters->fire.distortion3 = XMFLOAT2(0.1f, 0.1f);
+	m_Parameters->fire.distortionScale = 0.8f;
+	m_Parameters->fire.distortionBias = 0.5f;
+
+	InitializeShadowMapViewMatrix();
+	XMMATRIX lightProjection = XMMatrixOrthographicLH(m_Settings->m_CurrentData.ShadowMapSceneSize, m_Settings->m_CurrentData.ShadowMapSceneSize,
+		m_Settings->m_CurrentData.ShadowMapNear, m_Settings->m_CurrentData.ShadowMapDepth);
+
+	m_Parameters->shadow.shadowProj = lightProjection;
+	m_Parameters->shadow.poissonDisk[0] = XMFLOAT4(-0.94201624f, -0.39906216f, 0, 0);
+	m_Parameters->shadow.poissonDisk[1] = XMFLOAT4(0.94558609f, -0.76890725f, 0, 0);
+	m_Parameters->shadow.poissonDisk[2] = XMFLOAT4(-0.094184101f, -0.92938870f, 0, 0);
+	m_Parameters->shadow.poissonDisk[3] = XMFLOAT4(0.34495938f, 0.29387760f, 0, 0);
+	m_Parameters->shadow.poissonSpread = 4096;
+	m_Parameters->shadow.shadowBias = 0.005f;
+	m_Parameters->shadow.shadowCutOff = 0.01f;
+
+	m_Parameters->blur.blurMode = 0;
+
+	m_Parameters->blur.weights[0] = XMFLOAT4(1.0f, 0, 0, 0);
+	m_Parameters->blur.weights[1] = XMFLOAT4(0.9f, 0, 0, 0);
+	m_Parameters->blur.weights[2] = XMFLOAT4(0.55f, 0, 0, 0);
+	m_Parameters->blur.weights[3] = XMFLOAT4(0.18f, 0, 0, 0);
+
+	if (m_Settings->m_CurrentData.FiltersEnabled)
+	{
+		m_Parameters->filter.grainEnabled = true;
+		m_Parameters->filter.monochromeEnabled = true;
+		m_Parameters->filter.sharpnessEnabled = false;
+		m_Parameters->filter.vignetteEnabled = true;
+
+		m_Parameters->filter.grainIntensity = 0.1f;
+		m_Parameters->filter.vignetteStrength = 2;
+		m_Parameters->filter.vignetteSmoothness = 0.6f;
+
+		m_Parameters->filter.sharpnessKernalN = -0.5f;
+		m_Parameters->filter.sharpnessKernalP = 0.5f;
+		m_Parameters->filter.sharpnessStrength = 0.2f;
+	}
+}
+
 void ApplicationClass::Shutdown()
 {
 	if (m_RenderClass)
@@ -541,18 +618,16 @@ void ApplicationClass::Shutdown()
 		delete texSet;
 	}
 
-	if (m_DisplayPlane)
+	for (auto display : m_DisplayList)
 	{
-		m_DisplayPlane->Shutdown();
-		delete m_DisplayPlane;
-		m_DisplayPlane = 0;
+		display->Shutdown();
+		delete display;
 	}
 
-	if (m_RenderTexDisplay)
+	for (auto rendTex : m_RendTexList)
 	{
-		m_RenderTexDisplay->Shutdown();
-		delete m_RenderTexDisplay;
-		m_RenderTexDisplay = 0;
+		rendTex->Shutdown();
+		delete rendTex;
 	}
 
 	if (m_Parameters)
@@ -598,6 +673,13 @@ void ApplicationClass::Shutdown()
 		m_Camera = 0;
 	}
 
+	if (m_Frustum)
+	{
+		// m_Frustum->Shutdown();
+		delete m_Frustum;
+		m_Frustum = 0;
+	}
+
 	if (m_Direct3D)
 	{
 		m_Direct3D->Shutdown();
@@ -606,8 +688,15 @@ void ApplicationClass::Shutdown()
 	}
 }
 
-bool ApplicationClass::Frame(InputClass* Input)
+bool ApplicationClass::Frame(InputClass* input)
 {
+	int outSettingsIndex;
+	if (input->IsNumberPressed(outSettingsIndex))
+	{
+		m_Settings->ChangeSettings(outSettingsIndex);
+		UpdateParameters();
+	}
+
 	m_Timer->Frame();
 	float frameTime = m_Timer->GetTime();
 
@@ -628,26 +717,37 @@ bool ApplicationClass::Frame(InputClass* Input)
 	if (m_fractalGO)
 		m_fractalGO->SetRotation(0, rotation * sin(time * 0.01f) * 5, 0);
 
+	XMFLOAT3 camPos = m_Camera->GetPosition();
+	if (m_skyboxGO && !m_Settings->m_CurrentData.FreezeSkybox)
+		m_skyboxGO->SetPosition(camPos.x, camPos.y, camPos.z);
+	if (m_skyboxGO)
+		m_skyboxGO->SetScale(m_Settings->m_CurrentData.ShadowsEnabled ? 500 : 0);
+
 	float sunSpeed = 0.005f;
 	SetDirLight(cos(time * sunSpeed), -0.75f, sin(time * sunSpeed));
 	
-	if (Input->IsKeyPressed(DIK_ESCAPE))
+	if (input->IsKeyPressed(DIK_ESCAPE))
 		return false;
 
 	int mouseX, mouseY;
-	Input->GetMouseLocation(mouseX, mouseY);
+	input->GetMouseLocation(mouseX, mouseY);
 
-	bool mouseDown = Input->IsMousePressed();
+	bool mouseDown = input->IsMousePressed();
 	if (!UpdateMouseStrings(mouseX, mouseY, mouseDown))
 		return false;
 	
 	m_cursorGO2D->SetPosition(mouseX - 635.0f, -mouseY + 400.0f);
 
-	m_Camera->Frame(Input, frameTime);
-
 	m_Fps->Frame();
 
-	return Render() && m_Fps->UpdateFPS(m_FpsString);
+	return Render() && m_Fps->UpdateFPS(m_FpsString) && LateFrame(input, frameTime);
+}
+
+bool ApplicationClass::LateFrame(InputClass* input, float frameTime)
+{
+	m_Camera->Frame(input, frameTime, m_Settings->m_CurrentData.CameraSpeed, m_Settings->m_CurrentData.CameraRotationSpeed);
+
+	return true;
 }
 
 void ApplicationClass::SetDirLight(float x, float y, float z)
@@ -681,7 +781,7 @@ bool ApplicationClass::Render()
 
 	m_Parameters->camera.cameraPosition = m_Camera->GetPosition();	
 
-	result = m_RenderClass->Render(m_Parameters);
+	result = m_RenderClass->Render(m_Settings, m_Parameters);
 	if (!result)
 		return false;
 	

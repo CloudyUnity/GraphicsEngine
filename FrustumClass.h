@@ -18,6 +18,8 @@ public:
     bool CheckSphere(float, float, float, float);
     bool CheckRectangle(float, float, float, float, float, float);
 
+    void Shutdown();
+
 private:
     XMFLOAT4 m_planes[6];
 };

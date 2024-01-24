@@ -273,3 +273,11 @@ bool FrustumClass::CheckRectangle(float xCenter, float yCenter, float zCenter, f
 
     return true;
 }
+
+void FrustumClass::Shutdown()
+{
+    if (m_planes)
+    {
+        delete[] m_planes;
+    }
+}
