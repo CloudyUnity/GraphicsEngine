@@ -14,7 +14,6 @@ class TextureSetClass
 {
 public:
 	TextureSetClass();
-	TextureSetClass(const TextureSetClass&);
 	~TextureSetClass();
 
 	void Shutdown();
@@ -29,7 +28,7 @@ public:
 	ID3D11ShaderResourceView* GetTexture(int);
 
 private:
-	vector<ID3D11ShaderResourceView*> m_Textures;	
+	vector<TextureClass*> m_Textures;	
 };
 
 #endif

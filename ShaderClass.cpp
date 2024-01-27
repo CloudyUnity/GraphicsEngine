@@ -63,7 +63,37 @@ bool ShaderClass::Initialize(ID3D11Device* device, HWND hwnd, char* vertexName, 
 
 void ShaderClass::Shutdown()
 {
-	ShutdownShader();
+	if (m_sampleState)
+	{
+		m_sampleState->Release();
+		m_sampleState = 0;
+	}
+
+	for (auto b : m_bufferList)
+	{
+		if (b)
+		{
+			b->Release();
+		}
+	}
+
+	if (m_vertexShader)
+	{
+		m_vertexShader->Release();
+		m_vertexShader = 0;
+	}
+
+	if (m_pixelShader)
+	{
+		m_pixelShader->Release();
+		m_pixelShader = 0;
+	}
+
+	if (m_layout)
+	{
+		m_layout->Release();
+		m_layout = 0;
+	}
 }
 
 bool ShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, TextureSetClass* textures, ShaderParameters* parameters)
@@ -81,8 +111,7 @@ bool ShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFil
 	HRESULT result;
 	ID3D10Blob* errorMessage = 0;
 	ID3D10Blob* vertexShaderBuffer = 0;
-	ID3D10Blob* pixelShaderBuffer = 0;
-	D3D11_INPUT_ELEMENT_DESC polygonLayout[5];
+	ID3D10Blob* pixelShaderBuffer = 0;	
 	unsigned int numElements;
 
 	D3D11_BUFFER_DESC bufferDesc;
@@ -132,47 +161,81 @@ bool ShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFil
 
 	// Create the vertex input layout description.
 	// This setup needs to match the VertexType stucture in the ModelClass and in the shader.
-	polygonLayout[0].SemanticName = "POSITION";
-	polygonLayout[0].SemanticIndex = 0;
-	polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	polygonLayout[0].InputSlot = 0;
-	polygonLayout[0].AlignedByteOffset = 0;
-	polygonLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[0].InstanceDataStepRate = 0;
 
-	polygonLayout[1].SemanticName = "TEXCOORD";
-	polygonLayout[1].SemanticIndex = 0;
-	polygonLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-	polygonLayout[1].InputSlot = 0;
-	polygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[1].InstanceDataStepRate = 0;
+	D3D11_INPUT_ELEMENT_DESC polygonLayout[10];
 
-	polygonLayout[2].SemanticName = "NORMAL";
-	polygonLayout[2].SemanticIndex = 0;
-	polygonLayout[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	polygonLayout[2].InputSlot = 0;
-	polygonLayout[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	polygonLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[2].InstanceDataStepRate = 0;
+	if (m_vertexName == "Particle.vs")
+	{
+		polygonLayout[0].SemanticName = "POSITION";
+		polygonLayout[0].SemanticIndex = 0;
+		polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		polygonLayout[0].InputSlot = 0;
+		polygonLayout[0].AlignedByteOffset = 0;
+		polygonLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+		polygonLayout[0].InstanceDataStepRate = 0;
 
-	polygonLayout[3].SemanticName = "TANGENT";
-	polygonLayout[3].SemanticIndex = 0;
-	polygonLayout[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	polygonLayout[3].InputSlot = 0;
-	polygonLayout[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	polygonLayout[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[3].InstanceDataStepRate = 0;
+		polygonLayout[1].SemanticName = "TEXCOORD";
+		polygonLayout[1].SemanticIndex = 0;
+		polygonLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
+		polygonLayout[1].InputSlot = 0;
+		polygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+		polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+		polygonLayout[1].InstanceDataStepRate = 0;
 
-	polygonLayout[4].SemanticName = "BINORMAL";
-	polygonLayout[4].SemanticIndex = 0;
-	polygonLayout[4].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	polygonLayout[4].InputSlot = 0;
-	polygonLayout[4].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	polygonLayout[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[4].InstanceDataStepRate = 0;
+		polygonLayout[2].SemanticName = "COLOR";
+		polygonLayout[2].SemanticIndex = 0;
+		polygonLayout[2].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		polygonLayout[2].InputSlot = 0;
+		polygonLayout[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+		polygonLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+		polygonLayout[2].InstanceDataStepRate = 0;
 
-	numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
+		numElements = 3;
+	}
+	else
+	{
+		polygonLayout[0].SemanticName = "POSITION";
+		polygonLayout[0].SemanticIndex = 0;
+		polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		polygonLayout[0].InputSlot = 0;
+		polygonLayout[0].AlignedByteOffset = 0;
+		polygonLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+		polygonLayout[0].InstanceDataStepRate = 0;
+
+		polygonLayout[1].SemanticName = "TEXCOORD";
+		polygonLayout[1].SemanticIndex = 0;
+		polygonLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
+		polygonLayout[1].InputSlot = 0;
+		polygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+		polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+		polygonLayout[1].InstanceDataStepRate = 0;
+
+		polygonLayout[2].SemanticName = "NORMAL";
+		polygonLayout[2].SemanticIndex = 0;
+		polygonLayout[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		polygonLayout[2].InputSlot = 0;
+		polygonLayout[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+		polygonLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+		polygonLayout[2].InstanceDataStepRate = 0;
+
+		polygonLayout[3].SemanticName = "TANGENT";
+		polygonLayout[3].SemanticIndex = 0;
+		polygonLayout[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		polygonLayout[3].InputSlot = 0;
+		polygonLayout[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+		polygonLayout[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+		polygonLayout[3].InstanceDataStepRate = 0;
+
+		polygonLayout[4].SemanticName = "BINORMAL";
+		polygonLayout[4].SemanticIndex = 0;
+		polygonLayout[4].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		polygonLayout[4].InputSlot = 0;
+		polygonLayout[4].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+		polygonLayout[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+		polygonLayout[4].InstanceDataStepRate = 0;
+
+		numElements = 5;
+	}
 
 	result = device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(),
 		vertexShaderBuffer->GetBufferSize(), &m_layout);
@@ -192,23 +255,23 @@ bool ShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFil
 	bufferDesc.StructureByteStride = 0;
 
 	bool bufferCreationResult = 
-		TryCreateBuffer(device, bufferDesc, &m_matrixBuffer, sizeof(MatrixBufferType), m_vertexName, "Matrix") &&
-		TryCreateBuffer(device, bufferDesc, &m_fogBuffer, sizeof(FogBufferType), m_vertexName, "Fog") &&
-		TryCreateBuffer(device, bufferDesc, &m_clipBuffer, sizeof(ClipPlaneBufferType), m_vertexName, "Clip") &&
-		TryCreateBuffer(device, bufferDesc, &m_cameraBuffer, sizeof(CameraBufferType), m_vertexName, "Camera") &&
-		TryCreateBuffer(device, bufferDesc, &m_reflectionBuffer, sizeof(ReflectionBufferType), m_vertexName, "Reflection") &&
-		TryCreateBuffer(device, bufferDesc, &m_utilBuffer, sizeof(UtilBufferType), m_fragName, "Util") &&
-		TryCreateBuffer(device, bufferDesc, &m_lightColorBuffer, sizeof(LightColorBufferType), m_fragName, "LightColor") &&
-		TryCreateBuffer(device, bufferDesc, &m_lightBuffer, sizeof(LightBufferType), m_fragName, "Light") &&
-		TryCreateBuffer(device, bufferDesc, &m_pixelBuffer, sizeof(PixelBufferType), m_fragName, "Pixel") &&
-		TryCreateBuffer(device, bufferDesc, &m_texTransBuffer, sizeof(TexTranslationBufferType), m_fragName, "TexTranslation") &&
-		TryCreateBuffer(device, bufferDesc, &m_alphaBuffer, sizeof(AlphaBufferType), m_fragName, "Alpha") &&		
-		TryCreateBuffer(device, bufferDesc, &m_waterBuffer, sizeof(WaterBufferType), m_fragName, "Water") &&		
-		TryCreateBuffer(device, bufferDesc, &m_fireBuffer, sizeof(FireBufferType), m_fragName, "Fire") &&		
-		TryCreateBuffer(device, bufferDesc, &m_shadowBuffer, sizeof(ShadowBufferType), m_fragName, "Shadow") &&		
-		TryCreateBuffer(device, bufferDesc, &m_blurBuffer, sizeof(BlurBufferType), m_fragName, "Blur") &&		
-		TryCreateBuffer(device, bufferDesc, &m_filterBuffer, sizeof(FilterBufferType), m_fragName, "Filter") &&		
-		TryCreateBuffer(device, bufferDesc, &m_lightPositionBuffer, sizeof(LightPositionBufferType), m_fragName, "LightPosition");
+		TryCreateBuffer(device, bufferDesc, m_matrixBuffer, sizeof(MatrixBufferType), m_vertexName, "Matrix") &&
+		TryCreateBuffer(device, bufferDesc, m_fogBuffer, sizeof(FogBufferType), m_vertexName, "Fog") &&
+		TryCreateBuffer(device, bufferDesc, m_clipBuffer, sizeof(ClipPlaneBufferType), m_vertexName, "Clip") &&
+		TryCreateBuffer(device, bufferDesc, m_cameraBuffer, sizeof(CameraBufferType), m_vertexName, "Camera") &&
+		TryCreateBuffer(device, bufferDesc, m_reflectionBuffer, sizeof(ReflectionBufferType), m_vertexName, "Reflection") &&
+		TryCreateBuffer(device, bufferDesc, m_utilBuffer, sizeof(UtilBufferType), m_fragName, "Util") &&
+		TryCreateBuffer(device, bufferDesc, m_lightColorBuffer, sizeof(LightColorBufferType), m_fragName, "LightColor") &&
+		TryCreateBuffer(device, bufferDesc, m_lightBuffer, sizeof(LightBufferType), m_fragName, "Light") &&
+		TryCreateBuffer(device, bufferDesc, m_pixelBuffer, sizeof(PixelBufferType), m_fragName, "Pixel") &&
+		TryCreateBuffer(device, bufferDesc, m_texTransBuffer, sizeof(TexTranslationBufferType), m_fragName, "TexTranslation") &&
+		TryCreateBuffer(device, bufferDesc, m_alphaBuffer, sizeof(AlphaBufferType), m_fragName, "Alpha") &&		
+		TryCreateBuffer(device, bufferDesc, m_waterBuffer, sizeof(WaterBufferType), m_fragName, "Water") &&		
+		TryCreateBuffer(device, bufferDesc, m_fireBuffer, sizeof(FireBufferType), m_fragName, "Fire") &&		
+		TryCreateBuffer(device, bufferDesc, m_shadowBuffer, sizeof(ShadowBufferType), m_fragName, "Shadow") &&		
+		TryCreateBuffer(device, bufferDesc, m_blurBuffer, sizeof(BlurBufferType), m_fragName, "Blur") &&		
+		TryCreateBuffer(device, bufferDesc, m_filterBuffer, sizeof(FilterBufferType), m_fragName, "Filter") &&		
+		TryCreateBuffer(device, bufferDesc, m_lightPositionBuffer, sizeof(LightPositionBufferType), m_fragName, "LightPosition");
 
 	if (!bufferCreationResult)
 		return false;
@@ -245,52 +308,17 @@ bool ShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFil
 	return true;
 }
 
-bool ShaderClass::TryCreateBuffer(ID3D11Device* device, D3D11_BUFFER_DESC bufferDesc, ID3D11Buffer** ptr, size_t structSize, string shaderName, string bufferName)
+bool ShaderClass::TryCreateBuffer(ID3D11Device* device, D3D11_BUFFER_DESC bufferDesc, ID3D11Buffer*& ptr, size_t structSize, string shaderName, string bufferName)
 {
 	if (!ShaderUsesBuffer(shaderName, bufferName))
 		return true;
 
-	m_bufferList.push_back(*ptr);
-
 	bufferDesc.ByteWidth = (UINT)structSize;
-	HRESULT result = device->CreateBuffer(&bufferDesc, NULL, ptr);
+	HRESULT result = device->CreateBuffer(&bufferDesc, NULL, &ptr);
+
+	m_bufferList.push_back(ptr);
+
 	return !FAILED(result);
-}
-
-void ShaderClass::ShutdownShader()
-{
-	if (m_sampleState)
-	{
-		m_sampleState->Release();
-		m_sampleState = 0;
-	}
-
-	for (auto buffer : m_bufferList)
-	{
-		if (buffer)
-		{
-			buffer->Release();
-			delete buffer;
-		}
-	}
-
-	if (m_vertexShader)
-	{
-		m_vertexShader->Release();
-		m_vertexShader = 0;
-	}
-
-	if (m_pixelShader)
-	{
-		m_pixelShader->Release();
-		m_pixelShader = 0;
-	}
-
-	if (m_layout)
-	{
-		m_layout->Release();
-		m_layout = 0;
-	}
 }
 
 void ShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename)
@@ -590,7 +618,7 @@ void ShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int indexCoun
 
 bool ShaderClass::ShaderUsesBuffer(std::string shader, std::string buffer)
 {
-	if (shader == "Light.vs") {
+	if (shader == "Light.vs" || shader == "Particle.vs") {
 		return buffer == "Matrix" ||
 			buffer == "Camera";
 	}

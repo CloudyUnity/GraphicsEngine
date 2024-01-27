@@ -8,6 +8,8 @@ TextureClass::TextureClass()
 
 	m_height = 0;
 	m_width = 0;
+
+	m_dontOwnSRV = false;
 }
 
 TextureClass::~TextureClass()
@@ -61,6 +63,13 @@ bool TextureClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceC
 	delete[] m_targaData;
 	m_targaData = 0;
 
+	return true;
+}
+
+bool TextureClass::Initialize(ID3D11ShaderResourceView* srv)
+{
+	m_textureView = srv;
+	m_dontOwnSRV = true;
 	return true;
 }
 
@@ -158,14 +167,6 @@ bool TextureClass::InitializeCubemap(ID3D11Device* device, ID3D11DeviceContext* 
 
 	deviceContext->GenerateMips(m_textureView);
 
-	// delete[] m_textures;
-
-	/*for (int i = 0; i < 6; ++i)
-	{
-		if (m_textures[i])
-			m_textures[i]->Release();
-	}*/
-
 	return true;
 }
 
@@ -233,19 +234,20 @@ bool TextureClass::InitializeCubemap(ID3D11Device* device, ID3D11DeviceContext* 
 
 void TextureClass::Shutdown()
 {
-	if (m_textureView)
+	if (m_textureView && !m_dontOwnSRV)
 	{
 		m_textureView->Release();
 		m_textureView = 0;
 	}
 
-	if (m_textureViews)
+	/*if (m_textureViews)
 	{
-		/*for (int i = 0; i < 6; i++)
-			m_textureViews[i]->Release();*/
-
-		// delete[] m_textureViews;
-	}
+		for (int i = 0; i < 6; i++)
+		{
+			if (m_textureViews[i])
+				m_textureViews[i]->Release();
+		}			
+	}*/
 
 	if (m_texture)
 	{
@@ -260,7 +262,7 @@ void TextureClass::Shutdown()
 	}
 }
 
-ID3D11ShaderResourceView* TextureClass::GetTexture()
+ID3D11ShaderResourceView* TextureClass::GetSRV()
 {
 	return m_textureView;
 }

@@ -31,29 +31,6 @@ bool RenderClass::Initialize(D3DClass* d3d, CameraClass* cam, FrustumClass* frus
 
 void RenderClass::Shutdown()
 {
-	for (auto go : m_AllGameObjectList)
-	{
-		go->Shutdown();
-		delete go;
-	}
-
-	for (auto go : m_All2DGameObjectList)
-	{
-		go->Shutdown();
-		delete go;
-	}
-
-	for (auto go : m_AllTextClassList)
-	{
-		go->Shutdown();
-		delete go;
-	}
-
-	for (auto display : m_AllDisplayPlaneList)
-	{
-		display->Shutdown();
-		delete display;
-	}
 }
 
 void RenderClass::AddGameObject(GameObjectClass* go)
@@ -74,6 +51,11 @@ void RenderClass::AddTextClass(TextClass* go)
 void RenderClass::AddDisplayPlane(DisplayPlaneClass* go)
 {
 	m_AllDisplayPlaneList.push_back(go);
+}
+
+void RenderClass::AddParticleSystem(ParticleSystemClass* ps)
+{
+	m_AllParticleSystemList.push_back(ps);
 }
 
 void RenderClass::SubscribeToReflection(ID3D11Device* device, GameObjectClass* go, int texSetNum, int format)
@@ -185,11 +167,11 @@ bool RenderClass::Render(Settings* settings, ShaderClass::ShaderParameters* para
 		}
 	}
 
-	result = RenderScene(settings, viewMatrix, projectionMatrix, params);
+	result = SetupDisplayPlanes(params, settings);
 	if (!result)
 		return false;
 
-	result = RenderDisplayPlanes(params, settings);
+	result = RenderScene(settings, viewMatrix, projectionMatrix, params);
 	if (!result)
 		return false;
 
@@ -211,9 +193,28 @@ bool RenderClass::Render(Settings* settings, ShaderClass::ShaderParameters* para
 
 bool RenderClass::RenderScene(Settings* settings, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ShaderClass::ShaderParameters* params, string skipGO)
 {
+	bool result;
+
 	params->matrix.view = viewMatrix;
 	params->matrix.projection = projectionMatrix;
 
+	result = RenderGameObjects(params, settings, skipGO);
+	if (!result)
+		return false;
+
+	result = RenderDisplayPlanes(params, skipGO);
+	if (!result)
+		return false;
+
+	result = RenderParticleSystems(params, settings, skipGO);
+	if (!result)
+		return false;
+
+	return true;
+}
+
+bool RenderClass::RenderGameObjects(ShaderClass::ShaderParameters* params, Settings* settings, string skipGO)
+{
 	auto savedParams = *params;
 
 	for (auto go : m_AllGameObjectList)
@@ -257,12 +258,108 @@ bool RenderClass::RenderScene(Settings* settings, XMMATRIX viewMatrix, XMMATRIX 
 	return true;
 }
 
+bool RenderClass::RenderParticleSystems(ShaderClass::ShaderParameters* params, Settings* settings, string skipGO)
+{
+	bool result;
+
+	for (auto ps : m_AllParticleSystemList)
+	{
+		if (ps->m_NameIdentifier == skipGO)
+			continue;
+
+		if (ps->m_backCullingDisabled)
+			m_Direct3D->SetBackCulling(settings->m_CurrentData.WireframeMode, false);
+
+		result = ps->Render(m_Direct3D->GetDeviceContext(), params);
+		if (!result)
+			return false;
+
+		if (ps->m_backCullingDisabled)
+			m_Direct3D->SetBackCulling(settings->m_CurrentData.WireframeMode, true);
+	}
+
+	return true;
+}
+
+bool RenderClass::SetupDisplayPlanes(ShaderClass::ShaderParameters* params, Settings* settings)
+{
+	bool result;
+
+	for (auto go : m_AllDisplayPlaneList)
+	{
+		result = RenderToTexture(go->m_RenderTexture, params, settings);
+		if (!result)
+			return false;
+	}
+
+	return true;
+}
+
+bool RenderClass::RenderDisplayPlanes(ShaderClass::ShaderParameters* params, string skipGO)
+{
+	XMMATRIX viewMatrix, projectionMatrix;
+	bool result;
+
+	m_Camera->GetViewMatrix(viewMatrix);
+	m_Direct3D->GetProjectionMatrix(projectionMatrix);
+
+	for (auto go : m_AllDisplayPlaneList)
+	{
+		if (go->m_NameIdentifier == skipGO)
+			continue;
+
+		params->matrix.view = viewMatrix;
+		params->matrix.projection = projectionMatrix;
+
+		result = go->Render(m_Direct3D->GetDeviceContext(), params);
+		if (!result)
+			return false;
+	}
+
+	return true;
+}
+
+bool RenderClass::Render2D(ShaderClass::ShaderParameters* params)
+{
+	XMMATRIX viewMatrix2D, orthoMatrix;
+	bool result;
+
+	m_Direct3D->TurnZBufferOff();
+	m_Camera->Get2DViewMatrix(viewMatrix2D);
+	m_Direct3D->GetOrthoMatrix(orthoMatrix);
+
+	params->matrix.view = viewMatrix2D;
+	params->matrix.projection = orthoMatrix;
+
+	for (auto go : m_All2DGameObjectList)
+	{
+		result = go->Render(m_Direct3D->GetDeviceContext(), params);
+		if (!result)
+			return false;
+	}
+
+	for (auto go : m_AllTextClassList)
+	{
+		result = go->Render(m_Direct3D->GetDeviceContext(), params);
+		if (!result)
+			return false;
+	}
+
+	m_Direct3D->TurnZBufferOn();
+
+	return true;
+}
+
 bool RenderClass::RenderSceneDepth(ShaderClass::ShaderParameters* params)
 {	
+	bool result;
+
 	params->matrix.view = params->shadow.shadowView;
 	params->matrix.projection = params->shadow.shadowProj;
 
 	auto savedParams = *params;	
+
+	m_Direct3D->SetBackCulling(false, false);
 
 	for (auto go : m_AllGameObjectList)
 	{
@@ -272,12 +369,21 @@ bool RenderClass::RenderSceneDepth(ShaderClass::ShaderParameters* params)
 		if (go->m_NameIdentifier == "IcosphereBig")
 			params->clip.clipPlane = XMFLOAT4(0.0f, -1.0f, 0.0f, 2.5f);
 
-		bool result = go->Render(m_Direct3D->GetDeviceContext(), params, m_depthShader);
+		result = go->Render(m_Direct3D->GetDeviceContext(), params, m_depthShader);
 		if (!result)
 			return false;
 
 		*params = savedParams;
 	}
+
+	for (auto ps : m_AllParticleSystemList)
+	{
+		result = ps->Render(m_Direct3D->GetDeviceContext(), params, m_depthShader);
+		if (!result)
+			return false;
+	}
+
+	m_Direct3D->SetBackCulling(false, true);
 
 	return true;
 }
@@ -388,60 +494,6 @@ bool RenderClass::RenderToTexture(RenderTextureClass* rendTex, ShaderClass::Shad
 		return false;
 
 	ResetViewport(settings);
-
-	return true;
-}
-
-bool RenderClass::RenderDisplayPlanes(ShaderClass::ShaderParameters* params, Settings* settings)
-{
-	XMMATRIX viewMatrix, projectionMatrix;
-	bool result;
-
-	m_Camera->GetViewMatrix(viewMatrix);
-	m_Direct3D->GetProjectionMatrix(projectionMatrix);	
-	
-	for (auto go : m_AllDisplayPlaneList)
-	{
-		RenderToTexture(go->m_RenderTexture, params, settings);
-
-		params->matrix.view = viewMatrix;
-		params->matrix.projection = projectionMatrix;
-
-		result = go->Render(m_Direct3D->GetDeviceContext(), params);
-		if (!result)
-			return false;
-	}
-
-	return true;
-}
-
-bool RenderClass::Render2D(ShaderClass::ShaderParameters* params)
-{
-	XMMATRIX viewMatrix2D, orthoMatrix;
-	bool result;
-
-	m_Direct3D->TurnZBufferOff();
-	m_Camera->Get2DViewMatrix(viewMatrix2D);
-	m_Direct3D->GetOrthoMatrix(orthoMatrix);
-
-	params->matrix.view = viewMatrix2D;
-	params->matrix.projection = orthoMatrix;
-
-	for (auto go : m_All2DGameObjectList)
-	{
-		result = go->Render(m_Direct3D->GetDeviceContext(), params);
-		if (!result)
-			return false;
-	}
-
-	for (auto go : m_AllTextClassList)
-	{
-		result = go->Render(m_Direct3D->GetDeviceContext(), params);
-		if (!result)
-			return false;
-	}
-
-	m_Direct3D->TurnZBufferOn();	
 
 	return true;
 }

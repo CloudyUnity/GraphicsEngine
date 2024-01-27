@@ -6,19 +6,16 @@ DisplayPlaneClass::DisplayPlaneClass()
     m_indexBuffer = 0;
 }
 
-DisplayPlaneClass::DisplayPlaneClass(const DisplayPlaneClass& other)
-{
-}
-
 DisplayPlaneClass::~DisplayPlaneClass()
 {
 }
 
-bool DisplayPlaneClass::Initialize(ID3D11Device* device, float width, float height, RenderTextureClass* rendTex, ShaderClass* shader)
+bool DisplayPlaneClass::Initialize(ID3D11Device* device, float width, float height, RenderTextureClass* rendTex, ShaderClass* shader, const char* name)
 {
     m_RenderTexture = rendTex;
     m_Shader = shader;
     m_TexSet = new TextureSetClass;
+    m_NameIdentifier = name;
 
     SetScale(1, 1, 1);
 
@@ -178,7 +175,6 @@ void DisplayPlaneClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
     // Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
     deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
-
 
 void DisplayPlaneClass::SetPosition(float  x, float y, float z)
 {

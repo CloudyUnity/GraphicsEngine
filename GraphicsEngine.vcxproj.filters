@@ -120,6 +120,10 @@
     <ClInclude Include="Settings.h">
       <Filter>Source Files\Managers</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleSystemClass.h">
+      <Filter>Source Files\Collections</Filter>
+    </ClInclude>
+    <ClInclude Include="MathUtilsClass.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ApplicationClass.cpp">
@@ -194,6 +198,12 @@
     <ClCompile Include="Settings.cpp">
       <Filter>Source Files\Managers</Filter>
     </ClCompile>
+    <ClCompile Include="ParticleSystemClass.cpp">
+      <Filter>Source Files\Collections</Filter>
+    </ClCompile>
+    <ClCompile Include="MathUtilsClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Fog.vs">
@@ -256,6 +266,12 @@
     </None>
     <None Include="Skybox.ps">
       <Filter>Shaders</Filter>
+    </None>
+    <None Include="Particle.vs">
+      <Filter>Shaders\Effect</Filter>
+    </None>
+    <None Include="Particle.ps">
+      <Filter>Shaders\Effect</Filter>
     </None>
   </ItemGroup>
 </Project>

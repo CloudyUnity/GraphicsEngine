@@ -104,7 +104,7 @@ bool ApplicationClass::Initialize(HWND hwnd)
 
 	bool clampSamplerMode = true;
 	ShaderClass* shaderMain = 0, * shaderReflect = 0, * shaderWater = 0, * shader2D = 0, * shaderFont = 0,
-		* shaderFractal = 0, * shaderFire = 0, * shaderDepth = 0, * shaderBlur = 0, * shaderFilter = 0, * shaderSkybox = 0;
+		* shaderFractal = 0, * shaderFire = 0, * shaderDepth = 0, * shaderBlur = 0, * shaderFilter = 0, * shaderSkybox = 0, * shaderPS =0;	
 	result = 
 		InitializeShader(hwnd, &shaderMain, "../GraphicsEngine/Fog.vs", "../GraphicsEngine/Fog.ps") &&
 		InitializeShader(hwnd, &shaderReflect, "../GraphicsEngine/Reflect.vs", "../GraphicsEngine/Reflect.ps") &&
@@ -116,15 +116,16 @@ bool ApplicationClass::Initialize(HWND hwnd)
 		InitializeShader(hwnd, &shaderBlur, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/Blur.ps") &&
 		InitializeShader(hwnd, &shaderFilter, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/Filter.ps") &&
 		InitializeShader(hwnd, &shaderSkybox, "../GraphicsEngine/Skybox.vs", "../GraphicsEngine/Skybox.ps", clampSamplerMode) &&
+		InitializeShader(hwnd, &shaderPS, "../GraphicsEngine/Particle.vs", "../GraphicsEngine/Particle.ps") &&
 		InitializeShader(hwnd, &shaderFractal, "../GraphicsEngine/Fog.vs", "../GraphicsEngine/Fractal.ps");
 	if (!result)
-		return false;
+		return false;	
 
 	m_RenderClass->SetDepthShader(shaderDepth);
 
 	// TEXSETS
 
-	TextureSetClass* texSetMoss, * texSetStars, * texSetSnow, * texSetReflection, * texSetWater, * texSetNone, * texSetFire, * texSetSkybox;
+	TextureSetClass* texSetMoss, * texSetStars, * texSetSnow, * texSetReflection, * texSetWater, * texSetNone, * texSetFire, * texSetSkybox, * texSetPS;
 	InitializeTexSet(&texSetMoss);
 	InitializeTexSet(&texSetStars);
 	InitializeTexSet(&texSetSnow);
@@ -133,6 +134,7 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	InitializeTexSet(&texSetNone);
 	InitializeTexSet(&texSetFire);
 	InitializeTexSet(&texSetSkybox);
+	InitializeTexSet(&texSetPS);
 
 	texSetMoss->Add(device, deviceContext, "../GraphicsEngine/Data/Celeste.tga");
 	texSetMoss->Add(device, deviceContext, "../GraphicsEngine/Data/Moss.tga");
@@ -163,9 +165,11 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	texSetFire->Add(device, deviceContext, "../GraphicsEngine/Data/fireColor.tga");
 	texSetFire->Add(device, deviceContext, "../GraphicsEngine/Data/flameAlpha.tga");
 
-	result = texSetSkybox->AddCubemap(device, deviceContext, "../GraphicsEngine/Data/Skybox/Skybox.tga");
+	result = texSetSkybox->AddCubemap(device, deviceContext, "../GraphicsEngine/Data/Skybox/CoolSkybox.tga");
 	if (!result)
 		return false;
+
+	texSetPS->Add(device, deviceContext, "../GraphicsEngine/Data/Sparkle.tga");
 
 	// MODELS
 
@@ -210,6 +214,7 @@ bool ApplicationClass::Initialize(HWND hwnd)
 
 	m_IcosphereGO->SetScale(5, 5, 5);
 	m_IcosphereGO->SetPosition(0, 0, 15);
+	m_IcosphereGO->SetBackCulling(false);
 
 	m_transIcoGO->SetPosition(3, 0.5f, 3);
 	m_transIcoGO->SetScale(1.0f, 1.0f, 1.0f);	
@@ -217,7 +222,7 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	m_mountainGO->SetScale(0.3f, 0.3f, 0.3f);
 	m_mountainGO->SetPosition(1, -13, 15);
 
-	m_cubeGO->SetScale(1.5f, 0.5f, 1.5f);
+	m_cubeGO->SetScale(1.5f, 0.01f, 1.5f);
 	m_cubeGO->SetPosition(0, -0.5f, 0);
 
 	waterGO->SetPosition(6, 0.5f, -0.5f);
@@ -350,19 +355,13 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	texWidth = (int)(SCREEN_Y * m_Settings->m_CurrentData.DownScaleMult);
 
 	auto rendPostProcessing = new RenderTextureClass;
-	result = rendPostProcessing->Initialize(device, texWidth, texHeight, SCREEN_DEPTH, SCREEN_NEAR, format);
-	if (!result)
-		return false;	
-
 	auto rendPostProcessing2 = new RenderTextureClass;
-	result = rendPostProcessing2->Initialize(device, texWidth, texHeight, SCREEN_DEPTH, SCREEN_NEAR, format);
-	if (!result)
-		return false;
-
 	auto rendPostProcessing3 = new RenderTextureClass;
-	result = rendPostProcessing3->Initialize(device, texWidth, texHeight, SCREEN_DEPTH, SCREEN_NEAR, format);
+	result = rendPostProcessing->Initialize(device, texWidth, texHeight, SCREEN_DEPTH, SCREEN_NEAR, format) &&
+		rendPostProcessing2->Initialize(device, texWidth, texHeight, SCREEN_DEPTH, SCREEN_NEAR, format) && 
+		rendPostProcessing3->Initialize(device, texWidth, texHeight, SCREEN_DEPTH, SCREEN_NEAR, format);
 	if (!result)
-		return false;
+		return false;		
 
 	m_RendTexList.push_back(m_RenderTexDisplay);
 	m_RendTexList.push_back(rendShadowMap);
@@ -376,31 +375,29 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	float displayHeight = 1.0f;
 
 	m_DisplayPlane = new DisplayPlaneClass;
-	result = m_DisplayPlane->Initialize(device, displayWidth, displayHeight, m_RenderTexDisplay, shader2D);
+	result = m_DisplayPlane->Initialize(device, displayWidth, displayHeight, m_RenderTexDisplay, shader2D, "MainDisplay");
 	if (!result)
 		return false;
-	m_DisplayPlane->SetPosition(0, 0, 5);
-
-	m_RenderClass->AddDisplayPlane(m_DisplayPlane);
+	m_DisplayPlane->SetPosition(0, 0, 5);	
 
 	auto shadowMapDisplay = new DisplayPlaneClass;
-	result = shadowMapDisplay->Initialize(device, displayWidth, displayHeight, rendShadowMap, shader2D);
+	result = shadowMapDisplay->Initialize(device, displayWidth, displayHeight, rendShadowMap, shader2D, "ShadowMap");
 	if (!result)
 		return false;
 	shadowMapDisplay->SetPosition(0, 4, 0);
 
 	auto displayPostProcessing = new DisplayPlaneClass;
-	result = displayPostProcessing->Initialize(device, SCREEN_X, SCREEN_Y, rendPostProcessing, shaderBlur);
+	result = displayPostProcessing->Initialize(device, SCREEN_X, SCREEN_Y, rendPostProcessing, shaderBlur, "DisplayPP1");
 	if (!result)
 		return false;
 
 	auto displayPostProcessing2 = new DisplayPlaneClass;
-	result = displayPostProcessing2->Initialize(device, SCREEN_X, SCREEN_Y, rendPostProcessing2, shaderBlur);
+	result = displayPostProcessing2->Initialize(device, SCREEN_X, SCREEN_Y, rendPostProcessing2, shaderBlur, "DisplayPP2");
 	if (!result)
 		return false;
 
 	auto displayPostProcessing3 = new DisplayPlaneClass;
-	result = displayPostProcessing3->Initialize(device, SCREEN_X, SCREEN_Y, rendPostProcessing3, shaderFilter);
+	result = displayPostProcessing3->Initialize(device, SCREEN_X, SCREEN_Y, rendPostProcessing3, shaderFilter, "DisplayPP3");
 	if (!result)
 		return false;
 
@@ -412,10 +409,37 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	m_RenderClass->SetShadowMapDisplayPlane(shadowMapDisplay);
 	m_RenderClass->SetPostProcessingDisplayPlanes(displayPostProcessing, displayPostProcessing2, displayPostProcessing3);
 
+	m_RenderClass->AddDisplayPlane(m_DisplayPlane);
+
 	m_DisplayList.push_back(shadowMapDisplay);
+	m_DisplayList.push_back(m_DisplayPlane);
 	m_DisplayList.push_back(displayPostProcessing);
 	m_DisplayList.push_back(displayPostProcessing2);
 	m_DisplayList.push_back(displayPostProcessing3);
+
+	// PARTICLE SYSTEMS
+
+	ParticleSystemClass::ParticleSystemData data = {};
+	data.maxParticles = 2000;
+	data.particlesPerSecond = 100;
+	data.size = 0.3f;
+	data.sizeDev = 0.1f;
+	data.posDevX = 40;
+	data.posDevZ = 40;
+	data.speed = 20;
+	data.speedDev = 5.0f;
+	data.velocityY = -1;
+	data.velocityX = 0.1f;
+	data.lifetime = 4.0f;
+	data.lifetimeDev = 0.1f;
+	data.sizeOverLifetimeCurveIndex = 5;
+	data.colB = 1;
+	data.colR = 1;
+	data.colG = 1;
+
+	result = InitializeParticleSystem(&m_PSRaindrops, data, shaderPS, texSetPS, "PS1");
+	if (!result)
+		return false;
 
 	return true;
 }
@@ -473,6 +497,7 @@ void ApplicationClass::InitializeGameObject(ModelClass* model, ShaderClass* shad
 	(*ptr)->Initialize(model, shader, texSet, name);
 
 	m_RenderClass->AddGameObject(*ptr);
+	m_GameobjectList.push_back(*ptr);
 }
 
 void ApplicationClass::InitializeGameObject2D(BitmapClass* bitmap, ShaderClass* shader, GameObjectClass2D** ptr)
@@ -481,6 +506,7 @@ void ApplicationClass::InitializeGameObject2D(BitmapClass* bitmap, ShaderClass* 
 	(*ptr)->Initialize(bitmap, shader);
 
 	m_RenderClass->AddGameObject2D(*ptr);
+	m_Gameobject2DList.push_back(*ptr);
 }
 
 bool ApplicationClass::InitializeTextClass(TextClass** ptr, ShaderClass* shader, FontClass* font, int maxLength)
@@ -493,6 +519,7 @@ bool ApplicationClass::InitializeTextClass(TextClass** ptr, ShaderClass* shader,
 	(*ptr)->SetFont(font);
 
 	m_RenderClass->AddTextClass(*ptr);
+	m_TextList.push_back(*ptr);
 
 	return true;
 }
@@ -519,6 +546,19 @@ bool ApplicationClass::InitializeBitmap(BitmapClass** ptr, const char* filename)
 	return true;
 }
 
+bool ApplicationClass::InitializeParticleSystem(ParticleSystemClass** ptr, ParticleSystemClass::ParticleSystemData data, ShaderClass* shader, TextureSetClass* texSet, const char* name)
+{
+	*ptr = new ParticleSystemClass();
+	bool result = (*ptr)->Initialize(m_Direct3D->GetDevice(), data, shader, texSet, name);
+	if (!result)
+		return false;
+
+	m_ParticleSystemList.push_back(*ptr);
+	m_RenderClass->AddParticleSystem(*ptr);
+
+	return true;
+}
+
 void ApplicationClass::UpdateParameters()
 {
 	m_Parameters->utils.texelSizeX = 1.0f / (SCREEN_X * m_Settings->m_CurrentData.DownScaleMult);
@@ -532,7 +572,7 @@ void ApplicationClass::UpdateParameters()
 	else
 	{
 		m_Parameters->fog.fogStart = 0.0f;
-		m_Parameters->fog.fogEnd = 40.0f;
+		m_Parameters->fog.fogEnd = 20.0f;
 	}
 
 	m_Parameters->clip.clipPlane = XMFLOAT4(0.0f, -1.0f, 0.0f, 999999.0f);
@@ -630,6 +670,30 @@ void ApplicationClass::Shutdown()
 		delete rendTex;
 	}
 
+	for (auto go : m_GameobjectList)
+	{
+		go->Shutdown();
+		delete go;
+	}
+
+	for (auto go : m_Gameobject2DList)
+	{
+		go->Shutdown();
+		delete go;
+	}
+
+	for (auto txt : m_TextList)
+	{
+		txt->Shutdown();
+		delete txt;
+	}
+
+	for (auto ps : m_ParticleSystemList)
+	{
+		ps->Shutdown();
+		delete ps;
+	}
+
 	if (m_Parameters)
 	{
 		delete m_Parameters;
@@ -675,7 +739,7 @@ void ApplicationClass::Shutdown()
 
 	if (m_Frustum)
 	{
-		// m_Frustum->Shutdown();
+		m_Frustum->Shutdown();
 		delete m_Frustum;
 		m_Frustum = 0;
 	}
@@ -739,6 +803,20 @@ bool ApplicationClass::Frame(InputClass* input)
 	m_cursorGO2D->SetPosition(mouseX - 635.0f, -mouseY + 400.0f);
 
 	m_Fps->Frame();
+
+	if (m_PSRaindrops)
+	{
+		m_PSRaindrops->m_data.posX = camPos.x;
+		m_PSRaindrops->m_data.posY = camPos.y + 20;
+		m_PSRaindrops->m_data.posZ = camPos.z;
+	}
+
+	for (auto ps : m_ParticleSystemList)
+	{
+		bool result = ps->Frame(m_Direct3D->GetDeviceContext(), frameTime);
+		if (!result)
+			return false;
+	}
 
 	return Render() && m_Fps->UpdateFPS(m_FpsString) && LateFrame(input, frameTime);
 }

@@ -4,10 +4,6 @@ TextureSetClass::TextureSetClass()
 {
 }
 
-TextureSetClass::TextureSetClass(const TextureSetClass&)
-{
-}
-
 TextureSetClass::~TextureSetClass()
 {
 }
@@ -19,62 +15,65 @@ void TextureSetClass::Shutdown()
 
 bool TextureSetClass::Add(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const char* texFileName, int setIndex)
 {
-	TextureClass tex;
-	bool result = tex.Initialize(device, deviceContext, const_cast<char*>(texFileName));
+	TextureClass* tex = new TextureClass();
+	bool result = tex->Initialize(device, deviceContext, const_cast<char*>(texFileName));
 	if (!result)
 		return false;
 
 	if (setIndex > 0 && setIndex < m_Textures.size())
 	{
-		m_Textures.at(setIndex) = tex.GetTexture();
+		m_Textures.at(setIndex) = tex;
 		return true;
 	}
 
-	m_Textures.push_back(tex.GetTexture());
+	m_Textures.push_back(tex);
 	return true;
 }
 
 bool TextureSetClass::AddCubemap(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const char* texFileName, int setIndex)
 {
-	TextureClass tex;
-	bool result = tex.InitializeCubemap(device, deviceContext, const_cast<char*>(texFileName));
+	TextureClass* tex = new TextureClass();
+	bool result = tex->InitializeCubemap(device, deviceContext, const_cast<char*>(texFileName));
 	if (!result)
 		return false;
 
 	if (setIndex > 0 && setIndex < m_Textures.size())
 	{
-		m_Textures.at(setIndex) = tex.GetTexture();
+		m_Textures.at(setIndex) = tex;
 		return true;
 	}
 
-	m_Textures.push_back(tex.GetTexture());
+	m_Textures.push_back(tex);
 	return true;
 }
 
 bool TextureSetClass::Add(ID3D11Device* device, ID3D11DeviceContext* deviceContext, vector<const char*> texFileName, int setIndex)
 {
-	TextureClass tex;
+	TextureClass* tex = new TextureClass();
 
 	vector<char*> newVector;
 	for (auto c : texFileName)
 		newVector.push_back(const_cast<char*>(c));
 
-	bool result = tex.InitializeCubemap(device, deviceContext, newVector);
+	bool result = tex->InitializeCubemap(device, deviceContext, newVector);
 	if (!result)
 		return false;
 
 	if (setIndex > 0 && setIndex < m_Textures.size())
 	{
-		m_Textures.at(setIndex) = tex.GetTexture();
+		m_Textures.at(setIndex) = tex;
 		return true;
 	}
 
-	m_Textures.push_back(tex.GetTexture());
+	m_Textures.push_back(tex);
 	return true;
 }
 
-void TextureSetClass::Add(ID3D11ShaderResourceView* tex, int setIndex)
+void TextureSetClass::Add(ID3D11ShaderResourceView* srv, int setIndex)
 {
+	TextureClass* tex = new TextureClass();
+	tex->Initialize(srv);
+
 	if (setIndex >= 0 && setIndex < m_Textures.size())
 	{
 		m_Textures.at(setIndex) = tex;
@@ -86,7 +85,11 @@ void TextureSetClass::Add(ID3D11ShaderResourceView* tex, int setIndex)
 
 void TextureSetClass::ReleaseTexture()
 {
-	
+	for (auto t : m_Textures)
+	{
+		t->Shutdown();
+		delete t;
+	}
 }
 
 void TextureSetClass::ClearList()
@@ -101,5 +104,5 @@ int TextureSetClass::GetCount()
 
 ID3D11ShaderResourceView* TextureSetClass::GetTexture(int i)
 {
-	return m_Textures.at(i);
+	return m_Textures.at(i)->GetSRV();
 }
