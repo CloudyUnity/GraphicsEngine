@@ -76,8 +76,7 @@ void GameObjectClass::Shutdown()
 		m_Shader = 0;
 	}
 
-	if (m_Textures)
-	{
+	if (m_Textures)	{
 		m_Textures = 0;
 	}
 

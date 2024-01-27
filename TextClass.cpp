@@ -64,7 +64,7 @@ bool TextClass::Render(ID3D11DeviceContext* deviceContext, ShaderClass::ShaderPa
     params->pixel.pixelColor = GetPixelColor();
 
     RenderBuffers(deviceContext);
-    m_TexSet->Add(m_font->GetTexture()->GetTexture(), 0);
+    m_TexSet->Add(m_font->GetTexture()->GetSRV(), 0);
 
     return m_Shader->Render(deviceContext, GetIndexCount(), m_TexSet, params);
 }

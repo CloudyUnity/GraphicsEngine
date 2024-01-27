@@ -81,7 +81,7 @@ int BitmapClass::GetIndexCount()
 
 ID3D11ShaderResourceView* BitmapClass::GetTexture()
 {
-    return m_AllTextureFrames[m_currentTexture].GetTexture();
+    return m_AllTextureFrames[m_currentTexture].GetSRV();
 }
 
 void BitmapClass::SetTextureFrame(int frame) 

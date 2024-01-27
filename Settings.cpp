@@ -2,6 +2,8 @@
 
 Settings::Settings(int index)
 {
+	m_generalExhibitData1.ReflectionFrameDelay = 0;
+
 	m_debugData2.CameraSpeed = 10;
 	m_debugData2.CameraRotationSpeed = 120;
 	m_debugData2.FrustumCulling = false;
@@ -17,6 +19,7 @@ Settings::Settings(int index)
 	m_fogExhibitData5.FogEnabled = true;
 	m_fogExhibitData5.SkyboxEnabled = false;
 	m_fogExhibitData5.FreezeSkybox = true;
+	m_fogExhibitData5.ShadowsEnabled = false;
 
 	m_wireFrameData6.WireframeMode = true;
 

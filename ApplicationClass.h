@@ -22,11 +22,14 @@
 #include "displayplaneclass.h"
 #include "RenderClass.h"
 #include "Settings.h"
+#include "ParticleSystemClass.h"
+
 using std::vector;
 using std::string;
 using std::unordered_map;
 using std::any;
 using std::any_cast;
+using std::unique_ptr;
 
 class ApplicationClass
 {
@@ -43,6 +46,7 @@ public:
 	bool InitializeTextClass(TextClass** ptr, ShaderClass* shader, FontClass*, int maxLength);
 	void InitializeTexSet(TextureSetClass** ptr);
 	bool InitializeBitmap(BitmapClass**, const char*);
+	bool InitializeParticleSystem(ParticleSystemClass**, ParticleSystemClass::ParticleSystemData,  ShaderClass*, TextureSetClass*, const char*);
 
 	void UpdateParameters();
 
@@ -77,6 +81,7 @@ private:
 	GameObjectClass2D* m_spinnerGO2D, *m_cursorGO2D;
 	BitmapClass* m_BitmapSpinner, *m_BitmapCursor;	
 	TextClass* m_TextString1, * m_TextString2, * m_TextStringMouseX, * m_TextStringMouseY, * m_TextStringMouseBttn, * m_FpsString;
+	ParticleSystemClass* m_PSRaindrops;
 
 	vector<ModelClass*> m_ModelList;
 	vector<ShaderClass*> m_ShaderList;
@@ -84,6 +89,10 @@ private:
 	vector<TextureSetClass*> m_TexSetList;
 	vector<DisplayPlaneClass*> m_DisplayList;
 	vector<RenderTextureClass*> m_RendTexList;
+	vector<TextClass*> m_TextList;
+	vector<GameObjectClass*> m_GameobjectList;
+	vector<GameObjectClass2D*> m_Gameobject2DList;
+	vector<ParticleSystemClass*> m_ParticleSystemList;
 };
 
 #endif

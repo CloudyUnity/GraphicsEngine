@@ -23,11 +23,12 @@ public:
     ~TextureClass();
 
     bool Initialize(ID3D11Device*, ID3D11DeviceContext*, char*);
+    bool Initialize(ID3D11ShaderResourceView* srv);
     bool InitializeCubemap(ID3D11Device*, ID3D11DeviceContext*, vector<char*>);
     bool InitializeCubemap(ID3D11Device*, ID3D11DeviceContext*, char*);
     void Shutdown();
 
-    ID3D11ShaderResourceView* GetTexture();
+    ID3D11ShaderResourceView* GetSRV();
 
     int GetWidth();
     int GetHeight();
@@ -41,6 +42,8 @@ private:
     ID3D11ShaderResourceView* m_textureView;
     ID3D11ShaderResourceView* m_textureViews[6];
     int m_width, m_height;
+
+    bool m_dontOwnSRV;
 };
 
 #endif

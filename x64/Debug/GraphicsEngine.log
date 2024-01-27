@@ -1,4 +1,5 @@
-﻿  RenderClass.cpp
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\RenderClass.cpp(465,49): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\RenderClass.cpp(474,49): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+﻿  ApplicationClass.cpp
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(592,123): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(592,77): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(788,49): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
   GraphicsEngine.vcxproj -> C:\Users\finnw\source\repos\GraphicsEngine\x64\Debug\GraphicsEngine.exe

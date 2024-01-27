@@ -16,10 +16,9 @@ private:
 
 public:
     DisplayPlaneClass();
-    DisplayPlaneClass(const DisplayPlaneClass&);
     ~DisplayPlaneClass();
 
-    bool Initialize(ID3D11Device*, float, float, RenderTextureClass*, ShaderClass*);
+    bool Initialize(ID3D11Device*, float, float, RenderTextureClass*, ShaderClass*, const char*);
     void Shutdown();
     bool Render(ID3D11DeviceContext*, ShaderClass::ShaderParameters*);
 
@@ -30,6 +29,7 @@ public:
     int GetIndexCount();
 
     RenderTextureClass* m_RenderTexture;
+    string m_NameIdentifier;
 
 private:
     bool InitializeBuffers(ID3D11Device*, float, float);
@@ -39,6 +39,7 @@ private:
 private:
     ID3D11Buffer* m_vertexBuffer, * m_indexBuffer;
     int m_vertexCount, m_indexCount;
+
     ShaderClass* m_Shader;
     TextureSetClass* m_TexSet;
 

@@ -10,6 +10,7 @@
 #include "FrustumClass.h"
 #include "rendertextureclass.h"
 #include "displayplaneclass.h"
+#include "ParticleSystemClass.h"
 using std::vector;
 using std::string;
 using std::unordered_map;
@@ -29,6 +30,7 @@ public:
 	void AddGameObject2D(GameObjectClass2D*);
 	void AddTextClass(TextClass*);
 	void AddDisplayPlane(DisplayPlaneClass*);
+	void AddParticleSystem(ParticleSystemClass* ps);
 	void SubscribeToReflection(ID3D11Device*, GameObjectClass*, int, int);
 	void SubscribeToRefraction(ID3D11Device*, GameObjectClass*, int, int);
 	void SubscribeToShadow(GameObjectClass*, int);
@@ -44,13 +46,20 @@ public:
 
 private:
 	bool RenderScene(Settings*, XMMATRIX, XMMATRIX, ShaderClass::ShaderParameters*, string skipGO = "-N/A-");
+	bool RenderGameObjects(ShaderClass::ShaderParameters*, Settings*, string);
+	bool RenderDisplayPlanes(ShaderClass::ShaderParameters*, string);
+	bool SetupDisplayPlanes(ShaderClass::ShaderParameters*, Settings*);
+	bool RenderParticleSystems(ShaderClass::ShaderParameters*, Settings*,  string);
+	bool RenderToRefractionTexture(ShaderClass::ShaderParameters* params, Settings* settings);
+	bool SetUpDisplayPlanes(ShaderClass::ShaderParameters* params, Settings* settings, string skipGO);
+	bool Render2D(ShaderClass::ShaderParameters*);	
+
 	bool RenderSceneDepth(ShaderClass::ShaderParameters*);
 	bool RenderToTexture(RenderTextureClass*, ShaderClass::ShaderParameters*, Settings*);
 	bool RenderToReflectionTexture(GameObjectClass*, ShaderClass::ShaderParameters*, Settings*);
 	bool RenderToRefractionTexture(GameObjectClass*, ShaderClass::ShaderParameters*, Settings*);
-	bool RenderToShadowTexture(ShaderClass::ShaderParameters*, Settings*);
-	bool RenderDisplayPlanes(ShaderClass::ShaderParameters*, Settings*);
-	bool Render2D(ShaderClass::ShaderParameters*);	
+	bool RenderToShadowTexture(ShaderClass::ShaderParameters*, Settings*);	
+
 	bool RenderPostProcessing(ShaderClass::ShaderParameters*, Settings*);
 
 	void ResetViewport(Settings*);
@@ -68,6 +77,7 @@ private:
 	vector<GameObjectClass2D*> m_All2DGameObjectList;
 	vector<TextClass*> m_AllTextClassList;
 	vector<DisplayPlaneClass*> m_AllDisplayPlaneList;
+	vector<ParticleSystemClass*> m_AllParticleSystemList;
 
 	ShaderClass* m_depthShader;
 	DisplayPlaneClass* m_shadowMapDisplay;

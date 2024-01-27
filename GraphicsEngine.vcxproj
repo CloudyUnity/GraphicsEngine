@@ -147,8 +147,10 @@
     <ClInclude Include="GameObjectClass2D.h" />
     <ClInclude Include="InputClass.h" />
     <ClInclude Include="LightClass.h" />
+    <ClInclude Include="MathUtilsClass.h" />
     <ClInclude Include="ModelClass.h" />
     <ClInclude Include="ModelParser.h" />
+    <ClInclude Include="ParticleSystemClass.h" />
     <ClInclude Include="RenderClass.h" />
     <ClInclude Include="RenderTextureClass.h" />
     <ClInclude Include="Settings.h" />
@@ -173,8 +175,10 @@
     <ClCompile Include="InputClass.cpp" />
     <ClCompile Include="LightClass.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MathUtilsClass.cpp" />
     <ClCompile Include="ModelClass.cpp" />
     <ClCompile Include="ModelParser.cpp" />
+    <ClCompile Include="ParticleSystemClass.cpp" />
     <ClCompile Include="RenderClass.cpp" />
     <ClCompile Include="RenderTextureClass.cpp" />
     <ClCompile Include="Settings.cpp" />
@@ -199,6 +203,8 @@
     <None Include="MultiTex.ps" />
     <None Include="Blur.ps" />
     <None Include="Blur.vs" />
+    <None Include="Particle.ps" />
+    <None Include="Particle.vs" />
     <None Include="README.md" />
     <None Include="Reflect.ps" />
     <None Include="Reflect.vs" />
