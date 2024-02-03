@@ -171,9 +171,8 @@ bool ParticleSystemClass::Frame(ID3D11DeviceContext* deviceContext, float frameT
     m_totalTime += frameTime;
     m_accumulatedTime += frameTime;
 
-    float secondsPerParticle = 1.0f / m_data.particlesPerSecond;
-    
-    while (m_currentParticleCount < (m_data.maxParticles - 1))
+    float secondsPerParticle = 1.0f / m_data.particlesPerSecond;    
+    while (!m_disabled && m_currentParticleCount < (m_data.maxParticles - 1))
     {
         bool validTime = m_accumulatedTime >= secondsPerParticle;
         if (!validTime)

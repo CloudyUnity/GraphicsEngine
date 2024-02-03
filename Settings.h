@@ -34,7 +34,9 @@ private:
         bool FreezeSkybox = false;
         bool ReflectionEnabled = true;
         int ReflectionFrameDelay = 3;
+        int ShadowMapFramesDelay = 2;
         bool WireframeMode = false;
+        bool ParticlesEnabled = false;
 
         // SHADOWS
         bool ShadowsEnabled = true;

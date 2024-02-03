@@ -123,7 +123,9 @@
     <ClInclude Include="ParticleSystemClass.h">
       <Filter>Source Files\Collections</Filter>
     </ClInclude>
-    <ClInclude Include="MathUtilsClass.h" />
+    <ClInclude Include="MathUtilsClass.h">
+      <Filter>Source Files\Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ApplicationClass.cpp">
@@ -202,7 +204,7 @@
       <Filter>Source Files\Collections</Filter>
     </ClCompile>
     <ClCompile Include="MathUtilsClass.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Helpers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -272,6 +274,9 @@
     </None>
     <None Include="Particle.ps">
       <Filter>Shaders\Effect</Filter>
+    </None>
+    <None Include="Portal.ps">
+      <Filter>Shaders\2D</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -41,7 +41,7 @@ public:
 	void InitializeShadowMapViewMatrix();
 	bool InitializeModel(HWND, ModelClass**, const char*);
 	bool InitializeShader(HWND, ShaderClass**, const char*, const char*, bool clampSamplerMode = false);
-	void InitializeGameObject(ModelClass*, ShaderClass*, TextureSetClass*, const char*, GameObjectClass** ptr = nullptr);
+	void InitializeGameObject(ModelClass*, ShaderClass*, TextureSetClass*, bool, const char*, GameObjectClass** ptr = nullptr);
 	void InitializeGameObject2D(BitmapClass*, ShaderClass*, GameObjectClass2D** ptr = nullptr);
 	bool InitializeTextClass(TextClass** ptr, ShaderClass* shader, FontClass*, int maxLength);
 	void InitializeTexSet(TextureSetClass** ptr);
@@ -58,6 +58,7 @@ public:
 private:
 	bool Render();
 	bool UpdateMouseStrings(int, int, bool);
+	void UpdatePortals(XMFLOAT3 camPos);
 
 private:
 	D3DClass* m_Direct3D;
@@ -74,10 +75,9 @@ private:
 
 	FontClass* m_Font;
 	LightClass* m_Lights, * m_DirLight;
-	RenderTextureClass* m_RenderTexDisplay;
-	DisplayPlaneClass* m_DisplayPlane;
+	DisplayPlaneClass* m_DisplayPlane, *m_DisplayPortal1, *m_DisplayPortal2;
 
-	GameObjectClass* m_MadelineGO1, * m_MadelineGO2, * m_IcosphereGO, * m_mountainGO, * m_transIcoGO, * m_cubeGO, * m_fractalGO, *m_skyboxGO;
+	GameObjectClass* m_MadelineGO1, * m_MadelineGO2, * m_IcosphereGO, * m_mountainGO, * m_transIcoGO, * m_cubeGO, * m_fractalGO, * m_skyboxGO, * m_testIcoGO;
 	GameObjectClass2D* m_spinnerGO2D, *m_cursorGO2D;
 	BitmapClass* m_BitmapSpinner, *m_BitmapCursor;	
 	TextClass* m_TextString1, * m_TextString2, * m_TextStringMouseX, * m_TextStringMouseY, * m_TextStringMouseBttn, * m_FpsString;
@@ -93,6 +93,9 @@ private:
 	vector<GameObjectClass*> m_GameobjectList;
 	vector<GameObjectClass2D*> m_Gameobject2DList;
 	vector<ParticleSystemClass*> m_ParticleSystemList;
+
+	XMVECTOR m_previousPortalOffset1;
+	XMVECTOR m_previousPortalOffset2;
 };
 
 #endif

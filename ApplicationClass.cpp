@@ -25,8 +25,6 @@ ApplicationClass::ApplicationClass()
 	m_TextStringMouseX = 0;
 	m_TextStringMouseY = 0;
 
-	m_RenderTexDisplay = 0;
-
 	m_DisplayPlane = 0;
 
 	m_mountainGO = 0;
@@ -104,7 +102,8 @@ bool ApplicationClass::Initialize(HWND hwnd)
 
 	bool clampSamplerMode = true;
 	ShaderClass* shaderMain = 0, * shaderReflect = 0, * shaderWater = 0, * shader2D = 0, * shaderFont = 0,
-		* shaderFractal = 0, * shaderFire = 0, * shaderDepth = 0, * shaderBlur = 0, * shaderFilter = 0, * shaderSkybox = 0, * shaderPS =0;	
+		* shaderFractal = 0, * shaderFire = 0, * shaderDepth = 0, * shaderBlur = 0, * shaderFilter = 0, * shaderSkybox = 0, * shaderPS =0,
+		*shaderPortal =0;	
 	result = 
 		InitializeShader(hwnd, &shaderMain, "../GraphicsEngine/Fog.vs", "../GraphicsEngine/Fog.ps") &&
 		InitializeShader(hwnd, &shaderReflect, "../GraphicsEngine/Reflect.vs", "../GraphicsEngine/Reflect.ps") &&
@@ -117,6 +116,7 @@ bool ApplicationClass::Initialize(HWND hwnd)
 		InitializeShader(hwnd, &shaderFilter, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/Filter.ps") &&
 		InitializeShader(hwnd, &shaderSkybox, "../GraphicsEngine/Skybox.vs", "../GraphicsEngine/Skybox.ps", clampSamplerMode) &&
 		InitializeShader(hwnd, &shaderPS, "../GraphicsEngine/Particle.vs", "../GraphicsEngine/Particle.ps") &&
+		InitializeShader(hwnd, &shaderPortal, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/Portal.ps") &&
 		InitializeShader(hwnd, &shaderFractal, "../GraphicsEngine/Fog.vs", "../GraphicsEngine/Fractal.ps");
 	if (!result)
 		return false;	
@@ -165,7 +165,7 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	texSetFire->Add(device, deviceContext, "../GraphicsEngine/Data/fireColor.tga");
 	texSetFire->Add(device, deviceContext, "../GraphicsEngine/Data/flameAlpha.tga");
 
-	result = texSetSkybox->AddCubemap(device, deviceContext, "../GraphicsEngine/Data/Skybox/CoolSkybox.tga");
+	result = texSetSkybox->AddCubemap(device, deviceContext, "../GraphicsEngine/Data/Skybox/Skybox.tga");
 	if (!result)
 		return false;
 
@@ -195,19 +195,21 @@ bool ApplicationClass::Initialize(HWND hwnd)
 
 	GameObjectClass* waterGO = 0, * waterCubeGO = 0, * fireGO, * floorGO;
 	float waterSize = 2;
+	bool opaque = false, transparent = true;
 
-	InitializeGameObject(modelMadeline, shaderMain, texSetMoss, "Madeline1", &m_MadelineGO1);
-	InitializeGameObject(modelMadeline, shaderMain, texSetStars, "Madeline2", &m_MadelineGO2);
-	InitializeGameObject(modelIcosphere, shaderMain, texSetMoss, "IcosphereBig", &m_IcosphereGO);
-	InitializeGameObject(modelIcosphere, shaderMain, texSetSnow, "IcosphereTrans", &m_transIcoGO);
-	InitializeGameObject(modelMountain, shaderMain, texSetSnow, "Mountain", &m_mountainGO);
-	InitializeGameObject(modelPlane, shaderWater, texSetWater, "Water", &waterGO);
-	InitializeGameObject(modelCube, shaderReflect, texSetReflection, "GlassCube", &m_cubeGO);
-	InitializeGameObject(modelCube, shaderMain, texSetMoss, "WaterCube", &waterCubeGO);
-	InitializeGameObject(modelCube, shaderFractal, texSetNone, "Fractal", &m_fractalGO);
-	InitializeGameObject(modelPlane, shaderFire, texSetFire, "Fire", &fireGO);
-	InitializeGameObject(modelPlane, shaderMain, texSetSnow, "Floor", &floorGO);
-	InitializeGameObject(modelCube, shaderSkybox, texSetSkybox, "Skybox", &m_skyboxGO);
+	InitializeGameObject(modelMadeline, shaderMain, texSetMoss, opaque, "Madeline1", &m_MadelineGO1);
+	InitializeGameObject(modelMadeline, shaderMain, texSetStars, opaque, "Madeline2", &m_MadelineGO2);
+	InitializeGameObject(modelIcosphere, shaderMain, texSetMoss, opaque, "IcosphereBig", &m_IcosphereGO);
+	InitializeGameObject(modelIcosphere, shaderMain, texSetSnow, transparent, "IcosphereTrans", &m_transIcoGO);
+	InitializeGameObject(modelMountain, shaderMain, texSetSnow, opaque, "Mountain", &m_mountainGO);
+	InitializeGameObject(modelPlane, shaderWater, texSetWater, transparent, "Water", &waterGO);
+	InitializeGameObject(modelCube, shaderReflect, texSetReflection, opaque, "GlassCube", &m_cubeGO);
+	InitializeGameObject(modelCube, shaderMain, texSetMoss, opaque, "WaterCube", &waterCubeGO);
+	InitializeGameObject(modelCube, shaderFractal, texSetNone, opaque, "Fractal", &m_fractalGO);
+	InitializeGameObject(modelPlane, shaderFire, texSetFire, transparent, "Fire", &fireGO);
+	InitializeGameObject(modelPlane, shaderMain, texSetSnow, opaque, "Floor", &floorGO);
+	InitializeGameObject(modelCube, shaderSkybox, texSetSkybox, opaque, "Skybox", &m_skyboxGO);
+	InitializeGameObject(modelIcosphere, shaderMain, texSetSnow, opaque, "Test", &m_testIcoGO);
 
 	m_MadelineGO2->SetPosition(3, 0, 3);
 	m_MadelineGO2->SetScale(0.5f, 0.5f, 0.5f);
@@ -243,6 +245,9 @@ bool ApplicationClass::Initialize(HWND hwnd)
 
 	m_skyboxGO->SetScale(500);
 	m_skyboxGO->SetBackCulling(false);
+
+	m_testIcoGO->SetScale(0.3f);
+	m_testIcoGO->SetPosition(999, 999, 999);
 
 	// SUBSCRIPTIONS
 
@@ -318,12 +323,12 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	
 	m_TextString1->SetColor(1, 0, 0);
 	m_TextString1->SetPosition(10, 10);
-	m_TextString1->SetText("Cool 3D Graphics Project");
+	m_TextString1->SetText("Example Text");
 	m_TextString1->UpdateText();	
 
 	m_TextString2->SetColor(0, 1, 0);
 	m_TextString2->SetPosition(15, 30);
-	m_TextString2->SetText("by Finn Wright");
+	m_TextString2->SetText("More Text");
 	m_TextString2->UpdateText();	
 
 	m_FpsString->SetPosition(10, 60);	
@@ -338,8 +343,14 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	int texWidth = 256;
 	format = 1;
 
-	m_RenderTexDisplay = new RenderTextureClass;
-	result = m_RenderTexDisplay->Initialize(device, texWidth, texHeight, SCREEN_DEPTH, SCREEN_NEAR, format);
+	int portalResolution = 1024;
+
+	auto rendMainDisplay = new RenderTextureClass;
+	auto rendPortal1 = new RenderTextureClass;
+	auto rendPortal2 = new RenderTextureClass;
+	result = rendMainDisplay->Initialize(device, texWidth, texHeight, SCREEN_DEPTH, SCREEN_NEAR, format) &&
+		rendPortal1->Initialize(device, portalResolution, portalResolution, SCREEN_DEPTH, SCREEN_NEAR, format) &&
+		rendPortal2->Initialize(device, portalResolution, portalResolution, SCREEN_DEPTH, SCREEN_NEAR, format);
 	if (!result)
 		return false;
 
@@ -363,11 +374,13 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	if (!result)
 		return false;		
 
-	m_RendTexList.push_back(m_RenderTexDisplay);
+	m_RendTexList.push_back(rendMainDisplay);
 	m_RendTexList.push_back(rendShadowMap);
 	m_RendTexList.push_back(rendPostProcessing);
 	m_RendTexList.push_back(rendPostProcessing2);
 	m_RendTexList.push_back(rendPostProcessing3);
+	m_RendTexList.push_back(rendPortal1);
+	m_RendTexList.push_back(rendPortal2);
 
 	// DISPLAY PLANES
 
@@ -375,7 +388,7 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	float displayHeight = 1.0f;
 
 	m_DisplayPlane = new DisplayPlaneClass;
-	result = m_DisplayPlane->Initialize(device, displayWidth, displayHeight, m_RenderTexDisplay, shader2D, "MainDisplay");
+	result = m_DisplayPlane->Initialize(device, displayWidth, displayHeight, rendMainDisplay, shader2D, "MainDisplay", m_Camera);
 	if (!result)
 		return false;
 	m_DisplayPlane->SetPosition(0, 0, 5);	
@@ -401,21 +414,43 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	if (!result)
 		return false;
 
+	m_DisplayPortal1 = new DisplayPlaneClass;
+	result = m_DisplayPortal1->Initialize(device, displayWidth, displayHeight, rendPortal1, shaderPortal, "Portal1");
+	if (!result)
+		return false;
+
+	m_DisplayPortal2 = new DisplayPlaneClass;
+	result = m_DisplayPortal2->Initialize(device, displayWidth, displayHeight, rendPortal2, shaderPortal, "Portal2");
+	if (!result)
+		return false;
+
 	float displaySize = 0.5f;
 	displayPostProcessing->SetScale(displaySize, displaySize, displaySize);
 	displayPostProcessing2->SetScale(displaySize, displaySize, displaySize);
 	displayPostProcessing3->SetScale(displaySize, displaySize, displaySize);
 
+	m_DisplayPortal1->SetPosition(8, 0.0f, 0);
+	m_DisplayPortal1->SetRotation(0, 0, 0);
+	m_DisplayPortal1->SetScale(2);
+
+	m_DisplayPortal2->SetPosition(-8, 0, 0);
+	m_DisplayPortal2->SetRotation(0, 0, 0);
+	m_DisplayPortal2->SetScale(2);
+
 	m_RenderClass->SetShadowMapDisplayPlane(shadowMapDisplay);
 	m_RenderClass->SetPostProcessingDisplayPlanes(displayPostProcessing, displayPostProcessing2, displayPostProcessing3);
 
 	m_RenderClass->AddDisplayPlane(m_DisplayPlane);
+	m_RenderClass->AddDisplayPlane(m_DisplayPortal1);
+	m_RenderClass->AddDisplayPlane(m_DisplayPortal2);
 
 	m_DisplayList.push_back(shadowMapDisplay);
 	m_DisplayList.push_back(m_DisplayPlane);
 	m_DisplayList.push_back(displayPostProcessing);
 	m_DisplayList.push_back(displayPostProcessing2);
 	m_DisplayList.push_back(displayPostProcessing3);
+	m_DisplayList.push_back(m_DisplayPortal1);
+	m_DisplayList.push_back(m_DisplayPortal2);
 
 	// PARTICLE SYSTEMS
 
@@ -490,13 +525,13 @@ bool ApplicationClass::InitializeShader(HWND hwnd, ShaderClass** ptr, const char
 	return true;
 }
 
-void ApplicationClass::InitializeGameObject(ModelClass* model, ShaderClass* shader, TextureSetClass* texSet, const char* name, GameObjectClass** ptr)
+void ApplicationClass::InitializeGameObject(ModelClass* model, ShaderClass* shader, TextureSetClass* texSet, bool transparent, const char* name, GameObjectClass** ptr)
 {
 	*ptr = new GameObjectClass;
 
 	(*ptr)->Initialize(model, shader, texSet, name);
 
-	m_RenderClass->AddGameObject(*ptr);
+	m_RenderClass->AddGameObject(*ptr, transparent);
 	m_GameobjectList.push_back(*ptr);
 }
 
@@ -764,6 +799,9 @@ bool ApplicationClass::Frame(InputClass* input)
 	m_Timer->Frame();
 	float frameTime = m_Timer->GetTime();
 
+	XMFLOAT3 camPos = m_Camera->GetPosition();
+	XMFLOAT3 camRot = m_Camera->GetRotation();
+
 	m_BitmapSpinner->Update(frameTime);
 
 	static float rotation = 0.0f;
@@ -780,8 +818,7 @@ bool ApplicationClass::Frame(InputClass* input)
 		m_IcosphereGO->SetRotation(rotation * 50.0f, 0, 0);
 	if (m_fractalGO)
 		m_fractalGO->SetRotation(0, rotation * sin(time * 0.01f) * 5, 0);
-
-	XMFLOAT3 camPos = m_Camera->GetPosition();
+	
 	if (m_skyboxGO && !m_Settings->m_CurrentData.FreezeSkybox)
 		m_skyboxGO->SetPosition(camPos.x, camPos.y, camPos.z);
 	if (m_skyboxGO)
@@ -813,10 +850,14 @@ bool ApplicationClass::Frame(InputClass* input)
 
 	for (auto ps : m_ParticleSystemList)
 	{
+		ps->m_disabled = !m_Settings->m_CurrentData.ParticlesEnabled;
+
 		bool result = ps->Frame(m_Direct3D->GetDeviceContext(), frameTime);
 		if (!result)
 			return false;
 	}
+
+	UpdatePortals(camPos);
 
 	return Render() && m_Fps->UpdateFPS(m_FpsString) && LateFrame(input, frameTime);
 }
@@ -880,4 +921,96 @@ bool ApplicationClass::UpdateMouseStrings(int mouseX, int mouseY, bool mouseDown
 	m_TextStringMouseBttn->SetText(str);	
 
 	return m_TextStringMouseX->UpdateText() && m_TextStringMouseY->UpdateText() && m_TextStringMouseBttn->UpdateText();
+}
+
+void ApplicationClass::UpdatePortals(XMFLOAT3 camPos)
+{
+	XMVECTOR _, translation, rotQuat;
+	XMFLOAT3 rot3, trans3;
+
+	XMMATRIX p1World = m_DisplayPortal1->GetWorldMatrix();
+	XMMATRIX p2World = m_DisplayPortal2->GetWorldMatrix();
+
+	// =
+
+	XMMATRIX p2CamMatrix = m_Camera->GetWorldMatrix();
+	p2CamMatrix *= XMMatrixInverse(nullptr, p2World);
+	p2CamMatrix *= p1World;
+
+	XMMatrixDecompose(&_, &rotQuat, &translation, p2CamMatrix);
+	XMStoreFloat3(&rot3, rotQuat);
+	XMStoreFloat3(&trans3, translation);
+
+	m_DisplayPortal2->SetCameraPosAndRot(trans3.x, trans3.y, trans3.z,
+		rot3.x * RAD_TO_DEG, rot3.y * RAD_TO_DEG, rot3.z * RAD_TO_DEG);
+
+	// =
+
+	XMMATRIX p1CamMatrix = m_Camera->GetWorldMatrix();
+	p1CamMatrix *= XMMatrixInverse(nullptr, p1World);
+	p1CamMatrix *= p2World;
+
+	XMMatrixDecompose(&_, &rotQuat, &translation, p1CamMatrix);
+	XMStoreFloat3(&rot3, rotQuat);
+	XMStoreFloat3(&trans3, translation);
+
+	m_DisplayPortal1->SetCameraPosAndRot(trans3.x, trans3.y, trans3.z,
+		rot3.x * RAD_TO_DEG, rot3.y * RAD_TO_DEG, rot3.z * RAD_TO_DEG);
+
+	// =
+
+	int portalSide;
+	int portalSideOld;
+
+	XMFLOAT3 offsetFromPortal1 = XMFLOAT3(camPos.x - m_DisplayPortal1->m_PosX, camPos.y - m_DisplayPortal1->m_PosY, camPos.z - m_DisplayPortal1->m_PosZ);
+	XMVECTOR offsetVector1 = XMLoadFloat3(&offsetFromPortal1);	
+
+	XMFLOAT3 offsetFromPortal2 = XMFLOAT3(camPos.x - m_DisplayPortal2->m_PosX, camPos.y - m_DisplayPortal2->m_PosY, camPos.z - m_DisplayPortal2->m_PosZ);
+	XMVECTOR offsetVector2 = XMLoadFloat3(&offsetFromPortal2);
+
+	float d = sqrt(offsetFromPortal1.x * offsetFromPortal1.x + offsetFromPortal1.y * offsetFromPortal1.y + offsetFromPortal1.z * offsetFromPortal1.z);
+	portalSide = XMVectorGetX(XMVector3Dot(offsetVector1, m_DisplayPortal1->GetForwardVector())) >= 0 ? 1 : -1;
+	portalSideOld = XMVectorGetX(XMVector3Dot(m_previousPortalOffset1, m_DisplayPortal1->GetForwardVector())) >= 0 ? 1 : -1;
+	m_previousPortalOffset1 = offsetVector1;
+
+	if (portalSide != portalSideOld && d < 2)
+	{
+		m_Camera->SetPosition(
+			m_DisplayPortal2->m_PosX + offsetFromPortal1.x,
+			m_DisplayPortal2->m_PosY + offsetFromPortal1.y,
+			m_DisplayPortal2->m_PosZ + offsetFromPortal1.z);
+
+		camPos = m_Camera->GetPosition();
+		XMFLOAT3 offsetFromPortal1 = XMFLOAT3(camPos.x - m_DisplayPortal1->m_PosX, camPos.y - m_DisplayPortal1->m_PosY, camPos.z - m_DisplayPortal1->m_PosZ);
+		XMVECTOR offsetVector1 = XMLoadFloat3(&offsetFromPortal1);
+		XMFLOAT3 offsetFromPortal2 = XMFLOAT3(camPos.x - m_DisplayPortal2->m_PosX, camPos.y - m_DisplayPortal2->m_PosY, camPos.z - m_DisplayPortal2->m_PosZ);
+		XMVECTOR offsetVector2 = XMLoadFloat3(&offsetFromPortal2);
+		m_previousPortalOffset1 = offsetVector1;
+		m_previousPortalOffset2 = offsetVector2;
+
+		return;
+	}
+
+	d = sqrt(offsetFromPortal2.x * offsetFromPortal2.x + offsetFromPortal2.y * offsetFromPortal2.y + offsetFromPortal2.z * offsetFromPortal2.z);
+	portalSide = XMVectorGetX(XMVector3Dot(offsetVector2, m_DisplayPortal2->GetForwardVector())) >= 0 ? 1 : -1;
+	portalSideOld = XMVectorGetX(XMVector3Dot(m_previousPortalOffset2, m_DisplayPortal2->GetForwardVector())) >= 0 ? 1 : -1;
+	m_previousPortalOffset2 = offsetVector2;
+
+	if (portalSide != portalSideOld && d < 2)
+	{
+		m_Camera->SetPosition(
+			m_DisplayPortal1->m_PosX + offsetFromPortal2.x,
+			m_DisplayPortal1->m_PosY + offsetFromPortal2.y,
+			m_DisplayPortal1->m_PosZ + offsetFromPortal2.z);
+
+		camPos = m_Camera->GetPosition();
+		XMFLOAT3 offsetFromPortal1 = XMFLOAT3(camPos.x - m_DisplayPortal1->m_PosX, camPos.y - m_DisplayPortal1->m_PosY, camPos.z - m_DisplayPortal1->m_PosZ);
+		XMVECTOR offsetVector1 = XMLoadFloat3(&offsetFromPortal1);
+		XMFLOAT3 offsetFromPortal2 = XMFLOAT3(camPos.x - m_DisplayPortal2->m_PosX, camPos.y - m_DisplayPortal2->m_PosY, camPos.z - m_DisplayPortal2->m_PosZ);
+		XMVECTOR offsetVector2 = XMLoadFloat3(&offsetFromPortal2);
+		m_previousPortalOffset1 = offsetVector1;
+		m_previousPortalOffset2 = offsetVector2;
+
+		return;
+	}
 }
