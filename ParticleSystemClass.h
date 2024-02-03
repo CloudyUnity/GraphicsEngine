@@ -84,6 +84,7 @@ public:
 	ParticleSystemData m_data;
 
 	bool m_backCullingDisabled;
+	bool m_disabled;
 
 private:
 	VertexParticleType* m_vertices;

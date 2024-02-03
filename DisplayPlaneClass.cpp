@@ -10,13 +10,21 @@ DisplayPlaneClass::~DisplayPlaneClass()
 {
 }
 
-bool DisplayPlaneClass::Initialize(ID3D11Device* device, float width, float height, RenderTextureClass* rendTex, ShaderClass* shader, const char* name)
+bool DisplayPlaneClass::Initialize(ID3D11Device* device, float width, float height, RenderTextureClass* rendTex, ShaderClass* shader, const char* name, CameraClass* cam)
 {
     m_RenderTexture = rendTex;
     m_Shader = shader;
     m_TexSet = new TextureSetClass;
     m_NameIdentifier = name;
 
+    if (cam)
+        m_Camera = cam;
+    else
+    {
+        m_Camera = new CameraClass();
+        m_ownCamera = true;
+    }
+        
     SetScale(1, 1, 1);
 
     return InitializeBuffers(device, width, height);
@@ -31,27 +39,40 @@ void DisplayPlaneClass::Shutdown()
         m_TexSet = 0;
     }
 
+    if (m_Camera && m_ownCamera)
+    {
+        delete m_Camera;
+        m_Camera = 0;
+    }
+
     ShutdownBuffers();
 }
 
 bool DisplayPlaneClass::Render(ID3D11DeviceContext* deviceContext, ShaderClass::ShaderParameters* params)
 {
-    // Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
-    RenderBuffers(deviceContext);
+    bool result;
 
-    XMMATRIX scaleMatrix = XMMatrixScaling(m_ScaleX, m_ScaleY, m_ScaleZ);
-    XMMATRIX translateMatrix = XMMatrixTranslation(m_PosX, m_PosY, m_PosZ);
-    XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYaw(m_RotX * 0.0174532925f, m_RotY * 0.0174532925f, m_RotZ * 0.0174532925f); // ???
-    XMMATRIX srMatrix = XMMatrixMultiply(scaleMatrix, rotateMatrix);
-    params->matrix.world = XMMatrixMultiply(srMatrix, translateMatrix);
+    params->matrix.world = GetWorldMatrix();
 
     m_TexSet->Add(m_RenderTexture->GetShaderResourceView(), 0);
 
-    bool result = m_Shader->Render(deviceContext, GetIndexCount(), m_TexSet, params);
+    RenderBuffers(deviceContext);
+
+    result = m_Shader->Render(deviceContext, GetIndexCount(), m_TexSet, params);
     if (!result)
         return false;
 
     return true;
+}
+
+XMMATRIX DisplayPlaneClass::GetWorldMatrix()
+{
+    XMMATRIX scaleMatrix = XMMatrixScaling(m_ScaleX, m_ScaleY, m_ScaleZ);
+    XMMATRIX translateMatrix = XMMatrixTranslation(m_PosX, m_PosY, m_PosZ);
+    XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYaw(m_RotX * (float)DEG_TO_RAD, m_RotY * (float)DEG_TO_RAD, m_RotZ * (float)DEG_TO_RAD);
+
+    XMMATRIX srMatrix = XMMatrixMultiply(scaleMatrix, rotateMatrix);
+    return XMMatrixMultiply(srMatrix, translateMatrix);
 }
 
 int DisplayPlaneClass::GetIndexCount()
@@ -160,7 +181,6 @@ void DisplayPlaneClass::ShutdownBuffers()
     }
 }
 
-
 void DisplayPlaneClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
 {
     unsigned int stride = sizeof(VertexType);
@@ -195,4 +215,23 @@ void DisplayPlaneClass::SetScale(float x, float y, float z)
     m_ScaleX = x;
     m_ScaleY = y;
     m_ScaleZ = z;
+}
+
+void DisplayPlaneClass::SetScale(float x)
+{
+    m_ScaleX = x;
+    m_ScaleY = x;
+    m_ScaleZ = x;
+}
+
+void DisplayPlaneClass::SetCameraPosAndRot(float px, float py, float pz, float rx, float ry, float rz)
+{
+    m_Camera->SetPosition(px, py, pz);
+    m_Camera->SetRotation(rx, ry, rz);
+}
+
+XMVECTOR DisplayPlaneClass::GetForwardVector()
+{
+    XMMATRIX rotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(m_RotX * DEG_TO_RAD, m_RotY * DEG_TO_RAD, m_RotZ * DEG_TO_RAD);
+    return rotationMatrix.r[2];
 }

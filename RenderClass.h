@@ -26,7 +26,7 @@ public:
 	bool Initialize(D3DClass*, CameraClass*, FrustumClass*);
 	void Shutdown();
 
-	void AddGameObject(GameObjectClass*);
+	void AddGameObject(GameObjectClass*, bool transparent = false);
 	void AddGameObject2D(GameObjectClass2D*);
 	void AddTextClass(TextClass*);
 	void AddDisplayPlane(DisplayPlaneClass*);
@@ -45,17 +45,17 @@ public:
 	void ClearShaderResources();
 
 private:
-	bool RenderScene(Settings*, XMMATRIX, XMMATRIX, ShaderClass::ShaderParameters*, string skipGO = "-N/A-");
-	bool RenderGameObjects(ShaderClass::ShaderParameters*, Settings*, string);
-	bool RenderDisplayPlanes(ShaderClass::ShaderParameters*, string);
+	bool RenderScene(Settings*, XMMATRIX, XMMATRIX, ShaderClass::ShaderParameters*, vector<string> skippedNames);
+	bool RenderGameObjects(ShaderClass::ShaderParameters*, Settings*, int, vector<string> skippedNames);
+	bool RenderDisplayPlanes(ShaderClass::ShaderParameters*, Settings*, vector<string> skippedNames);
 	bool SetupDisplayPlanes(ShaderClass::ShaderParameters*, Settings*);
-	bool RenderParticleSystems(ShaderClass::ShaderParameters*, Settings*,  string);
+	bool RenderParticleSystems(ShaderClass::ShaderParameters*, Settings*, vector<string> skippedNames);
 	bool RenderToRefractionTexture(ShaderClass::ShaderParameters* params, Settings* settings);
-	bool SetUpDisplayPlanes(ShaderClass::ShaderParameters* params, Settings* settings, string skipGO);
+	bool SetUpDisplayPlanes(ShaderClass::ShaderParameters* params, Settings* settings, vector<string> skippedNames);
 	bool Render2D(ShaderClass::ShaderParameters*);	
 
 	bool RenderSceneDepth(ShaderClass::ShaderParameters*);
-	bool RenderToTexture(RenderTextureClass*, ShaderClass::ShaderParameters*, Settings*);
+	bool RenderToTexture(RenderTextureClass*, ShaderClass::ShaderParameters*, Settings*, XMMATRIX, vector<string> skippedNames);
 	bool RenderToReflectionTexture(GameObjectClass*, ShaderClass::ShaderParameters*, Settings*);
 	bool RenderToRefractionTexture(GameObjectClass*, ShaderClass::ShaderParameters*, Settings*);
 	bool RenderToShadowTexture(ShaderClass::ShaderParameters*, Settings*);	
@@ -69,7 +69,8 @@ private:
 	CameraClass* m_Camera;
 	FrustumClass* m_Frustum;
 
-	vector<GameObjectClass*> m_AllGameObjectList;
+	vector<GameObjectClass*> m_AllGOListOpaque;
+	vector<GameObjectClass*> m_AllGOListTransparent;
 	vector<GameObjectClass*> m_ReflectionList;
 	vector<GameObjectClass*> m_RefractionList;
 	vector<GameObjectClass*> m_ShadowList;
@@ -86,6 +87,7 @@ private:
 	DisplayPlaneClass* m_ppThirdPassFilterDisplay;
 
 	int m_framesSinceReflectionRender;
+	int m_framesSinceShadowMapRender;
 	bool m_renderReflectionImmediately;
 };
 

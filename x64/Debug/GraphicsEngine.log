@@ -1,5 +1,39 @@
 ﻿  ApplicationClass.cpp
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(592,123): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(592,77): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(788,49): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(627,123): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(627,77): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(825,49): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(945,52): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(945,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(945,10): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(958,52): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(958,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(958,10): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  CameraClass.cpp
+  DisplayPlaneClass.cpp
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\DisplayPlaneClass.cpp(235,118): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\DisplayPlaneClass.cpp(235,97): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\DisplayPlaneClass.cpp(235,76): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  FPSClass.cpp
+  GameObjectClass.cpp
+  GameObjectClass2D.cpp
+  MathUtilsClass.cpp
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\MathUtilsClass.cpp(29,14): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\MathUtilsClass.cpp(34,19): warning C4244: 'return': conversion from 'const _Ty' to 'float', possible loss of data
+          with
+          [
+              _Ty=double
+          ]
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\MathUtilsClass.cpp(39,40): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+  ParticleSystemClass.cpp
+  RenderClass.cpp
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\RenderClass.cpp(565,49): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\RenderClass.cpp(574,49): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+  Settings.cpp
+  ShaderClass.cpp
+  SystemClass.cpp
+  TextClass.cpp
+  d3dclass.cpp
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\d3dclass.cpp(266,25): warning C4305: '=': truncation from 'double' to 'float'
+  main.cpp
+  Generating Code...
   GraphicsEngine.vcxproj -> C:\Users\finnw\source\repos\GraphicsEngine\x64\Debug\GraphicsEngine.exe

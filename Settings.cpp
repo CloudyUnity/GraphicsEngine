@@ -3,11 +3,15 @@
 Settings::Settings(int index)
 {
 	m_generalExhibitData1.ReflectionFrameDelay = 0;
+	m_generalExhibitData1.ShadowMapFramesDelay = 0;
+	m_generalExhibitData1.ParticlesEnabled = true;
 
 	m_debugData2.CameraSpeed = 10;
 	m_debugData2.CameraRotationSpeed = 120;
 	m_debugData2.FrustumCulling = false;
 	m_debugData2.ShowShadowMap = true;
+	m_debugData2.ParticlesEnabled = true;
+	m_debugData2.ShadowMapFramesDelay = 0;
 
 	m_postProcessingExhibitData3.PostProcessingEnabled = true;
 	m_postProcessingExhibitData3.FiltersEnabled = true;

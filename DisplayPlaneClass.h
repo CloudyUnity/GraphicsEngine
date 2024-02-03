@@ -4,6 +4,7 @@
 #include "d3dclass.h"
 #include "RenderTextureClass.h"
 #include "shaderclass.h"
+#include "CameraClass.h"
 
 class DisplayPlaneClass
 {
@@ -18,18 +19,31 @@ public:
     DisplayPlaneClass();
     ~DisplayPlaneClass();
 
-    bool Initialize(ID3D11Device*, float, float, RenderTextureClass*, ShaderClass*, const char*);
+    bool Initialize(ID3D11Device*, float, float, RenderTextureClass*, ShaderClass*, const char*, CameraClass* cam = nullptr);
     void Shutdown();
     bool Render(ID3D11DeviceContext*, ShaderClass::ShaderParameters*);
+
+    XMMATRIX GetWorldMatrix();
 
     void SetPosition(float, float, float);
     void SetRotation(float, float, float);
     void SetScale(float, float, float);
 
+    void SetScale(float x);
+
+    void SetCameraPosAndRot(float px, float py, float pz, float rx, float ry, float rz);
+
+    XMVECTOR GetForwardVector();
+
     int GetIndexCount();
 
     RenderTextureClass* m_RenderTexture;
     string m_NameIdentifier;
+    CameraClass* m_Camera;
+
+    float m_PosX, m_PosY, m_PosZ;
+    float m_ScaleX, m_ScaleY, m_ScaleZ;
+    float m_RotX, m_RotY, m_RotZ;
 
 private:
     bool InitializeBuffers(ID3D11Device*, float, float);
@@ -41,11 +55,9 @@ private:
     int m_vertexCount, m_indexCount;
 
     ShaderClass* m_Shader;
-    TextureSetClass* m_TexSet;
-
-    float m_PosX, m_PosY, m_PosZ;
-    float m_ScaleX, m_ScaleY, m_ScaleZ;
-    float m_RotX, m_RotY, m_RotZ;
+    TextureSetClass* m_TexSet;    
+    
+    bool m_ownCamera;
 };
 
 #endif

@@ -205,6 +205,7 @@
     <None Include="Blur.vs" />
     <None Include="Particle.ps" />
     <None Include="Particle.vs" />
+    <None Include="Portal.ps" />
     <None Include="README.md" />
     <None Include="Reflect.ps" />
     <None Include="Reflect.vs" />

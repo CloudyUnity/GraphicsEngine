@@ -24,6 +24,8 @@ public:
 	void RenderReflection(float);
 	void GetReflectionViewMatrix(XMMATRIX&);
 
+	XMMATRIX GetWorldMatrix();
+
 	void Initialize2DView();
 
 	void Frame(InputClass*, float, float, float);

@@ -232,3 +232,10 @@ void CameraClass::GetReflectionViewMatrix(XMMATRIX& reflectionViewMatrix)
 {
 	reflectionViewMatrix = m_reflectionViewMatrix;
 }
+
+XMMATRIX CameraClass::GetWorldMatrix()
+{
+	XMMATRIX translateMatrix = XMMatrixTranslation(m_positionX, m_positionY, m_positionZ);
+	XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYaw(m_rotationX * (float)DEG_TO_RAD, m_rotationY * (float)DEG_TO_RAD, m_rotationZ * (float)DEG_TO_RAD);
+	return XMMatrixMultiply(rotateMatrix, translateMatrix);
+}
