@@ -9,9 +9,10 @@
 #include <string>
 #include "RenderTextureClass.h"
 #include "settings.h"
+#include "IShutdown.h"
 using namespace DirectX;
 
-class GameObjectClass
+class GameObjectClass : public IShutdown
 {
 public:
 	GameObjectClass();
@@ -19,7 +20,7 @@ public:
 
 	void Initialize(ModelClass*, ShaderClass*, TextureSetClass*, std::string);
 	bool Render(ID3D11DeviceContext*, ShaderClass::ShaderParameters* params, ShaderClass* overwriteShader = nullptr);
-	void Shutdown();
+	void Shutdown() override;
 
 	void SetPosition(float, float, float);
 	void SetRotation(float, float, float);

@@ -5,8 +5,9 @@
 #include "RenderTextureClass.h"
 #include "shaderclass.h"
 #include "CameraClass.h"
+#include "IShutdown.h"
 
-class DisplayPlaneClass
+class DisplayPlaneClass : public IShutdown
 {
 private:
     struct VertexType
@@ -20,7 +21,7 @@ public:
     ~DisplayPlaneClass();
 
     bool Initialize(ID3D11Device*, float, float, RenderTextureClass*, ShaderClass*, const char*, CameraClass* cam = nullptr);
-    void Shutdown();
+    void Shutdown() override;
     bool Render(ID3D11DeviceContext*, ShaderClass::ShaderParameters*);
 
     XMMATRIX GetWorldMatrix();

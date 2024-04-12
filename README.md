@@ -2,7 +2,7 @@ Framework provided by RasterTek C++ DirectX11 tutorials:
 https://www.rastertek.com/tutdx11win10.html
 
 Refactoring and additions provided by Finn Wright
-WIP as of Jan 2024
+WIP as of April 2024
 
 Controls:
 WASD - Move left/right/forward/back
@@ -12,6 +12,8 @@ Z - Rotate left
 X - Rotate right
 R - Reset camera
 Esc - Quit
+
+Setting Modes (Num Keys):
 1 - Default Mode
 2 - Debug Mode
 3 - Post Processing Mode

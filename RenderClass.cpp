@@ -10,79 +10,50 @@ RenderClass::RenderClass()
 	m_renderReflectionImmediately = false;
 
 	m_depthShader = 0;
-	m_shadowMapDisplay = 0;
-	m_ppFirstPassBlurDisplay = 0;
-	m_ppSecondPassBlurDisplay = 0;
-	m_ppThirdPassFilterDisplay= 0;
+	m_depthBufferDisplay = 0;
 }
 
 RenderClass::~RenderClass()
 {
 }
 
-bool RenderClass::Initialize(D3DClass* d3d, CameraClass* cam, FrustumClass* frustum)
+bool RenderClass::Initialize(D3DClass* d3d, FrustumClass* frustum, Settings* settings, ShaderClass* shader2D)
 {
 	m_Direct3D = d3d;
-	m_Camera = cam;
 	m_Frustum = frustum;		
+
+	int shadowTexWidth = settings->m_CurrentData.ShadowMapRenderX;
+	int shadowTexHeight = settings->m_CurrentData.ShadowMapRenderY;
+	int shadowDepth = settings->m_CurrentData.ShadowMapDepth;
+	int shadowNear = settings->m_CurrentData.ShadowMapNear;
+	float displayWidth = 1.0f;
+	float displayHeight = 1.0f;
+
+	m_rendDepth = new RenderTextureClass();
+	m_rendDepth->Initialize(d3d->GetDevice(), shadowTexWidth, shadowTexHeight, shadowDepth, shadowNear, 1);
+
+	m_depthBufferDisplay = new DisplayPlaneClass();
+	bool result = m_depthBufferDisplay->Initialize(d3d->GetDevice(), displayWidth, displayHeight, m_rendDepth, shader2D, "Display ShadowMap");
+	if (!result)
+		return false;
+	m_depthBufferDisplay->SetPosition(0, 4, 0);
 
 	return true;
 }
 
 void RenderClass::Shutdown()
 {
-}
-
-void RenderClass::AddGameObject(GameObjectClass* go, bool transparent)
-{
-	if (transparent)
+	if (m_rendDepth)
 	{
-		m_AllGOListTransparent.push_back(go);
-		return;
+		m_rendDepth->Shutdown();
+		delete m_rendDepth;
 	}
 
-	m_AllGOListOpaque.push_back(go);
-}
-
-void RenderClass::AddGameObject2D(GameObjectClass2D* go)
-{
-	m_All2DGameObjectList.push_back(go);
-}
-
-void RenderClass::AddTextClass(TextClass* go)
-{
-	m_AllTextClassList.push_back(go);
-}
-
-void RenderClass::AddDisplayPlane(DisplayPlaneClass* go)
-{
-	m_AllDisplayPlaneList.push_back(go);
-}
-
-void RenderClass::AddParticleSystem(ParticleSystemClass* ps)
-{
-	m_AllParticleSystemList.push_back(ps);
-}
-
-void RenderClass::SubscribeToReflection(ID3D11Device* device, GameObjectClass* go, int texSetNum, int format)
-{
-	m_ReflectionList.push_back(go);
-
-	go->SubscribeToReflection(device, texSetNum, format);
-}
-
-void RenderClass::SubscribeToRefraction(ID3D11Device* device, GameObjectClass* go, int texSetNum, int format)
-{
-	m_RefractionList.push_back(go);
-
-	go->SubscribeToRefraction(device, texSetNum, format);
-}
-
-void RenderClass::SubscribeToShadow(GameObjectClass* go, int texSetNum)
-{
-	m_ShadowList.push_back(go);
-
-	go->SubscribeToShadows(texSetNum);
+	if (m_depthBufferDisplay)
+	{
+		m_depthBufferDisplay->Shutdown();
+		delete m_depthBufferDisplay;
+	}
 }
 
 void RenderClass::RenderReflectionNextAvailableFrame()
@@ -90,7 +61,7 @@ void RenderClass::RenderReflectionNextAvailableFrame()
 	m_renderReflectionImmediately = true;
 }
 
-bool RenderClass::Render(Settings* settings, ShaderClass::ShaderParameters* params)
+bool RenderClass::Render(Settings* settings, ShaderClass::ShaderParameters* params, SceneClass::SceneDataType* sceneData)
 {
 	XMMATRIX viewMatrix, projectionMatrix, reflectViewMatrix;
 	bool result;		
@@ -104,13 +75,18 @@ bool RenderClass::Render(Settings* settings, ShaderClass::ShaderParameters* para
 	float fogB = settings->m_CurrentData.FogColorB;
 	float fogA = settings->m_CurrentData.FogColorA;
 
+	RenderInfoType renderInfo;
+	renderInfo.SceneData = sceneData;
+	renderInfo.Params = params;
+	renderInfo.Settings = settings;
+
 	if (settings->m_CurrentData.PostProcessingEnabled)
 	{
 		m_Direct3D->BeginScene(1, 0, 0, 1);
 
 		ClearShaderResources();
-		m_ppFirstPassBlurDisplay->m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
-		m_ppFirstPassBlurDisplay->m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0, 0, 1, fogA);
+		m_postProcessingLayers.at(0)->m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+		m_postProcessingLayers.at(0)->m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0, 0, 1, fogA);
 	}
 	else
 		m_Direct3D->BeginScene(fogR, fogG, fogB, fogA);
@@ -119,13 +95,13 @@ bool RenderClass::Render(Settings* settings, ShaderClass::ShaderParameters* para
 	bool renderShadows = m_framesSinceShadowMapRender >= settings->m_CurrentData.ShadowMapFramesDelay;
 	if (renderShadows && settings->m_CurrentData.ShadowsEnabled)
 	{
-		result = RenderToShadowTexture(params, settings);
+		result = RenderToShadowTexture(&renderInfo);
 		if (!result)
 			return false;
 
-		for (auto go : m_ShadowList)
+		for (auto go : sceneData->GoShadowList)
 		{
-			go->SetShadowTex(m_shadowMapDisplay->m_RenderTexture);
+			go->SetShadowTex(m_depthBufferDisplay->m_RenderTexture);
 		}
 
 		if (settings->m_CurrentData.ShowShadowMap)
@@ -133,7 +109,7 @@ bool RenderClass::Render(Settings* settings, ShaderClass::ShaderParameters* para
 			params->matrix.view = viewMatrix;
 			params->matrix.projection = projectionMatrix;
 
-			result = m_shadowMapDisplay->Render(m_Direct3D->GetDeviceContext(), params);
+			result = m_depthBufferDisplay->Render(m_Direct3D->GetDeviceContext(), params);
 			if (!result)
 				return false;
 		}
@@ -146,7 +122,7 @@ bool RenderClass::Render(Settings* settings, ShaderClass::ShaderParameters* para
 	if (settings->m_CurrentData.ReflectionEnabled && renderReflection)
 	{
 		// Set reflection matrices
-		for (auto go : m_ReflectionList)
+		for (auto go : sceneData->GoReflectList)
 		{
 			m_Camera->RenderReflection(go->m_PosY + go->m_ScaleY);
 			m_Camera->GetReflectionViewMatrix(reflectViewMatrix);
@@ -154,18 +130,18 @@ bool RenderClass::Render(Settings* settings, ShaderClass::ShaderParameters* para
 		}				
 
 		// Refraction comes first
-		for (auto go : m_RefractionList)
+		for (auto go : sceneData->GoRefractList)
 		{
-			result = RenderToRefractionTexture(go, params, settings);
+			result = RenderToRefractionTexture(go, &renderInfo);
 			if (!result)
 				return false;
 			go->SetRefractionTex();
 		}	
 
 		// Then reflection
-		for (auto go : m_ReflectionList)
+		for (auto go : sceneData->GoReflectList)
 		{
-			result = RenderToReflectionTexture(go, params, settings);
+			result = RenderToReflectionTexture(go, &renderInfo);
 			if (!result)
 				return false;
 			go->SetReflectionTex();
@@ -175,24 +151,24 @@ bool RenderClass::Render(Settings* settings, ShaderClass::ShaderParameters* para
 		m_renderReflectionImmediately = false;
 	}
 
-	result = SetupDisplayPlanes(params, settings);
+	result = SetupDisplayPlanes(&renderInfo);
 	if (!result)
 		return false;
 
 	vector<string> skippedNames;
 
-	result = RenderScene(settings, viewMatrix, projectionMatrix, params, skippedNames);
+	result = RenderScene(&renderInfo, viewMatrix, projectionMatrix, skippedNames);
 	if (!result)
 		return false;
 
 	if (settings->m_CurrentData.PostProcessingEnabled)
 	{
-		result = RenderPostProcessing(params, settings);
+		result = RenderPostProcessing(&renderInfo);
 		if (!result)
 			return false;
 	}
 
-	result = Render2D(params);
+	result = Render2D(&renderInfo);
 	if (!result)
 		return false;
 
@@ -201,121 +177,121 @@ bool RenderClass::Render(Settings* settings, ShaderClass::ShaderParameters* para
 	return true;
 }
 
-bool RenderClass::RenderScene(Settings* settings, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ShaderClass::ShaderParameters* params, vector<string> skippedNames)
+bool RenderClass::RenderScene(RenderInfoType* renderInfo, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, vector<string> skippedNames)
 {
 	bool result;
 
-	params->matrix.view = viewMatrix;
-	params->matrix.projection = projectionMatrix;
+	renderInfo->Params->matrix.view = viewMatrix;
+	renderInfo->Params->matrix.projection = projectionMatrix;
 
 	m_Frustum->ConstructFrustum(viewMatrix, projectionMatrix, SCREEN_DEPTH);
 
-	result = RenderGameObjects(params, settings, 0, skippedNames);
+	result = RenderGameObjects(renderInfo, false, skippedNames);
 	if (!result)
 		return false;
 
-	result = RenderDisplayPlanes(params, settings, skippedNames);
+	result = RenderDisplayPlanes(renderInfo, skippedNames);
 	if (!result)
 		return false;
 
-	result = RenderParticleSystems(params, settings, skippedNames);
+	result = RenderParticleSystems(renderInfo, skippedNames);
 	if (!result)
 		return false;
 
-	result = RenderGameObjects(params, settings, 1, skippedNames);
+	result = RenderGameObjects(renderInfo, true, skippedNames);
 	if (!result)
 		return false;
 
 	return true;
 }
 
-bool RenderClass::RenderGameObjects(ShaderClass::ShaderParameters* params, Settings* settings, int goList, vector<string> skippedNames)
+bool RenderClass::RenderGameObjects(RenderInfoType* renderInfo, bool transparents, vector<string> skippedNames)
 {
-	auto savedParams = *params;
+	auto savedParams = *(renderInfo->Params);
 
-	auto list = goList == 0 ? m_AllGOListOpaque : m_AllGOListTransparent;
+	auto list = transparents ? renderInfo->SceneData->GoTransList: renderInfo->SceneData->GoOpaqueList;
 
 	for (auto go : list)
 	{
 		if (std::find(skippedNames.begin(), skippedNames.end(), go->m_NameIdentifier) != skippedNames.end())
 			continue;
 
-		if (settings->m_CurrentData.FrustumCulling && !m_Frustum->CheckSphere(go->m_PosX, go->m_PosY, go->m_PosZ, go->GetBoundingRadius()))
+		if (renderInfo->Settings->m_CurrentData.FrustumCulling && !m_Frustum->CheckSphere(go->m_PosX, go->m_PosY, go->m_PosZ, go->GetBoundingRadius()))
 			continue;
 
 		if (go->m_NameIdentifier == "Madeline2")
-			params->textureTranslation.timeMultiplier = 0.1f;
+			renderInfo->Params->textureTranslation.timeMultiplier = 0.1f;
 		else if (go->m_NameIdentifier == "Water")
-			params->textureTranslation.timeMultiplier = (0.1f / go->m_ScaleX) / go->m_ScaleZ;
+			renderInfo->Params->textureTranslation.timeMultiplier = (0.1f / go->m_ScaleX) / go->m_ScaleZ;
 
 		if (go->m_NameIdentifier == "IcosphereTrans")
-			params->alpha.alphaBlend = 0.1f;
+			renderInfo->Params->alpha.alphaBlend = 0.1f;
 
 		if (go->m_NameIdentifier == "IcosphereBig")
-			params->clip.clipPlane = XMFLOAT4(0.0f, -1.0f, 0.0f, 2.5f);
+			renderInfo->Params->clip.clipPlane = XMFLOAT4(0.0f, -1.0f, 0.0f, 2.5f);
 
 		if (go->m_BackCullingDisabled)
-			m_Direct3D->SetBackCulling(settings->m_CurrentData.WireframeMode, false);
+			m_Direct3D->SetBackCulling(renderInfo->Settings->m_CurrentData.WireframeMode, false);
 
-		if (go->m_NameIdentifier == "Skybox" && !settings->m_CurrentData.SkyboxEnabled)
+		if (go->m_NameIdentifier == "Skybox" && !renderInfo->Settings->m_CurrentData.SkyboxEnabled)
 			continue;
 
-		params->reflection.reflectionMatrix = go->GetReflectionMatrix();
-		params->shadow.usingShadows = settings->m_CurrentData.ShadowsEnabled && go->IsSubscribedToShadows();
+		renderInfo->Params->reflection.reflectionMatrix = go->GetReflectionMatrix();
+		renderInfo->Params->shadow.usingShadows = renderInfo->Settings->m_CurrentData.ShadowsEnabled && go->IsSubscribedToShadows();
 
-		bool result = go->Render(m_Direct3D->GetDeviceContext(), params);
+		bool result = go->Render(m_Direct3D->GetDeviceContext(), renderInfo->Params);
 		if (!result)
 			return false;
 
 		if (go->m_BackCullingDisabled)
-			m_Direct3D->SetBackCulling(settings->m_CurrentData.WireframeMode, true);
+			m_Direct3D->SetBackCulling(renderInfo->Settings->m_CurrentData.WireframeMode, true);
 
-		*params = savedParams;
+		*(renderInfo->Params) = savedParams;
 	}
 
 	return true;
 }
 
-bool RenderClass::RenderParticleSystems(ShaderClass::ShaderParameters* params, Settings* settings, vector<string> skippedNames)
+bool RenderClass::RenderParticleSystems(RenderInfoType* renderInfo, vector<string> skippedNames)
 {
 	bool result;
 
-	for (auto ps : m_AllParticleSystemList)
+	for (auto ps : renderInfo->SceneData->PsList)
 	{
 		if (std::find(skippedNames.begin(), skippedNames.end(), ps->m_NameIdentifier) != skippedNames.end())
 			continue;
 
 		if (ps->m_backCullingDisabled)
-			m_Direct3D->SetBackCulling(settings->m_CurrentData.WireframeMode, false);
+			m_Direct3D->SetBackCulling(renderInfo->Settings->m_CurrentData.WireframeMode, false);
 
-		result = ps->Render(m_Direct3D->GetDeviceContext(), params);
+		result = ps->Render(m_Direct3D->GetDeviceContext(), renderInfo->Params);
 		if (!result)
 			return false;
 
 		if (ps->m_backCullingDisabled)
-			m_Direct3D->SetBackCulling(settings->m_CurrentData.WireframeMode, true);
+			m_Direct3D->SetBackCulling(renderInfo->Settings->m_CurrentData.WireframeMode, true);
 	}
 
 	return true;
 }
 
-bool RenderClass::SetupDisplayPlanes(ShaderClass::ShaderParameters* params, Settings* settings)
+bool RenderClass::SetupDisplayPlanes(RenderInfoType* renderInfo)
 {
 	bool result;
 	XMMATRIX view;
 
-	for (auto go : m_AllDisplayPlaneList)
+	for (auto go : renderInfo->SceneData->DisplayPlaneList)
 	{
 		go->m_Camera->Render();
 		go->m_Camera->GetViewMatrix(view);
 
 		vector<string> skippedNames;
 		skippedNames.push_back(go->m_NameIdentifier);
-		if (go->m_NameIdentifier.starts_with("Portal1"))
-			skippedNames.push_back("Portal2");
-		if (go->m_NameIdentifier.starts_with("Portal2"))
-			skippedNames.push_back("Portal1");
-		result = RenderToTexture(go->m_RenderTexture, params, settings, view, skippedNames);
+		if (go->m_NameIdentifier.starts_with("Display Portal1"))
+			skippedNames.push_back("Display Portal2");
+		if (go->m_NameIdentifier.starts_with("Display Portal2"))
+			skippedNames.push_back("Display Portal1");
+		result = RenderToTexture(go->m_RenderTexture, renderInfo, view, skippedNames);
 		if (!result)
 			return false;
 	}
@@ -323,32 +299,32 @@ bool RenderClass::SetupDisplayPlanes(ShaderClass::ShaderParameters* params, Sett
 	return true;
 }
 
-bool RenderClass::RenderDisplayPlanes(ShaderClass::ShaderParameters* params, Settings* settings, vector<string> skippedNames)
+bool RenderClass::RenderDisplayPlanes(RenderInfoType* renderInfo, vector<string> skippedNames)
 {
 	bool result;
 
-	auto savedParams = *params;
+	auto savedParams = *(renderInfo->Params);
 
-	m_Direct3D->SetBackCulling(settings->m_CurrentData.WireframeMode, false);
+	m_Direct3D->SetBackCulling(renderInfo->Settings->m_CurrentData.WireframeMode, false);
 
-	for (auto go : m_AllDisplayPlaneList)
+	for (auto go : renderInfo->SceneData->DisplayPlaneList)
 	{
 		if (std::find(skippedNames.begin(), skippedNames.end(), go->m_NameIdentifier) != skippedNames.end())
 			continue;
 
-		result = go->Render(m_Direct3D->GetDeviceContext(), params);
+		result = go->Render(m_Direct3D->GetDeviceContext(), renderInfo->Params);
 		if (!result)
 			return false;
 
-		*params = savedParams;
+		*(renderInfo->Params) = savedParams;
 	}
 
-	m_Direct3D->SetBackCulling(settings->m_CurrentData.WireframeMode, true);
+	m_Direct3D->SetBackCulling(renderInfo->Settings->m_CurrentData.WireframeMode, true);
 
 	return true;
 }
 
-bool RenderClass::Render2D(ShaderClass::ShaderParameters* params)
+bool RenderClass::Render2D(RenderInfoType* renderInfo)
 {
 	XMMATRIX viewMatrix2D, orthoMatrix;
 	bool result;
@@ -357,19 +333,19 @@ bool RenderClass::Render2D(ShaderClass::ShaderParameters* params)
 	m_Camera->Get2DViewMatrix(viewMatrix2D);
 	m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
-	params->matrix.view = viewMatrix2D;
-	params->matrix.projection = orthoMatrix;
+	renderInfo->Params->matrix.view = viewMatrix2D;
+	renderInfo->Params->matrix.projection = orthoMatrix;
 
-	for (auto go : m_All2DGameObjectList)
+	for (auto go : renderInfo->SceneData->Go2DList)
 	{
-		result = go->Render(m_Direct3D->GetDeviceContext(), params);
+		result = go->Render(m_Direct3D->GetDeviceContext(), renderInfo->Params);
 		if (!result)
 			return false;
 	}
 
-	for (auto go : m_AllTextClassList)
+	for (auto go : renderInfo->SceneData->TextList)
 	{
-		result = go->Render(m_Direct3D->GetDeviceContext(), params);
+		result = go->Render(m_Direct3D->GetDeviceContext(), renderInfo->Params);
 		if (!result)
 			return false;
 	}
@@ -379,50 +355,50 @@ bool RenderClass::Render2D(ShaderClass::ShaderParameters* params)
 	return true;
 }
 
-bool RenderClass::RenderSceneDepth(ShaderClass::ShaderParameters* params)
+bool RenderClass::RenderSceneDepth(RenderInfoType* renderInfo)
 {	
 	bool result;
 
-	params->matrix.view = params->shadow.shadowView;
-	params->matrix.projection = params->shadow.shadowProj;
+	renderInfo->Params->matrix.view = renderInfo->Params->shadow.shadowView;
+	renderInfo->Params->matrix.projection = renderInfo->Params->shadow.shadowProj;
 
-	auto savedParams = *params;	
+	auto savedParams = *(renderInfo->Params);
 
 	m_Direct3D->SetBackCulling(false, false);
 
-	for (auto go : m_AllGOListOpaque)
+	for (auto go : renderInfo->SceneData->GoOpaqueList)
 	{
 		if (go->m_NameIdentifier == "Skybox")
 			continue;
 
 		if (go->m_NameIdentifier == "IcosphereBig")
-			params->clip.clipPlane = XMFLOAT4(0.0f, -1.0f, 0.0f, 2.5f);
+			renderInfo->Params->clip.clipPlane = XMFLOAT4(0.0f, -1.0f, 0.0f, 2.5f);
 
-		result = go->Render(m_Direct3D->GetDeviceContext(), params, m_depthShader);
+		result = go->Render(m_Direct3D->GetDeviceContext(), renderInfo->Params, m_depthShader);
 		if (!result)
 			return false;
 
-		*params = savedParams;
+		*(renderInfo->Params) = savedParams;
 	}
 
-	for (auto go : m_AllGOListTransparent)
+	for (auto go : renderInfo->SceneData->GoTransList)
 	{
 		if (go->m_NameIdentifier == "Skybox")
 			continue;
 
 		if (go->m_NameIdentifier == "IcosphereBig")
-			params->clip.clipPlane = XMFLOAT4(0.0f, -1.0f, 0.0f, 2.5f);
+			renderInfo->Params->clip.clipPlane = XMFLOAT4(0.0f, -1.0f, 0.0f, 2.5f);
 
-		result = go->Render(m_Direct3D->GetDeviceContext(), params, m_depthShader);
+		result = go->Render(m_Direct3D->GetDeviceContext(), renderInfo->Params, m_depthShader);
 		if (!result)
 			return false;
 
-		*params = savedParams;
+		*renderInfo->Params = savedParams;
 	}
 
-	for (auto ps : m_AllParticleSystemList)
+	for (auto ps : renderInfo->SceneData->PsList)
 	{
-		result = ps->Render(m_Direct3D->GetDeviceContext(), params, m_depthShader);
+		result = ps->Render(m_Direct3D->GetDeviceContext(), renderInfo->Params, m_depthShader);
 		if (!result)
 			return false;
 	}
@@ -432,25 +408,25 @@ bool RenderClass::RenderSceneDepth(ShaderClass::ShaderParameters* params)
 	return true;
 }
 
-bool RenderClass::RenderToReflectionTexture(GameObjectClass* go, ShaderClass::ShaderParameters* params, Settings* settings)
+bool RenderClass::RenderToReflectionTexture(GameObjectClass* go, RenderInfoType* renderInfo)
 {
 	XMMATRIX reflectViewMatrix, projectionMatrix;
 
 	float height = go->m_PosY + go->m_ScaleY;
 
-	auto clipPlane = params->clip.clipPlane;
+	auto clipPlane = renderInfo->Params->clip.clipPlane;
 
-	params->clip.clipPlane = XMFLOAT4(0.0f, 1.0f, 0.0f, -height + 0.05f);
+	renderInfo->Params->clip.clipPlane = XMFLOAT4(0.0f, 1.0f, 0.0f, -height + 0.05f);
 
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
 	m_Camera->RenderReflection(height);		
 	m_Camera->GetReflectionViewMatrix(reflectViewMatrix);	
 
-	float fogR = settings->m_CurrentData.FogColorR;
-	float fogG = settings->m_CurrentData.FogColorG;
-	float fogB = settings->m_CurrentData.FogColorB;
-	float fogA = settings->m_CurrentData.FogColorA;
+	float fogR = renderInfo->Settings->m_CurrentData.FogColorR;
+	float fogG = renderInfo->Settings->m_CurrentData.FogColorG;
+	float fogB = renderInfo->Settings->m_CurrentData.FogColorB;
+	float fogA = renderInfo->Settings->m_CurrentData.FogColorA;
 
 	ClearShaderResources();
 	go->m_RendTexReflection->SetRenderTarget(m_Direct3D->GetDeviceContext());
@@ -459,36 +435,36 @@ bool RenderClass::RenderToReflectionTexture(GameObjectClass* go, ShaderClass::Sh
 	vector<string> skippedNames;
 	skippedNames.push_back(go->m_NameIdentifier);
 
-	bool result = RenderScene(settings, reflectViewMatrix, projectionMatrix, params, skippedNames);
+	bool result = RenderScene(renderInfo, reflectViewMatrix, projectionMatrix, skippedNames);
 	if (!result)
 		return false;
 
-	ResetViewport(settings);
+	ResetViewport(renderInfo->Settings);
 
-	params->clip.clipPlane = clipPlane;
+	renderInfo->Params->clip.clipPlane = clipPlane;
 
 	return true;
 }
 
-bool RenderClass::RenderToRefractionTexture(GameObjectClass* go, ShaderClass::ShaderParameters* params, Settings* settings)
+bool RenderClass::RenderToRefractionTexture(GameObjectClass* go, RenderInfoType* renderInfo)
 {
 	XMMATRIX viewMatrix, projectionMatrix;
 
 	float height = go->m_PosY + go->m_ScaleY;
 
-	auto clipPlane = params->clip.clipPlane;
+	auto clipPlane = renderInfo->Params->clip.clipPlane;
 
-	params->clip.clipPlane = XMFLOAT4(0.0f, -1.0f, 0.0f, height + 0.1f);
+	renderInfo->Params->clip.clipPlane = XMFLOAT4(0.0f, -1.0f, 0.0f, height + 0.1f);
 
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
 	m_Camera->Render();
 	m_Camera->GetViewMatrix(viewMatrix);
 
-	float fogR = settings->m_CurrentData.FogColorR;
-	float fogG = settings->m_CurrentData.FogColorG;
-	float fogB = settings->m_CurrentData.FogColorB;
-	float fogA = settings->m_CurrentData.FogColorA;
+	float fogR = renderInfo->Settings->m_CurrentData.FogColorR;
+	float fogG = renderInfo->Settings->m_CurrentData.FogColorG;
+	float fogB = renderInfo->Settings->m_CurrentData.FogColorB;
+	float fogA = renderInfo->Settings->m_CurrentData.FogColorA;
 
 	ClearShaderResources();
 	go->m_RendTexRefraction->SetRenderTarget(m_Direct3D->GetDeviceContext());
@@ -497,56 +473,56 @@ bool RenderClass::RenderToRefractionTexture(GameObjectClass* go, ShaderClass::Sh
 	vector<string> skippedNames;
 	skippedNames.push_back(go->m_NameIdentifier);
 
-	bool result = RenderScene(settings, viewMatrix, projectionMatrix, params, skippedNames);
+	bool result = RenderScene(renderInfo, viewMatrix, projectionMatrix, skippedNames);
 	if (!result)
 		return false;
 
-	ResetViewport(settings);
+	ResetViewport(renderInfo->Settings);
 
-	params->clip.clipPlane = clipPlane;
+	renderInfo->Params->clip.clipPlane = clipPlane;
 
 	return true;
 }
 
-bool RenderClass::RenderToShadowTexture(ShaderClass::ShaderParameters* params, Settings* settings)
+bool RenderClass::RenderToShadowTexture(RenderInfoType* renderInfo)
 {
 	ClearShaderResources();
-	m_shadowMapDisplay->m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
-	m_shadowMapDisplay->m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 1, 1, 1, 1);
+	m_depthBufferDisplay->m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+	m_depthBufferDisplay->m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 1, 1, 1, 1);
 
-	bool result = RenderSceneDepth(params);
+	bool result = RenderSceneDepth(renderInfo);
 	if (!result)
 		return false;
 
-	ResetViewport(settings);
+	ResetViewport(renderInfo->Settings);
 
 	return true;
 }
 
-bool RenderClass::RenderToTexture(RenderTextureClass* rendTex, ShaderClass::ShaderParameters* params, Settings* settings, XMMATRIX view, vector<string> skippedNames)
+bool RenderClass::RenderToTexture(RenderTextureClass* rendTex, RenderInfoType* renderInfo, XMMATRIX view, vector<string> skippedNames)
 {
 	XMMATRIX displayProjMatrix;
 
-	float fogR = settings->m_CurrentData.FogColorR;
-	float fogG = settings->m_CurrentData.FogColorG;
-	float fogB = settings->m_CurrentData.FogColorB;
-	float fogA = settings->m_CurrentData.FogColorA;
+	float fogR = renderInfo->Settings->m_CurrentData.FogColorR;
+	float fogG = renderInfo->Settings->m_CurrentData.FogColorG;
+	float fogB = renderInfo->Settings->m_CurrentData.FogColorB;
+	float fogA = renderInfo->Settings->m_CurrentData.FogColorA;
 
 	ClearShaderResources();
 	rendTex->SetRenderTarget(m_Direct3D->GetDeviceContext());
 	rendTex->ClearRenderTarget(m_Direct3D->GetDeviceContext(), fogR, fogG, fogB, fogA);
 	rendTex->GetProjectionMatrix(displayProjMatrix);
 
-	bool result = RenderScene(settings, view, displayProjMatrix, params, skippedNames);
+	bool result = RenderScene(renderInfo, view, displayProjMatrix, skippedNames);
 	if (!result)
 		return false;
 
-	ResetViewport(settings);
+	ResetViewport(renderInfo->Settings);
 
 	return true;
 }
 
-bool RenderClass::RenderPostProcessing(ShaderClass::ShaderParameters* params, Settings* settings)
+bool RenderClass::RenderPostProcessing(RenderInfoType* renderInfo)
 {
 	XMMATRIX viewMatrix2D, orthoMatrix;
 	bool result;
@@ -555,37 +531,43 @@ bool RenderClass::RenderPostProcessing(ShaderClass::ShaderParameters* params, Se
 	m_Camera->Get2DViewMatrix(viewMatrix2D);
 	m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
-	params->matrix.view = viewMatrix2D;
-	params->matrix.projection = orthoMatrix;
+	renderInfo->Params->matrix.view = viewMatrix2D;
+	renderInfo->Params->matrix.projection = orthoMatrix;
 
-	ClearShaderResources();
-	m_ppSecondPassBlurDisplay->m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
-	m_ppSecondPassBlurDisplay->m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 1, 1, 0, 1);
+	//
 
-	params->blur.blurMode = settings->m_CurrentData.BlurEnabled ? 0 : -1;
-	result = m_ppFirstPassBlurDisplay->Render(m_Direct3D->GetDeviceContext(), params);
-	if (!result)
-		return false;	
+	// TODO:
+	// Post-Processing disabled until object shader parameters are implemented
+	
+	//ClearShaderResources();
+	//m_ppSecondPassBlurDisplay->m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+	//m_ppSecondPassBlurDisplay->m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 1, 1, 0, 1);
 
-	ClearShaderResources();
-	m_ppThirdPassFilterDisplay->m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
-	m_ppThirdPassFilterDisplay->m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 1, 1, 0, 1);
+	//renderInfo->Params->blur.blurMode = renderInfo->Settings->m_CurrentData.BlurEnabled ? 0 : -1;
+	//result = m_ppFirstPassBlurDisplay->Render(m_Direct3D->GetDeviceContext(), renderInfo->Params);
+	//if (!result)
+	//	return false;	
 
-	params->blur.blurMode = settings->m_CurrentData.BlurEnabled ? 1 : -1;
-	result = m_ppSecondPassBlurDisplay->Render(m_Direct3D->GetDeviceContext(), params);
-	if (!result)
-		return false;
+	////
 
-	ClearShaderResources();
-	m_Direct3D->SetBackBufferRenderTarget();
-	m_Direct3D->ResetViewport();
+	//ClearShaderResources();
+	//m_ppThirdPassFilterDisplay->m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+	//m_ppThirdPassFilterDisplay->m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 1, 1, 0, 1);
 
-	result = m_ppThirdPassFilterDisplay->Render(m_Direct3D->GetDeviceContext(), params);
-	if (!result)
-		return false;
+	//renderInfo->Params->blur.blurMode = renderInfo->Settings->m_CurrentData.BlurEnabled ? 1 : -1;
+	//result = m_ppSecondPassBlurDisplay->Render(m_Direct3D->GetDeviceContext(), renderInfo->Params);
+	//if (!result)
+	//	return false;
 
-	if (!result)
-		return false;
+	//
+
+	//ClearShaderResources();
+	//m_Direct3D->SetBackBufferRenderTarget();
+	//m_Direct3D->ResetViewport();
+
+	//result = m_ppThirdPassFilterDisplay->Render(m_Direct3D->GetDeviceContext(), renderInfo->Params);
+	//if (!result)
+	//	return false;
 
 	return true;
 }
@@ -595,23 +577,21 @@ void RenderClass::SetDepthShader(ShaderClass* shader)
 	m_depthShader = shader;
 }
 
-void RenderClass::SetShadowMapDisplayPlane(DisplayPlaneClass* display)
+void RenderClass::AddPostProcessingLayer(DisplayPlaneClass* display)
 {
-	m_shadowMapDisplay = display;
+	m_postProcessingLayers.push_back(display);
 }
 
-void RenderClass::SetPostProcessingDisplayPlanes(DisplayPlaneClass* first, DisplayPlaneClass* second, DisplayPlaneClass* third)
+void RenderClass::SetCurrentCamera(CameraClass* cam)
 {
-	m_ppFirstPassBlurDisplay = first;
-	m_ppSecondPassBlurDisplay = second;
-	m_ppThirdPassFilterDisplay = third;
+	m_Camera = cam;
 }
 
 void RenderClass::ResetViewport(Settings* settings)
 {
 	if (settings->m_CurrentData.PostProcessingEnabled)
 	{
-		m_ppFirstPassBlurDisplay->m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+		m_postProcessingLayers.at(0)->m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
 		return;
 	}
 

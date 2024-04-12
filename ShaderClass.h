@@ -13,6 +13,8 @@ const int NUM_LIGHTS = 4;
 #include <any>
 #include "TextureSetClass.h"
 #include "settings.h"
+#include "IShutdown.h"
+
 using namespace DirectX;
 using std::ofstream;
 using std::string;
@@ -21,7 +23,7 @@ using std::any;
 using std::any_cast;
 using std::unique_ptr;
 
-class ShaderClass
+class ShaderClass : public IShutdown
 {
 private:
 	// XMMATRIX = 4x4 floats = 64 bytes
@@ -153,7 +155,7 @@ public:
 	~ShaderClass();
 
 	bool Initialize(ID3D11Device*, HWND, char*, char*, bool clampSamplerMode = false);
-	void Shutdown();	
+	void Shutdown() override;
 	bool Render(ID3D11DeviceContext*, int, TextureSetClass*, ShaderParameters*);
 
 private:

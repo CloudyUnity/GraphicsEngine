@@ -9,17 +9,18 @@
 #include <directxmath.h>
 #include "settings.h"
 #include <vector>
+#include "IShutdown.h"
 using namespace DirectX;
 using std::vector;
 
-class D3DClass
+class D3DClass : IShutdown
 {
 public:
     D3DClass();
     ~D3DClass();
 
     bool Initialize(int, int, bool, HWND, bool, float, float);
-    void Shutdown();
+    void Shutdown() override;
 
     void BeginScene(float, float, float, float);
     void EndScene();
