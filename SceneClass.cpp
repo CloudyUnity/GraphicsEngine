@@ -172,6 +172,7 @@ bool SceneClass::CreateParticleSystem(ParticleSystemClass** ptr, ParticleSystemC
 		return false;
 
 	m_loadedAssetsList.push_back(*ptr);
+	m_renderedPSList.push_back(*ptr);
 	
 	m_sceneData->PsList.push_back(*ptr);
 
@@ -193,7 +194,7 @@ bool SceneClass::CreateRenderTexture(RenderTextureClass** outRendTexPtr, ID3D11D
 bool SceneClass::CreateDisplayPlane(DisplayPlaneClass** outDisplayPtr, ID3D11Device* device, float width, float height, RenderTextureClass* rendTex, ShaderClass* shader, const char* name, bool render, CameraClass* cam)
 {
 	*outDisplayPtr = new DisplayPlaneClass();
-	bool result = (*outDisplayPtr)->Initialize(device, SCREEN_X, SCREEN_Y, rendTex, shader, name, cam);
+	bool result = (*outDisplayPtr)->Initialize(device, width, height, rendTex, shader, name, cam);
 	if (!result)
 		return false;
 

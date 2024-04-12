@@ -67,7 +67,6 @@ bool SceneTestClass::InitializeScene(HWND hwnd, RenderClass* renderClass)
 	if (!result)
 		return false;
 
-
 	// TEXSETS
 
 	TextureSetClass* texSetMoss, * texSetStars, * texSetSnow, * texSetReflection, * texSetWater, * texSetNone, * texSetFire, * texSetSkybox, * texSetPS;
@@ -309,8 +308,8 @@ bool SceneTestClass::InitializeScene(HWND hwnd, RenderClass* renderClass)
 		CreateDisplayPlane(&displayPP1, device, SCREEN_X, SCREEN_Y, rendPP1, shaderBlur, "Display PP1", false) &&
 		CreateDisplayPlane(&displayPP2, device, SCREEN_X, SCREEN_Y, rendPP2, shaderBlur, "Display PP2", false) &&
 		CreateDisplayPlane(&displayPP3, device, SCREEN_X, SCREEN_Y, rendPP3, shaderFilter, "Display PP3", false) &&
-		CreateDisplayPlane(&m_DisplayPortal1, device, displayWidth, displayHeight, rendPortal1, shaderPortal, "Display Portal1", false) &&
-		CreateDisplayPlane(&m_DisplayPortal2, device, displayWidth, displayHeight, rendPortal2, shaderPortal, "Display Portal2", false);
+		CreateDisplayPlane(&m_DisplayPortal1, device, displayWidth, displayHeight, rendPortal1, shaderPortal, "Display Portal1") &&
+		CreateDisplayPlane(&m_DisplayPortal2, device, displayWidth, displayHeight, rendPortal2, shaderPortal, "Display Portal2");
 	if (!result)
 		return false;
 	m_DisplayPlane->SetPosition(0, 0, 5);
@@ -420,7 +419,7 @@ void SceneTestClass::SetDirLight(float x, float y, float z)
 
 	m_DirLight->SetDirection(x, y, z);
 
-	XMVECTOR lightPos = XMVectorSet(x, x, x, 0);
+	XMVECTOR lightPos = XMVectorSet(x, y, z, 0);
 	lightPos = XMVectorScale(lightPos, -m_settings->m_CurrentData.ShadowMapDistance);
 	m_lightViewMatrix = XMMatrixLookAtLH(lightPos, XMVectorSet(0, 0, 0, 0), XMVectorSet(0, 1, 0, 0));	
 }
