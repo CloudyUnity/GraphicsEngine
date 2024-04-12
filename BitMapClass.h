@@ -4,10 +4,11 @@
 #include <directxmath.h>
 using namespace DirectX;
 #include "textureclass.h"
+#include "IShutdown.h"
 #include <fstream>
 using std::ifstream;
 
-class BitmapClass
+class BitmapClass : public IShutdown
 {
 private:
     struct VertexType2D
@@ -22,7 +23,7 @@ public:
     ~BitmapClass();
 
     bool Initialize(ID3D11Device*, ID3D11DeviceContext*, int, int, char*);
-    void Shutdown();
+    void Shutdown() override;
     bool Render(ID3D11DeviceContext*);
 
     void Update(float);

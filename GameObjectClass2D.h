@@ -6,9 +6,10 @@
 #include "shaderclass.h"
 #include "bitmapclass.h"
 #include "settings.h"
+#include "IShutdown.h"
 using namespace DirectX;
 
-class GameObjectClass2D
+class GameObjectClass2D : public IShutdown
 {
 public:
 	GameObjectClass2D();
@@ -17,7 +18,7 @@ public:
 
 	void Initialize(BitmapClass*, ShaderClass*);
 	bool Render(ID3D11DeviceContext*, ShaderClass::ShaderParameters*);
-	void Shutdown();
+	void Shutdown() override;
 
 	void SetPosition(float, float);
 	void SetRotation(float);

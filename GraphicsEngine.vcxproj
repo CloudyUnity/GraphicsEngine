@@ -146,6 +146,7 @@
     <ClInclude Include="GameObjectClass.h" />
     <ClInclude Include="GameObjectClass2D.h" />
     <ClInclude Include="InputClass.h" />
+    <ClInclude Include="IShutdown.h" />
     <ClInclude Include="LightClass.h" />
     <ClInclude Include="MathUtilsClass.h" />
     <ClInclude Include="ModelClass.h" />
@@ -153,6 +154,8 @@
     <ClInclude Include="ParticleSystemClass.h" />
     <ClInclude Include="RenderClass.h" />
     <ClInclude Include="RenderTextureClass.h" />
+    <ClInclude Include="SceneClass.h" />
+    <ClInclude Include="SceneTestClass.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="SystemClass.h" />
     <ClInclude Include="TextClass.h" />
@@ -173,6 +176,7 @@
     <ClCompile Include="GameObjectClass.cpp" />
     <ClCompile Include="GameObjectClass2D.cpp" />
     <ClCompile Include="InputClass.cpp" />
+    <ClCompile Include="IShutdown.cpp" />
     <ClCompile Include="LightClass.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MathUtilsClass.cpp" />
@@ -181,6 +185,8 @@
     <ClCompile Include="ParticleSystemClass.cpp" />
     <ClCompile Include="RenderClass.cpp" />
     <ClCompile Include="RenderTextureClass.cpp" />
+    <ClCompile Include="SceneClass.cpp" />
+    <ClCompile Include="SceneTestClass.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="SystemClass.cpp" />
     <ClCompile Include="TextClass.cpp" />

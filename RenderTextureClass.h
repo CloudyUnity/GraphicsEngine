@@ -3,16 +3,17 @@
 
 #include <d3d11.h>
 #include <directxmath.h>
+#include "IShutdown.h"
 using namespace DirectX;
 
-class RenderTextureClass
+class RenderTextureClass : public IShutdown
 {
 public:
     RenderTextureClass();
     ~RenderTextureClass();
 
     bool Initialize(ID3D11Device*, int, int, float, float, int);
-    void Shutdown();
+    void Shutdown() override;
 
     void SetRenderTarget(ID3D11DeviceContext*);
     void UnsetRenderTarget(ID3D11DeviceContext* deviceContext);

@@ -13,8 +13,9 @@
 #include "InputClass.h"
 #include "ApplicationClass.h"
 #include "settings.h"
+#include "IShutdown.h"
 
-class SystemClass
+class SystemClass : IShutdown
 {
 public:
 	SystemClass();
@@ -22,7 +23,7 @@ public:
 	~SystemClass();
 
 	bool Initialize();
-	void Shutdown();
+	void Shutdown() override;
 	void Run();
 
 	LRESULT CALLBACK MessageHandler(HWND, UINT, WPARAM, LPARAM);

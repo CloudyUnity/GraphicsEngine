@@ -3,8 +3,9 @@
 
 #include "fontclass.h"
 #include "shaderclass.h"
+#include "IShutdown.h"
 
-class TextClass
+class TextClass : public IShutdown
 {
 private:
     struct VertexType
@@ -18,7 +19,7 @@ public:
     ~TextClass();
 
     bool Initialize(ID3D11Device*, ID3D11DeviceContext*, int, int, int, ShaderClass* shader);
-    void Shutdown();
+    void Shutdown() override;
     bool Render(ID3D11DeviceContext*, ShaderClass::ShaderParameters*);
 
     int GetIndexCount();

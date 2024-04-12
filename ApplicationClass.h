@@ -4,7 +4,6 @@
 #include "d3dclass.h"
 #include "cameraclass.h"
 #include "modelclass.h"
-#include "colorshaderclass.h"
 #include "shaderclass.h"
 #include "lightclass.h"
 #include "bitmapclass.h"
@@ -23,6 +22,8 @@
 #include "RenderClass.h"
 #include "Settings.h"
 #include "ParticleSystemClass.h"
+#include "IShutdown.h"
+#include "SceneTestClass.h"
 
 using std::vector;
 using std::string;
@@ -31,71 +32,44 @@ using std::any;
 using std::any_cast;
 using std::unique_ptr;
 
-class ApplicationClass
+class ApplicationClass : IShutdown
 {
 public:
 	ApplicationClass();
 	~ApplicationClass();
 
 	bool Initialize(HWND);
-	void InitializeShadowMapViewMatrix();
-	bool InitializeModel(HWND, ModelClass**, const char*);
 	bool InitializeShader(HWND, ShaderClass**, const char*, const char*, bool clampSamplerMode = false);
-	void InitializeGameObject(ModelClass*, ShaderClass*, TextureSetClass*, bool, const char*, GameObjectClass** ptr = nullptr);
-	void InitializeGameObject2D(BitmapClass*, ShaderClass*, GameObjectClass2D** ptr = nullptr);
 	bool InitializeTextClass(TextClass** ptr, ShaderClass* shader, FontClass*, int maxLength);
-	void InitializeTexSet(TextureSetClass** ptr);
-	bool InitializeBitmap(BitmapClass**, const char*);
-	bool InitializeParticleSystem(ParticleSystemClass**, ParticleSystemClass::ParticleSystemData,  ShaderClass*, TextureSetClass*, const char*);
 
 	void UpdateParameters();
 
-	void Shutdown();
+	void Shutdown() override;
 	bool Frame(InputClass*);
 	bool LateFrame(InputClass*, float);
-	void SetDirLight(float, float, float);
 
 private:
 	bool Render();
-	bool UpdateMouseStrings(int, int, bool);
-	void UpdatePortals(XMFLOAT3 camPos);
+	bool UpdateMouseStrings(int, int, bool);	
 
 private:
-	D3DClass* m_Direct3D;
-	CameraClass* m_Camera;
+	D3DClass* m_Direct3D;	
 	RenderClass* m_RenderClass;
 	TimerClass* m_Timer;
 	FpsClass* m_Fps;
 	FrustumClass* m_Frustum;
 	ShaderClass::ShaderParameters* m_Parameters;
 	Settings* m_Settings;
+	FontClass* m_Font; // Shutdown
 
-	std::chrono::high_resolution_clock::time_point m_startTime;
-	float m_dirLightX, m_dirLightY, m_dirLightZ;
+	std::chrono::high_resolution_clock::time_point m_startTime;	
+	TextClass* m_FpsString, * m_TextStringMouseX, * m_TextStringMouseY, * m_TextStringMouseBttn;
 
-	FontClass* m_Font;
-	LightClass* m_Lights, * m_DirLight;
-	DisplayPlaneClass* m_DisplayPlane, *m_DisplayPortal1, *m_DisplayPortal2;
+	vector<IShutdown*> m_loadedAssetsList;
+	vector<TextClass*> m_overlayTextList;
 
-	GameObjectClass* m_MadelineGO1, * m_MadelineGO2, * m_IcosphereGO, * m_mountainGO, * m_transIcoGO, * m_cubeGO, * m_fractalGO, * m_skyboxGO, * m_testIcoGO;
-	GameObjectClass2D* m_spinnerGO2D, *m_cursorGO2D;
-	BitmapClass* m_BitmapSpinner, *m_BitmapCursor;	
-	TextClass* m_TextString1, * m_TextString2, * m_TextStringMouseX, * m_TextStringMouseY, * m_TextStringMouseBttn, * m_FpsString;
-	ParticleSystemClass* m_PSRaindrops;
-
-	vector<ModelClass*> m_ModelList;
-	vector<ShaderClass*> m_ShaderList;
-	vector<BitmapClass*> m_BitmapList;
-	vector<TextureSetClass*> m_TexSetList;
-	vector<DisplayPlaneClass*> m_DisplayList;
-	vector<RenderTextureClass*> m_RendTexList;
-	vector<TextClass*> m_TextList;
-	vector<GameObjectClass*> m_GameobjectList;
-	vector<GameObjectClass2D*> m_Gameobject2DList;
-	vector<ParticleSystemClass*> m_ParticleSystemList;
-
-	XMVECTOR m_previousPortalOffset1;
-	XMVECTOR m_previousPortalOffset2;
+	SceneClass* m_currentScene;
+	vector<SceneClass*> m_sceneList;
 };
 
 #endif

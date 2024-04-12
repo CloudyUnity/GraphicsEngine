@@ -11,56 +11,56 @@
 #include "rendertextureclass.h"
 #include "displayplaneclass.h"
 #include "ParticleSystemClass.h"
+#include "SceneClass.h"
+
 using std::vector;
 using std::string;
 using std::unordered_map;
 using std::any;
 using std::any_cast;
 
-class RenderClass
+class RenderClass : IShutdown
 {
 public:
+	struct RenderInfoType
+	{
+		SceneClass::SceneDataType* SceneData;
+		ShaderClass::ShaderParameters* Params;
+		Settings* Settings;
+	};
+
 	RenderClass();
 	~RenderClass();
 
-	bool Initialize(D3DClass*, CameraClass*, FrustumClass*);
-	void Shutdown();
+	bool Initialize(D3DClass*, FrustumClass*, Settings* settings, ShaderClass* shader2D);
+	void Shutdown() override;
 
-	void AddGameObject(GameObjectClass*, bool transparent = false);
-	void AddGameObject2D(GameObjectClass2D*);
-	void AddTextClass(TextClass*);
-	void AddDisplayPlane(DisplayPlaneClass*);
-	void AddParticleSystem(ParticleSystemClass* ps);
-	void SubscribeToReflection(ID3D11Device*, GameObjectClass*, int, int);
-	void SubscribeToRefraction(ID3D11Device*, GameObjectClass*, int, int);
-	void SubscribeToShadow(GameObjectClass*, int);
-
-	bool Render(Settings*, ShaderClass::ShaderParameters*);
+	bool Render(Settings*, ShaderClass::ShaderParameters*, SceneClass::SceneDataType* sceneData);
 	void RenderReflectionNextAvailableFrame();
 
 	void SetDepthShader(ShaderClass*);
-	void SetShadowMapDisplayPlane(DisplayPlaneClass*);
-	void SetPostProcessingDisplayPlanes(DisplayPlaneClass*, DisplayPlaneClass*, DisplayPlaneClass*);
+	void AddPostProcessingLayer(DisplayPlaneClass*);
+	void SetCurrentCamera(CameraClass* cam);
 
 	void ClearShaderResources();
 
 private:
-	bool RenderScene(Settings*, XMMATRIX, XMMATRIX, ShaderClass::ShaderParameters*, vector<string> skippedNames);
-	bool RenderGameObjects(ShaderClass::ShaderParameters*, Settings*, int, vector<string> skippedNames);
-	bool RenderDisplayPlanes(ShaderClass::ShaderParameters*, Settings*, vector<string> skippedNames);
-	bool SetupDisplayPlanes(ShaderClass::ShaderParameters*, Settings*);
-	bool RenderParticleSystems(ShaderClass::ShaderParameters*, Settings*, vector<string> skippedNames);
-	bool RenderToRefractionTexture(ShaderClass::ShaderParameters* params, Settings* settings);
-	bool SetUpDisplayPlanes(ShaderClass::ShaderParameters* params, Settings* settings, vector<string> skippedNames);
-	bool Render2D(ShaderClass::ShaderParameters*);	
+	bool RenderScene(RenderInfoType*, XMMATRIX, XMMATRIX, vector<string> skippedNames);
+	bool RenderGameObjects(RenderInfoType*, bool transparents, vector<string> skippedNames);
+	bool RenderDisplayPlanes(RenderInfoType*, vector<string> skippedNames);
+	bool SetupDisplayPlanes(RenderInfoType*);
+	bool RenderParticleSystems(RenderInfoType*, vector<string> skippedNames);
+	bool RenderToRefractionTexture(RenderInfoType*);
+	bool SetUpDisplayPlanes(RenderInfoType*, vector<string> skippedNames);
+	bool Render2D(RenderInfoType*);
 
-	bool RenderSceneDepth(ShaderClass::ShaderParameters*);
-	bool RenderToTexture(RenderTextureClass*, ShaderClass::ShaderParameters*, Settings*, XMMATRIX, vector<string> skippedNames);
-	bool RenderToReflectionTexture(GameObjectClass*, ShaderClass::ShaderParameters*, Settings*);
-	bool RenderToRefractionTexture(GameObjectClass*, ShaderClass::ShaderParameters*, Settings*);
-	bool RenderToShadowTexture(ShaderClass::ShaderParameters*, Settings*);	
+	bool RenderSceneDepth(RenderInfoType*);
+	bool RenderToTexture(RenderTextureClass*, RenderInfoType*, XMMATRIX, vector<string> skippedNames);
+	bool RenderToReflectionTexture(GameObjectClass*, RenderInfoType*);
+	bool RenderToRefractionTexture(GameObjectClass*, RenderInfoType*);
+	bool RenderToShadowTexture(RenderInfoType*);
 
-	bool RenderPostProcessing(ShaderClass::ShaderParameters*, Settings*);
+	bool RenderPostProcessing(RenderInfoType*);
 
 	void ResetViewport(Settings*);
 
@@ -69,22 +69,10 @@ private:
 	CameraClass* m_Camera;
 	FrustumClass* m_Frustum;
 
-	vector<GameObjectClass*> m_AllGOListOpaque;
-	vector<GameObjectClass*> m_AllGOListTransparent;
-	vector<GameObjectClass*> m_ReflectionList;
-	vector<GameObjectClass*> m_RefractionList;
-	vector<GameObjectClass*> m_ShadowList;
-
-	vector<GameObjectClass2D*> m_All2DGameObjectList;
-	vector<TextClass*> m_AllTextClassList;
-	vector<DisplayPlaneClass*> m_AllDisplayPlaneList;
-	vector<ParticleSystemClass*> m_AllParticleSystemList;
-
 	ShaderClass* m_depthShader;
-	DisplayPlaneClass* m_shadowMapDisplay;
-	DisplayPlaneClass* m_ppFirstPassBlurDisplay;
-	DisplayPlaneClass* m_ppSecondPassBlurDisplay;
-	DisplayPlaneClass* m_ppThirdPassFilterDisplay;
+	RenderTextureClass* m_rendDepth; // Shutdown
+	DisplayPlaneClass* m_depthBufferDisplay;
+	vector<DisplayPlaneClass*> m_postProcessingLayers;
 
 	int m_framesSinceReflectionRender;
 	int m_framesSinceShadowMapRender;

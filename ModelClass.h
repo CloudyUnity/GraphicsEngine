@@ -6,10 +6,11 @@
 #include "textureclass.h"
 #include <fstream>
 #include "LightClass.h"
+#include "IShutdown.h"
 using namespace DirectX;
 using std::ifstream;
 
-class ModelClass
+class ModelClass : public IShutdown
 {
 private:
 	struct VertexType
@@ -46,7 +47,7 @@ public:
 
 	bool Initialize(ID3D11Device*, ID3D11DeviceContext*, char*);
 	void RenderBuffers(ID3D11DeviceContext*);
-	void Shutdown();	
+	void Shutdown() override;
 
 	int GetIndexCount();
 	float GetBoundingRadius();	

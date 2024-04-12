@@ -4,9 +4,10 @@
 #include <d3d11.h>
 #include <stdio.h>
 #include <vector>
+#include "IShutdown.h"
 using std::vector;
 
-class TextureClass
+class TextureClass : public IShutdown
 {
 private:
     struct TargaHeader
@@ -26,7 +27,7 @@ public:
     bool Initialize(ID3D11ShaderResourceView* srv);
     bool InitializeCubemap(ID3D11Device*, ID3D11DeviceContext*, vector<char*>);
     bool InitializeCubemap(ID3D11Device*, ID3D11DeviceContext*, char*);
-    void Shutdown();
+    void Shutdown() override;
 
     ID3D11ShaderResourceView* GetSRV();
 

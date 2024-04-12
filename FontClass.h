@@ -3,12 +3,14 @@
 
 #include <directxmath.h>
 #include <fstream>
+#include "IShutdown.h"
+
 using namespace DirectX;
 using std::ifstream;
 
 #include "textureclass.h"
 
-class FontClass
+class FontClass : public IShutdown
 {
 private:
     struct FontType
@@ -29,7 +31,7 @@ public:
     ~FontClass();
 
     bool Initialize(ID3D11Device*, ID3D11DeviceContext*, int);
-    void Shutdown();
+    void Shutdown() override;
 
     TextureClass* GetTexture();
 

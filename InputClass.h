@@ -7,8 +7,9 @@
 #pragma comment(lib, "dxguid.lib")
 
 #include <dinput.h>
+#include "IShutdown.h"
 
-class InputClass
+class InputClass : IShutdown
 {
 public:
 	InputClass();
@@ -16,7 +17,7 @@ public:
 	~InputClass();
 
     bool Initialize(HINSTANCE, HWND, int, int);
-    void Shutdown();
+    void Shutdown() override;
     bool Frame();
 
     bool IsKeyPressed(unsigned char keyCode);

@@ -6,17 +6,19 @@
 #include "TextureClass.h"
 #include <vector>
 #include <string>
+#include "IShutdown.h"
+
 using namespace DirectX;
 using std::vector;
 using std::string;
 
-class TextureSetClass
+class TextureSetClass : public IShutdown
 {
 public:
 	TextureSetClass();
 	~TextureSetClass();
 
-	void Shutdown();
+	void Shutdown() override;
 	void ReleaseTexture();
 	bool Add(ID3D11Device*, ID3D11DeviceContext*, const char*, int setIndex = -1);
 	bool AddCubemap(ID3D11Device*, ID3D11DeviceContext*, const char*, int setIndex = -1);

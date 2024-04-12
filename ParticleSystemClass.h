@@ -8,9 +8,10 @@
 #include <string>
 #include "settings.h"
 #include "MathUtilsClass.h"
+#include "IShutdown.h"
 using namespace DirectX;
 
-class ParticleSystemClass
+class ParticleSystemClass : public IShutdown
 {
 public:
 	struct VertexParticleType
@@ -58,7 +59,7 @@ public:
 	bool InitializeBuffers(ID3D11Device*);
 	bool Render(ID3D11DeviceContext*, ShaderClass::ShaderParameters* params, ShaderClass* overwriteShader = nullptr);
 	void RenderBuffers(ID3D11DeviceContext*);
-	void Shutdown();
+	void Shutdown() override;
 
 	bool Frame(ID3D11DeviceContext*, float);
 	bool UpdateBuffers(ID3D11DeviceContext* deviceContext);
