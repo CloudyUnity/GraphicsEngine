@@ -2,6 +2,7 @@
 #define _shaderclass_H_
 
 const int NUM_LIGHTS = 4;
+const int SIN_COUNT = 4;
 
 #include <d3d11.h>
 #include <d3dcompiler.h>
@@ -130,6 +131,10 @@ protected:
 		float tessellationAmount;
 		XMFLOAT3 padding;
 	};
+	struct OceanSineBufferType
+	{
+		XMFLOAT4 ampPhaseFreq[SIN_COUNT];
+	};
 
 public:
 	struct ShaderParameters
@@ -152,6 +157,7 @@ public:
 		BlurBufferType blur;
 		FilterBufferType filter;
 		TessellationBufferType tesselation;
+		OceanSineBufferType oceanSine;
 
 		bool reflectionEnabled;
 	};
@@ -183,7 +189,7 @@ protected:
 	ID3D11InputLayout* m_layout;
 	ID3D11Buffer* m_matrixBuffer, * m_utilBuffer, * m_lightColorBuffer, * m_lightPositionBuffer, * m_lightBuffer, * m_cameraBuffer, * m_pixelBuffer, * m_fogBuffer;
 	ID3D11Buffer* m_clipBuffer, * m_texTransBuffer, * m_alphaBuffer, * m_reflectionBuffer, * m_waterBuffer, * m_fireBuffer, * m_shadowBuffer;
-	ID3D11Buffer* m_blurBuffer, * m_filterBuffer, *m_tesselationBuffer;
+	ID3D11Buffer* m_blurBuffer, * m_filterBuffer, * m_tesselationBuffer, * m_oceanSineBuffer;
 	ID3D11SamplerState* m_sampleState;
 
 	std::string m_vertexName, m_fragName;

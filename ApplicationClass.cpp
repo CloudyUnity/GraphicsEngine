@@ -215,7 +215,12 @@ void ApplicationClass::UpdateParameters()
 		m_Parameters->filter.sharpnessStrength = 0.2f;
 	}
 
-	m_Parameters->tesselation.tessellationAmount = 50;
+	m_Parameters->tesselation.tessellationAmount = 25;
+
+	m_Parameters->oceanSine.ampPhaseFreq[0] = XMFLOAT4(1.5f, 1.4f, 1.2f, 1.1f);
+	m_Parameters->oceanSine.ampPhaseFreq[1] = XMFLOAT4(1.2f, 1.7f, 1.3f, 1.22f);
+	m_Parameters->oceanSine.ampPhaseFreq[2] = XMFLOAT4(0.5f, 2.32f, 1.46f, 1.37f);
+	m_Parameters->oceanSine.ampPhaseFreq[3] = XMFLOAT4(0.3f, 3.2f, 1.8f, 1.5f);
 }
 
 void ApplicationClass::Shutdown()

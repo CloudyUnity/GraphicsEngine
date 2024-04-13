@@ -311,7 +311,7 @@ bool ShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFil
 
 bool ShaderClass::TryCreateBuffer(ID3D11Device* device, D3D11_BUFFER_DESC bufferDesc, ID3D11Buffer*& ptr, size_t structSize, string shaderName, string bufferName)
 {
-	if (!ShaderUsesBuffer(shaderName, bufferName))
+	if (!ShaderUsesBuffer(shaderName, bufferName) || ptr != nullptr)
 		return true;
 
 	bufferDesc.ByteWidth = (UINT)structSize;
@@ -715,9 +715,9 @@ bool ShaderClass::ShaderUsesBuffer(std::string shader, std::string buffer)
 	if (shader == "Ocean.hs" || shader == "OceanTri.hs")
 		return buffer == "Tess";
 	if (shader == "Ocean.ds" || shader == "OceanTri.ds")
-		return buffer == "Matrix" || buffer == "Util";
-	if (shader == "Ocean.ps")
-		return buffer == "Util";
+		return buffer == "Matrix" || buffer == "Util" || buffer == "OceanSine";
+	//if (shader == "Ocean.ps")
+	//	return buffer == "Util";
 
 	return false;
 }

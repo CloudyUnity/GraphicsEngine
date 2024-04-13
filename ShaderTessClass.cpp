@@ -126,6 +126,8 @@ bool ShaderTessClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* v
 
 	result = 
 		TryCreateBuffer(device, bufferDesc, m_matrixBuffer, sizeof(MatrixBufferType), m_domainName, "Matrix") &&
+		TryCreateBuffer(device, bufferDesc, m_utilBuffer, sizeof(UtilBufferType), m_domainName, "Util") &&
+		TryCreateBuffer(device, bufferDesc, m_oceanSineBuffer, sizeof(OceanSineBufferType), m_domainName, "OceanSine") &&
 		TryCreateBuffer(device, bufferDesc, m_tesselationBuffer, sizeof(TessellationBufferType), m_hullName, "Tess");
 	if (!result)
 		return false;
@@ -192,7 +194,23 @@ bool ShaderTessClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Te
 		ptr->texelSizeX = params->utils.texelSizeX;
 		ptr->texelSizeY = params->utils.texelSizeY;
 
-		UnmapDomainBuffer(deviceContext, 1, &m_utilBuffer);
+		UnmapDomainBuffer(deviceContext, 2, &m_utilBuffer);
+	}
+
+	if (ShaderUsesBuffer(m_domainName, "OceanSine"))
+	{
+		OceanSineBufferType* ptr;
+		if (!TryMapBuffer(deviceContext, &m_oceanSineBuffer, &ptr))
+			return false;
+
+		XMFLOAT4 *amps = params->oceanSine.ampPhaseFreq;
+
+		for (int i = 0; i < SIN_COUNT; i++)
+		{
+			ptr->ampPhaseFreq[i] = amps[i];
+		}
+
+		UnmapDomainBuffer(deviceContext, 1, &m_oceanSineBuffer);
 	}
 
 	return true;
