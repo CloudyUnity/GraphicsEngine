@@ -329,5 +329,11 @@
     <None Include="Ocean.ds">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="OceanTri.hs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="OceanTri.ds">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

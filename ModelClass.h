@@ -52,7 +52,7 @@ public:
 	int GetIndexCount();
 	float GetBoundingRadius();	
 
-	void SetPrimitiveControlPointPatchList(bool);
+	void SetPrimitiveControlPointPatchList(int);
 
 private:
 	bool InitializeBuffers(ID3D11Device*);
@@ -68,7 +68,7 @@ private:
 	ModelType* m_model;
 	float m_boundingRadius;
 
-	bool m_primitiveControlPointPatchList;
+	int m_primitiveControlPointPatchList;
 };
 
 #endif

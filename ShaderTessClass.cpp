@@ -145,6 +145,9 @@ void ShaderTessClass::RenderShader(ID3D11DeviceContext* deviceContext, int index
 	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
 
 	deviceContext->DrawIndexed(indexCount, 0, 0);
+
+	deviceContext->HSSetShader(NULL, NULL, 0);
+	deviceContext->DSSetShader(NULL, NULL, 0);
 }
 
 bool ShaderTessClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, TextureSetClass* texSet, ShaderParameters* params)
@@ -177,6 +180,19 @@ bool ShaderTessClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Te
 		ptr->tessellationAmount = params->tesselation.tessellationAmount;
 
 		UnmapHullBuffer(deviceContext, 0, &m_tesselationBuffer);
+	}
+
+	if (ShaderUsesBuffer(m_domainName, "Util"))
+	{
+		UtilBufferType* ptr;
+		if (!TryMapBuffer(deviceContext, &m_utilBuffer, &ptr))
+			return false;
+
+		ptr->time = params->utils.time;
+		ptr->texelSizeX = params->utils.texelSizeX;
+		ptr->texelSizeY = params->utils.texelSizeY;
+
+		UnmapDomainBuffer(deviceContext, 1, &m_utilBuffer);
 	}
 
 	return true;

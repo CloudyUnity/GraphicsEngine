@@ -215,7 +215,7 @@ void ApplicationClass::UpdateParameters()
 		m_Parameters->filter.sharpnessStrength = 0.2f;
 	}
 
-	m_Parameters->tesselation.tessellationAmount = 4;
+	m_Parameters->tesselation.tessellationAmount = 50;
 }
 
 void ApplicationClass::Shutdown()

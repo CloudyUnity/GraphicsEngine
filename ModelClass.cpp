@@ -6,7 +6,7 @@ ModelClass::ModelClass()
 	m_indexBuffer = 0;
 	m_model = 0;
 	m_boundingRadius = 0;
-	m_primitiveControlPointPatchList = false;
+	m_primitiveControlPointPatchList = 0;
 }
 
 
@@ -46,9 +46,9 @@ float ModelClass::GetBoundingRadius()
 	return m_boundingRadius;
 }
 
-void ModelClass::SetPrimitiveControlPointPatchList(bool enabled)
+void ModelClass::SetPrimitiveControlPointPatchList(int pointCount)
 {
-	m_primitiveControlPointPatchList = enabled;
+	m_primitiveControlPointPatchList = pointCount;
 }
 
 bool ModelClass::InitializeBuffers(ID3D11Device* device)
@@ -145,9 +145,15 @@ void ModelClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
 	deviceContext->IASetVertexBuffers(0, 1, &m_vertexBuffer, &stride, &offset);
 	deviceContext->IASetIndexBuffer(m_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-	if (m_primitiveControlPointPatchList)
+	if (m_primitiveControlPointPatchList == 3)
 	{
 		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
+		return;
+	}
+
+	if (m_primitiveControlPointPatchList == 4)
+	{
+		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
 		return;
 	}
 

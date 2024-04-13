@@ -63,7 +63,11 @@ bool GameObjectClass::Render(ID3D11DeviceContext* deviceContext, ShaderClass::Sh
 		return overwriteShader->Render(deviceContext, m_Model->GetIndexCount(), nullptr, params);
 	}
 
-	return m_Shader->Render(deviceContext, m_Model->GetIndexCount(), m_Textures, params);
+	bool result = m_Shader->Render(deviceContext, m_Model->GetIndexCount(), m_Textures, params);
+	if (!result)
+		return false;
+
+	return true;
 }
 
 void GameObjectClass::Shutdown() 
