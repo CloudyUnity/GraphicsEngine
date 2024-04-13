@@ -24,6 +24,7 @@
 #include "ParticleSystemClass.h"
 #include "IShutdown.h"
 #include "SceneTestClass.h"
+#include "SceneOceanClass.h"
 
 using std::vector;
 using std::string;
@@ -45,8 +46,10 @@ public:
 	void UpdateParameters();
 
 	void Shutdown() override;
-	bool Frame(InputClass*);
+	bool Frame(HWND hwnd, InputClass*);
 	bool LateFrame(InputClass*, float);
+
+	bool SwitchScene(HWND hwnd);
 
 private:
 	bool Render();

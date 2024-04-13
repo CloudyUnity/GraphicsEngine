@@ -9,12 +9,12 @@ class SceneTestClass : public SceneClass
 public:
 	SceneTestClass();
 
-	bool InitializeScene(HWND hwnd, RenderClass* renderClass) override;
-	// renderClass is temporary. Get ridda it
+	bool InitializeScene(HWND hwnd) override;
 
 	bool Frame(InputClass*, float frameTime) override;
 	bool LateFrame(InputClass* input, float frameTime) override;
 	void SetParameters(ShaderClass::ShaderParameters*) override;
+	void OnSwitchTo() override;
 	void Shutdown();
 	
 	void SetDirLight(float x, float y, float z);
@@ -26,8 +26,6 @@ private:
 	FontClass* m_Font;
 	LightClass* m_Lights, * m_DirLight;
 	DisplayPlaneClass* m_DisplayPlane, * m_DisplayPortal1, * m_DisplayPortal2;
-
-	float m_dirLightX, m_dirLightY, m_dirLightZ;
 
 	GameObjectClass* m_MadelineGO1, * m_MadelineGO2, * m_IcosphereGO, * m_mountainGO, * m_transIcoGO, * m_cubeGO, * m_fractalGO, * m_skyboxGO, * m_testIcoGO;
 	GameObjectClass2D* m_spinnerGO2D, * m_cursorGO2D;

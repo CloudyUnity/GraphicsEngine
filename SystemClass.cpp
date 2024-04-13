@@ -84,7 +84,7 @@ bool SystemClass::Frame()
 		return false;
 
 	// Do the frame processing for the application class object.
-	return m_Application->Frame(m_Input);
+	return m_Application->Frame(m_hwnd, m_Input);
 }
 
 LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)

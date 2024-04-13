@@ -1,9 +1,23 @@
-﻿  SceneTestClass.cpp
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\SceneTestClass.cpp(388,49): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\SceneTestClass.cpp(487,52): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\SceneTestClass.cpp(487,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\SceneTestClass.cpp(487,10): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\SceneTestClass.cpp(500,52): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\SceneTestClass.cpp(500,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\SceneTestClass.cpp(500,10): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+﻿  ApplicationClass.cpp
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(183,123): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(183,77): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  RenderClass.cpp
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\RenderClass.cpp(27,18): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\RenderClass.cpp(28,17): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\RenderClass.cpp(33,90): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\RenderClass.cpp(33,77): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\RenderClass.cpp(528,7): warning C4101: 'result': unreferenced local variable
+  SceneOceanClass.cpp
+  SceneTestClass.cpp
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\SceneTestClass.cpp(375,49): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\SceneTestClass.cpp(475,52): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\SceneTestClass.cpp(475,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\SceneTestClass.cpp(475,10): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\SceneTestClass.cpp(488,52): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\SceneTestClass.cpp(488,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\SceneTestClass.cpp(488,10): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  SystemClass.cpp
+  main.cpp
+  Generating Code...
+C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\ApplicationClass.cpp(117): warning C4715: 'ApplicationClass::Initialize': not all control paths return a value
   GraphicsEngine.vcxproj -> C:\Users\finnw\source\repos\GraphicsEngine\x64\Debug\GraphicsEngine.exe

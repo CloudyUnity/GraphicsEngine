@@ -3,18 +3,20 @@
 SceneClass::SceneClass()
 {
 	m_sceneData = new SceneDataType();
+	m_InitializedScene = false;
 }
 
-bool SceneClass::InitializeMembers(Settings* settings, D3DClass* d3d)
+bool SceneClass::InitializeMembers(Settings* settings, D3DClass* d3d, RenderClass* renderClass)
 {
 	m_settings = settings;
 	m_Direct3D = d3d;
+	m_RenderClass = renderClass;
 	return true;
 }
 
-bool SceneClass::InitializeScene(HWND hwnd, RenderClass* renderClass)
+bool SceneClass::InitializeScene(HWND hwnd)
 {
-	return true;
+	return false;
 }
 
 bool SceneClass::ParticlesFrame(float frameTime)
@@ -42,6 +44,10 @@ bool SceneClass::LateFrame(InputClass* input, float frameTime)
 }
 
 void SceneClass::SetParameters(ShaderClass::ShaderParameters*)
+{
+}
+
+void SceneClass::OnSwitchTo()
 {
 }
 
@@ -191,7 +197,7 @@ bool SceneClass::CreateRenderTexture(RenderTextureClass** outRendTexPtr, ID3D11D
 	return true;
 }
 
-bool SceneClass::CreateDisplayPlane(DisplayPlaneClass** outDisplayPtr, ID3D11Device* device, float width, float height, RenderTextureClass* rendTex, ShaderClass* shader, const char* name, bool render, CameraClass* cam)
+bool SceneClass::CreateDisplayPlane(DisplayPlaneClass** outDisplayPtr, ID3D11Device* device, float width, float height, RenderTextureClass* rendTex, ShaderClass* shader, const char* name, bool postProcess, CameraClass* cam)
 {
 	*outDisplayPtr = new DisplayPlaneClass();
 	bool result = (*outDisplayPtr)->Initialize(device, width, height, rendTex, shader, name, cam);
@@ -199,7 +205,9 @@ bool SceneClass::CreateDisplayPlane(DisplayPlaneClass** outDisplayPtr, ID3D11Dev
 		return false;
 
 	m_loadedAssetsList.push_back(*outDisplayPtr);
-	if (render)
+	if (postProcess)
+		m_sceneData->PostProcessingLayers.push_back(*outDisplayPtr);
+	else
 		m_sceneData->DisplayPlaneList.push_back(*outDisplayPtr);
 
 	return true;
