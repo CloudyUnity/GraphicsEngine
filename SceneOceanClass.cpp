@@ -45,6 +45,7 @@ bool SceneOceanClass::InitializeScene(HWND hwnd)
 	CreateGameObject(modelPlane, shaderOceanTri, texSetOcean, false, "Ocean", &m_GoOcean);
 	m_GoOcean->SetScale(10, 1, 10);
 	m_GoOcean->SetPosition(0, -5, 10);
+	m_GoOcean->SetBackCulling(false);
 
 	return true;
 }
