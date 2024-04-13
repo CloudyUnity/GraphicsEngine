@@ -1,0 +1,27 @@
+#define NUM_LIGHTS 4
+#define NUM_POISSON_SAMPLES 4
+
+Texture2D shaderTexture1 : register(t0);
+SamplerState SampleType : register(s0);
+
+cbuffer UtilBuffer: register(b0)
+{
+    float time;
+    float texelX;
+    float texelY;
+    float pad4;
+};
+
+struct PixelInputType
+{
+    float4 position : SV_POSITION0;
+    float2 tex : TEXCOORD0;
+    float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAL;    
+};
+
+float4 PS_MAIN(PixelInputType input) : SV_TARGET
+{
+    return float4(1, 0, 0, 1);
+}

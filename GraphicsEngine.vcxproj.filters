@@ -42,6 +42,9 @@
     <Filter Include="Source Files\Interfaces">
       <UniqueIdentifier>{1051f6ab-d9e6-4289-9251-cda07524f2ea}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shaders">
+      <UniqueIdentifier>{4d5eaaa8-45e9-43b8-b072-49013f17f934}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="GraphicsEngine.rc">
@@ -144,6 +147,9 @@
     <ClInclude Include="SceneOceanClass.h">
       <Filter>Source Files\Scenes</Filter>
     </ClInclude>
+    <ClInclude Include="ShaderTessClass.h">
+      <Filter>Source Files\Primitives</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ApplicationClass.cpp">
@@ -236,6 +242,9 @@
     <ClCompile Include="SceneOceanClass.cpp">
       <Filter>Source Files\Scenes</Filter>
     </ClCompile>
+    <ClCompile Include="ShaderTessClass.cpp">
+      <Filter>Source Files\Primitives</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Fog.vs">
@@ -307,6 +316,18 @@
     </None>
     <None Include="Portal.ps">
       <Filter>Shaders\2D</Filter>
+    </None>
+    <None Include="Ocean.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Ocean.ps">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Ocean.hs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Ocean.ds">
+      <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
 </Project>

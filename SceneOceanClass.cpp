@@ -16,8 +16,11 @@ bool SceneOceanClass::InitializeScene(HWND hwnd)
 	ID3D11DeviceContext* context = m_Direct3D->GetDeviceContext();
 
 	bool clampSamplerMode = true;
-	ShaderClass* shaderMain = 0;
-	result = CreateShader(hwnd, &shaderMain, "../GraphicsEngine/Fog.vs", "../GraphicsEngine/Fog.ps");
+	ShaderClass* shaderFractal = 0;
+	ShaderTessClass* shaderOcean = 0;
+	result = 
+		CreateShader(hwnd, &shaderOcean, "../GraphicsEngine/Ocean.vs", "../GraphicsEngine/Ocean.hs", "../GraphicsEngine/Ocean.ds", "../GraphicsEngine/Ocean.ps") &&
+		CreateShader(hwnd, &shaderFractal, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/Fractal.ps");
 	if (!result)
 		return false;
 
@@ -25,13 +28,17 @@ bool SceneOceanClass::InitializeScene(HWND hwnd)
 	CreateTexSet(&texSetOcean);
 	texSetOcean->Add(device, context, "../GraphicsEngine/Data/Celeste.tga");
 
-	ModelClass* modelPlane = 0;
-	result = CreateModel(hwnd, &modelPlane, "../GraphicsEngine/Models/Plane.txt");
+	ModelClass* modelPlane = 0, * modelCube = 0;
+	result = 
+		CreateModel(hwnd, &modelPlane, "../GraphicsEngine/Models/Plane.txt") &&
+		CreateModel(hwnd, &modelCube, "../GraphicsEngine/Models/Cube.txt");
 	if (!result)
 		return false;
 
-	CreateGameObject(modelPlane, shaderMain, texSetOcean, false, "Ocean", &m_GoOcean);
-	m_GoOcean->SetScale(10, 0, 10);
+	modelPlane->SetPrimitiveControlPointPatchList(true);
+
+	CreateGameObject(modelPlane, shaderOcean, texSetOcean, false, "Ocean", &m_GoOcean);
+	m_GoOcean->SetScale(10, 1, 10);
 	m_GoOcean->SetPosition(0, -5, 10);
 
 	return true;

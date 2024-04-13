@@ -1,0 +1,63 @@
+cbuffer MatrixBuffer : register(b0)
+{
+    matrix worldMatrix;
+    matrix viewMatrix;
+    matrix projectionMatrix;
+};
+
+struct ConstantOutputType
+{
+    float edges[3] : SV_TessFactor;
+    float inside : SV_InsideTessFactor;
+};
+
+struct DomainInputType
+{
+    float4 position : POSITION;
+    float2 tex : TEXCOORD0;
+    float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAL;
+};
+
+struct PixelInputType
+{
+    float4 position : SV_POSITION0;
+    float2 tex : TEXCOORD0;
+    float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAL;    
+};
+
+[domain("tri")]
+
+PixelInputType DS_MAIN(ConstantOutputType input, float3 uvwCoord : SV_DomainLocation, const OutputPatch<DomainInputType, 3> patch)
+{
+    float3 vertexPosition, vertexNormal, vertexTangent, vertexBinormal;
+    PixelInputType output; 
+
+    // Determine the position of the new vertex.
+    vertexPosition = uvwCoord.x * patch[0].position + uvwCoord.y * patch[1].position + uvwCoord.z * patch[2].position;
+    
+    // Calculate the position of the new vertex against the world, view, and projection matrices.
+    output.position = mul(float4(vertexPosition, 1.0f), worldMatrix);
+    output.position = mul(output.position, viewMatrix);
+    output.position = mul(output.position, projectionMatrix);
+
+    output.tex = uvwCoord.x * patch[0].tex + uvwCoord.y * patch[1].tex + uvwCoord.z * patch[2].tex;
+
+    vertexNormal = uvwCoord.x * patch[0].normal + uvwCoord.y * patch[1].normal + uvwCoord.z * patch[2].normal;
+    vertexTangent = uvwCoord.x * patch[0].tangent + uvwCoord.y * patch[1].tangent + uvwCoord.z * patch[2].tangent;
+    vertexBinormal = uvwCoord.x * patch[0].binormal + uvwCoord.y * patch[1].binormal + uvwCoord.z * patch[2].binormal;
+
+    output.normal = mul(vertexNormal, (float3x3)worldMatrix);	
+    output.normal = normalize(output.normal);
+
+    output.tangent = mul(vertexTangent, (float3x3)worldMatrix);
+    output.tangent = normalize(output.tangent);
+
+    output.binormal = mul(vertexBinormal, (float3x3)worldMatrix);
+    output.binormal = normalize(output.binormal);
+
+    return output;
+}

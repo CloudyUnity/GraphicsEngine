@@ -15,6 +15,7 @@
 #include "rendertextureclass.h"
 #include "displayplaneclass.h"
 #include "ParticleSystemClass.h"
+#include "ShaderTessClass.h"
 
 class RenderClass;
 
@@ -57,6 +58,7 @@ public:
 protected:
 	bool CreateModel(HWND, ModelClass**, const char*);
 	bool CreateShader(HWND, ShaderClass**, const char*, const char*, bool clampSamplerMode = false);
+	bool CreateShader(HWND, ShaderTessClass**, const char*, const char*, const char*, const char*, bool clampSamplerMode = false);
 	void CreateGameObject(ModelClass*, ShaderClass*, TextureSetClass*, bool, const char*, GameObjectClass** ptr = nullptr);
 	void CreateGameObject2D(BitmapClass*, ShaderClass*, GameObjectClass2D** ptr = nullptr);
 	bool CreateText(TextClass** ptr, ShaderClass* shader, FontClass*, int maxLength);

@@ -186,6 +186,8 @@ bool RenderClass::RenderScene(RenderInfoType* renderInfo, XMMATRIX viewMatrix, X
 
 	m_Frustum->ConstructFrustum(viewMatrix, projectionMatrix, SCREEN_DEPTH);
 
+	m_Direct3D->SetBackCulling(renderInfo->Settings->m_CurrentData.WireframeMode, true);
+
 	result = RenderGameObjects(renderInfo, false, skippedNames);
 	if (!result)
 		return false;
@@ -287,10 +289,13 @@ bool RenderClass::SetupDisplayPlanes(RenderInfoType* renderInfo)
 
 		vector<string> skippedNames;
 		skippedNames.push_back(go->m_NameIdentifier);
+
 		if (go->m_NameIdentifier.starts_with("Display Portal1"))
 			skippedNames.push_back("Display Portal2");
+
 		if (go->m_NameIdentifier.starts_with("Display Portal2"))
 			skippedNames.push_back("Display Portal1");
+
 		result = RenderToTexture(go->m_RenderTexture, renderInfo, view, skippedNames);
 		if (!result)
 			return false;

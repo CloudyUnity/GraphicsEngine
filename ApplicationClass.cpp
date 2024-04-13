@@ -110,7 +110,7 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	sceneOcean->InitializeMembers(m_Settings, m_Direct3D, m_RenderClass);
 	m_sceneList.push_back(sceneOcean);
 
-	m_currentScene = sceneTest;
+	m_currentScene = sceneOcean;
 	m_currentScene->InitializeScene(hwnd);
 	m_currentScene->OnSwitchTo();
 	m_currentScene->m_InitializedScene = true;
@@ -214,6 +214,8 @@ void ApplicationClass::UpdateParameters()
 		m_Parameters->filter.sharpnessKernalP = 0.5f;
 		m_Parameters->filter.sharpnessStrength = 0.2f;
 	}
+
+	m_Parameters->tesselation.tessellationAmount = 4;
 }
 
 void ApplicationClass::Shutdown()

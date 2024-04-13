@@ -25,7 +25,7 @@ using std::unique_ptr;
 
 class ShaderClass : public IShutdown
 {
-private:
+protected:
 	// XMMATRIX = 4x4 floats = 64 bytes
 	struct MatrixBufferType // 192 bytes
 	{
@@ -125,6 +125,11 @@ private:
 
 		float sharpnessKernalN, sharpnessKernalP, sharpnessStrength, grainIntensity;
 	};
+	struct TessellationBufferType
+	{
+		float tessellationAmount;
+		XMFLOAT3 padding;
+	};
 
 public:
 	struct ShaderParameters
@@ -146,6 +151,7 @@ public:
 		ShadowBufferType shadow;
 		BlurBufferType blur;
 		FilterBufferType filter;
+		TessellationBufferType tesselation;
 
 		bool reflectionEnabled;
 	};
@@ -158,22 +164,26 @@ public:
 	void Shutdown() override;
 	bool Render(ID3D11DeviceContext*, int, TextureSetClass*, ShaderParameters*);
 
-private:
+protected:
 	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*, bool);
 	bool TryCreateBuffer(ID3D11Device* device, D3D11_BUFFER_DESC bufferDesc, ID3D11Buffer*& ptr, size_t structSize, string, string);
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
-	bool SetShaderParameters(ID3D11DeviceContext*, TextureSetClass*, ShaderParameters*);
-	void RenderShader(ID3D11DeviceContext*, int);
+	virtual bool SetShaderParameters(ID3D11DeviceContext*, TextureSetClass*, ShaderParameters*);	
 
-	bool ShaderUsesBuffer(std::string, std::string);
+    bool ShaderUsesBuffer(std::string, std::string);
+	void UnmapVertexBuffer(ID3D11DeviceContext* deviceContext, int bufferNumber, ID3D11Buffer** buffer);
+	void UnmapFragmentBuffer(ID3D11DeviceContext* deviceContext, int bufferNumber, ID3D11Buffer** buffer);
 
-private:
+	virtual void RenderShader(ID3D11DeviceContext*, int);
+
+protected:
 	ID3D11VertexShader* m_vertexShader;
 	ID3D11PixelShader* m_pixelShader;
 	ID3D11InputLayout* m_layout;
-	ID3D11Buffer* m_matrixBuffer, * m_utilBuffer, * m_lightColorBuffer, * m_lightPositionBuffer, * m_lightBuffer, * m_cameraBuffer, * m_pixelBuffer, * m_fogBuffer,
-		* m_clipBuffer, * m_texTransBuffer, * m_alphaBuffer, * m_reflectionBuffer, * m_waterBuffer, * m_fireBuffer, * m_shadowBuffer, * m_blurBuffer, * m_filterBuffer;
+	ID3D11Buffer* m_matrixBuffer, * m_utilBuffer, * m_lightColorBuffer, * m_lightPositionBuffer, * m_lightBuffer, * m_cameraBuffer, * m_pixelBuffer, * m_fogBuffer;
+	ID3D11Buffer* m_clipBuffer, * m_texTransBuffer, * m_alphaBuffer, * m_reflectionBuffer, * m_waterBuffer, * m_fireBuffer, * m_shadowBuffer;
+	ID3D11Buffer* m_blurBuffer, * m_filterBuffer, *m_tesselationBuffer;
 	ID3D11SamplerState* m_sampleState;
 
 	std::string m_vertexName, m_fragName;
@@ -192,9 +202,7 @@ private:
 		*outPtr = (T*)mappedResource.pData;
 
 		return true;
-	}
-
-	void UnmapBuffer(ID3D11DeviceContext* deviceContext, int bufferNumber, ID3D11Buffer** buffer, bool);
+	}	
 };
 
 #endif
