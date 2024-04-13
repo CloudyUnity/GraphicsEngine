@@ -490,7 +490,6 @@ void D3DClass::SetBackBufferRenderTarget()
 	m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
 }
 
-
 void D3DClass::ResetViewport()
 {
 	m_deviceContext->RSSetViewports(1, &m_viewport);
@@ -500,7 +499,6 @@ void D3DClass::TurnZBufferOn()
 {
 	m_deviceContext->OMSetDepthStencilState(m_depthStencilState, 1);
 }
-
 
 void D3DClass::TurnZBufferOff()
 {

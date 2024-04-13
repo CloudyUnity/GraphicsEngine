@@ -108,6 +108,28 @@ bool SceneClass::CreateShader(HWND hwnd, ShaderClass** ptr, const char* vertexNa
 	return true;
 }
 
+bool SceneClass::CreateShader(HWND hwnd, ShaderTessClass** ptr, const char* vertexName, const char* hullName, const char* domainName, const char* fragName, bool clampSamplerMode)
+{
+	char vertexShader[128], hullShader[128], domainShader[128], fragShader[128];
+
+	strcpy_s(vertexShader, vertexName);
+	strcpy_s(hullShader, hullName);
+	strcpy_s(domainShader, domainName);
+	strcpy_s(fragShader, fragName);
+
+	*ptr = new ShaderTessClass();
+	bool result = (*ptr)->Initialize(m_Direct3D->GetDevice(), hwnd, vertexShader, hullShader, domainShader, fragShader, clampSamplerMode);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
+		return false;
+	}
+
+	m_loadedAssetsList.push_back(*ptr);
+
+	return true;
+}
+
 void SceneClass::CreateGameObject(ModelClass* model, ShaderClass* shader, TextureSetClass* texSet, bool transparent, const char* name, GameObjectClass** ptr)
 {
 	*ptr = new GameObjectClass;

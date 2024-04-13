@@ -24,6 +24,7 @@ ShaderClass::ShaderClass()
 	m_shadowBuffer = 0;
 	m_blurBuffer = 0;
 	m_filterBuffer = 0;
+	m_tesselationBuffer = 0;
 }
 
 ShaderClass::~ShaderClass()
@@ -164,7 +165,7 @@ bool ShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFil
 
 	D3D11_INPUT_ELEMENT_DESC polygonLayout[10];
 
-	if (m_vertexName == "Particle.vs")
+	if (m_vertexName == "Particle.vs") // Is this neccessary?
 	{
 		polygonLayout[0].SemanticName = "POSITION";
 		polygonLayout[0].SemanticIndex = 0;
@@ -270,7 +271,7 @@ bool ShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFil
 		TryCreateBuffer(device, bufferDesc, m_fireBuffer, sizeof(FireBufferType), m_fragName, "Fire") &&		
 		TryCreateBuffer(device, bufferDesc, m_shadowBuffer, sizeof(ShadowBufferType), m_fragName, "Shadow") &&		
 		TryCreateBuffer(device, bufferDesc, m_blurBuffer, sizeof(BlurBufferType), m_fragName, "Blur") &&		
-		TryCreateBuffer(device, bufferDesc, m_filterBuffer, sizeof(FilterBufferType), m_fragName, "Filter") &&		
+		TryCreateBuffer(device, bufferDesc, m_filterBuffer, sizeof(FilterBufferType), m_fragName, "Filter") &&				
 		TryCreateBuffer(device, bufferDesc, m_lightPositionBuffer, sizeof(LightPositionBufferType), m_fragName, "LightPosition");
 
 	if (!bufferCreationResult)
@@ -375,7 +376,7 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		ptr->view = XMMatrixTranspose(params->matrix.view);
 		ptr->projection = XMMatrixTranspose(params->matrix.projection);
 
-		UnmapBuffer(deviceContext, 0, &m_matrixBuffer, setVS);		
+		UnmapVertexBuffer(deviceContext, 0, &m_matrixBuffer);		
 	}
 
 	if (ShaderUsesBuffer(m_vertexName, "Camera"))
@@ -386,7 +387,7 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 
 		ptr->cameraPosition = params->camera.cameraPosition;
 
-		UnmapBuffer(deviceContext, 2, &m_cameraBuffer, setVS);
+		UnmapVertexBuffer(deviceContext, 2, &m_cameraBuffer);
 	}
 
 	if (ShaderUsesBuffer(m_vertexName, "Fog"))
@@ -398,7 +399,7 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		ptr->fogStart = params->fog.fogStart;
 		ptr->fogEnd = params->fog.fogEnd;
 
-		UnmapBuffer(deviceContext, 3, &m_fogBuffer, setVS);
+		UnmapVertexBuffer(deviceContext, 3, &m_fogBuffer);
 	}
 
 	if (ShaderUsesBuffer(m_vertexName, "Clip"))
@@ -409,7 +410,7 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 
 		ptr->clipPlane = params->clip.clipPlane;
 
-		UnmapBuffer(deviceContext, 4, &m_clipBuffer, setVS);
+		UnmapVertexBuffer(deviceContext, 4, &m_clipBuffer);
 	}
 
 	if (ShaderUsesBuffer(m_vertexName, "Reflection") && params->reflectionEnabled)
@@ -421,7 +422,7 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		XMMATRIX matrix = params->reflection.reflectionMatrix;
 		ptr->reflectionMatrix = XMMatrixTranspose(matrix);
 
-		UnmapBuffer(deviceContext, 5, &m_reflectionBuffer, setVS);
+		UnmapVertexBuffer(deviceContext, 5, &m_reflectionBuffer);
 	}
 
 	if (ShaderUsesBuffer(m_fragName, "Util"))
@@ -434,7 +435,7 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		ptr->texelSizeX = params->utils.texelSizeX;
 		ptr->texelSizeY = params->utils.texelSizeY;
 
-		UnmapBuffer(deviceContext, 0, &m_utilBuffer, setPS);
+		UnmapFragmentBuffer(deviceContext, 0, &m_utilBuffer);
 	}
 
 	if (ShaderUsesBuffer(m_vertexName, "LightPosition"))
@@ -448,7 +449,7 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		for (int i = 0; i < NUM_POINT_LIGHTS; i++)
 			ptr->lightPosition[i] = lightPosition[i];
 
-		UnmapBuffer(deviceContext, 1, &m_lightPositionBuffer, setVS);
+		UnmapVertexBuffer(deviceContext, 1, &m_lightPositionBuffer);
 	}
 
 	if (ShaderUsesBuffer(m_fragName, "LightColor"))
@@ -462,7 +463,7 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		for (int i = 0; i < NUM_POINT_LIGHTS; i++)
 			ptr->diffuseColor[i] = diffuseColor[i];
 
-		UnmapBuffer(deviceContext, 1, &m_lightColorBuffer, setPS);
+		UnmapFragmentBuffer(deviceContext, 1, &m_lightColorBuffer);
 	}
 
 	if (ShaderUsesBuffer(m_fragName, "Light"))
@@ -477,7 +478,7 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		ptr->specularColor = params->light.specularColor;
 		ptr->specularPower = params->light.specularPower;
 
-		UnmapBuffer(deviceContext, 2, &m_lightBuffer, setPS);
+		UnmapFragmentBuffer(deviceContext, 2, &m_lightBuffer);
 	}
 
 	if (ShaderUsesBuffer(m_fragName, "Pixel"))
@@ -488,7 +489,7 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 
 		ptr->pixelColor = params->pixel.pixelColor;
 
-		UnmapBuffer(deviceContext, 0, &m_pixelBuffer, setPS);
+		UnmapFragmentBuffer(deviceContext, 0, &m_pixelBuffer);
 	}
 
 	if (ShaderUsesBuffer(m_fragName, "TexTranslation"))
@@ -500,7 +501,7 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		ptr->translation = params->textureTranslation.translation;
 		ptr->timeMultiplier = params->textureTranslation.timeMultiplier;
 
-		UnmapBuffer(deviceContext, 3, &m_texTransBuffer, setPS);
+		UnmapFragmentBuffer(deviceContext, 3, &m_texTransBuffer);
 	}
 
 	if (ShaderUsesBuffer(m_fragName, "Alpha"))
@@ -511,7 +512,7 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 
 		ptr->alphaBlend = params->alpha.alphaBlend;
 
-		UnmapBuffer(deviceContext, 4, &m_alphaBuffer, setPS);
+		UnmapFragmentBuffer(deviceContext, 4, &m_alphaBuffer);
 	}
 
 	if (ShaderUsesBuffer(m_fragName, "Water"))
@@ -522,7 +523,7 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 
 		ptr->reflectRefractScale = params->water.reflectRefractScale;
 
-		UnmapBuffer(deviceContext, 5, &m_waterBuffer, setPS);
+		UnmapFragmentBuffer(deviceContext, 5, &m_waterBuffer);
 	}
 
 	if (ShaderUsesBuffer(m_fragName, "Fire"))
@@ -537,7 +538,7 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		ptr->distortionScale = params->fire.distortionScale;
 		ptr->distortionBias = params->fire.distortionBias;
 
-		UnmapBuffer(deviceContext, 1, &m_fireBuffer, setPS);
+		UnmapFragmentBuffer(deviceContext, 1, &m_fireBuffer);
 	}
 
 	if (ShaderUsesBuffer(m_fragName, "Shadow"))
@@ -557,7 +558,7 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		ptr->shadowBias = params->shadow.shadowBias;
 		ptr->shadowCutOff = params->shadow.shadowCutOff;
 
-		UnmapBuffer(deviceContext, 5, &m_shadowBuffer, setPS);
+		UnmapFragmentBuffer(deviceContext, 5, &m_shadowBuffer);
 	}
 
 	if (ShaderUsesBuffer(m_fragName, "Blur"))
@@ -571,7 +572,7 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		for (int i = 0; i < BLUR_SAMPLE_SPREAD; i++)
 			ptr->weights[i] = params->blur.weights[i];
 
-		UnmapBuffer(deviceContext, 1, &m_blurBuffer, setPS);
+		UnmapFragmentBuffer(deviceContext, 1, &m_blurBuffer);
 	}
 
 	if (ShaderUsesBuffer(m_fragName, "Filter"))
@@ -594,8 +595,8 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		ptr->vignetteStrength = params->filter.vignetteStrength;
 		ptr->grainIntensity = params->filter.grainIntensity;
 
-		UnmapBuffer(deviceContext, 1, &m_filterBuffer, setPS);
-	}
+		UnmapFragmentBuffer(deviceContext, 1, &m_filterBuffer);
+	}	
 
 	return true;
 }
@@ -711,14 +712,24 @@ bool ShaderClass::ShaderUsesBuffer(std::string shader, std::string buffer)
 		return buffer == "Matrix";
 	}
 
+	if (shader == "Ocean.hs")
+		return buffer == "Tess";
+	if (shader == "Ocean.ds")
+		return buffer == "Matrix";
+	if (shader == "Ocean.ps")
+		return buffer == "Util";
+
 	return false;
 }
 
-void ShaderClass::UnmapBuffer(ID3D11DeviceContext* deviceContext, int bufferNumber, ID3D11Buffer** buffer, bool setToVertexShader)
+void ShaderClass::UnmapVertexBuffer(ID3D11DeviceContext* deviceContext, int bufferNumber, ID3D11Buffer** buffer)
 {
 	deviceContext->Unmap(*buffer, 0);
-	if (setToVertexShader)
-		deviceContext->VSSetConstantBuffers(bufferNumber, 1, buffer);
-	else
-		deviceContext->PSSetConstantBuffers(bufferNumber, 1, buffer);
+	deviceContext->VSSetConstantBuffers(bufferNumber, 1, buffer);
+}
+
+void ShaderClass::UnmapFragmentBuffer(ID3D11DeviceContext* deviceContext, int bufferNumber, ID3D11Buffer** buffer)
+{
+	deviceContext->Unmap(*buffer, 0);
+	deviceContext->PSSetConstantBuffers(bufferNumber, 1, buffer);
 }

@@ -6,6 +6,7 @@ ModelClass::ModelClass()
 	m_indexBuffer = 0;
 	m_model = 0;
 	m_boundingRadius = 0;
+	m_primitiveControlPointPatchList = false;
 }
 
 
@@ -43,6 +44,11 @@ int ModelClass::GetIndexCount()
 float ModelClass::GetBoundingRadius() 
 {
 	return m_boundingRadius;
+}
+
+void ModelClass::SetPrimitiveControlPointPatchList(bool enabled)
+{
+	m_primitiveControlPointPatchList = enabled;
 }
 
 bool ModelClass::InitializeBuffers(ID3D11Device* device)
@@ -139,7 +145,12 @@ void ModelClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
 	deviceContext->IASetVertexBuffers(0, 1, &m_vertexBuffer, &stride, &offset);
 	deviceContext->IASetIndexBuffer(m_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-	// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
+	if (m_primitiveControlPointPatchList)
+	{
+		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
+		return;
+	}
+
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
