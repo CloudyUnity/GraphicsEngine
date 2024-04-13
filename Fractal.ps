@@ -19,22 +19,6 @@ cbuffer UtilBuffer: register(b0)
     float pad4;
 };
 
-struct PixelInputType
-{
-    float4 position : SV_POSITION0;
-    float4 worldPos : POSITION1;
-
-    float2 tex : TEXCOORD0;
-    float3 normal : NORMAL;
-    float3 tangent : TANGENT;
-    float3 binormal : BINORMAL;    
-    float3 viewDirection : TEXCOORD1;
-    float fogFactor : FOG;
-    float clip : SV_ClipDistance0;
-
-    float3 lightPos[NUM_LIGHTS] : TEXCOORD2;
-};
-
 cbuffer LightBuffer : register(b2)
 {
     float4 ambientColor;
@@ -57,6 +41,22 @@ cbuffer AlphaBuffer : register(b4)
     float alphaPad1;
     float alphaPad2;
     float alphaPad3;
+};
+
+struct PixelInputType
+{
+    float4 position : SV_POSITION0;
+    float4 worldPos : POSITION1;
+
+    float2 tex : TEXCOORD0;
+    float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAL;    
+    float3 viewDirection : TEXCOORD1;
+    float fogFactor : FOG;
+    float clip : SV_ClipDistance0;
+
+    float3 lightPos[NUM_LIGHTS] : TEXCOORD2;
 };
 
 float4 PS_MAIN(PixelInputType input) : SV_TARGET

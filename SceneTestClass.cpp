@@ -1,4 +1,5 @@
 #include "SceneTestClass.h"
+#include "ShaderWaterClass.h"
 
 SceneTestClass::SceneTestClass()
 {
@@ -42,25 +43,33 @@ bool SceneTestClass::InitializeScene(HWND hwnd)
 
 	// SHADERS	
 
-	bool clampSamplerMode = true;
-	ShaderClass* shaderMain = 0, * shaderReflect = 0, * shaderWater = 0, * shader2D = 0, * shaderFont = 0,
-		* shaderFractal = 0, * shaderFire = 0, * shaderBlur = 0, * shaderFilter = 0, * shaderSkybox = 0, * shaderPS = 0,
-		* shaderPortal = 0;
+	ShaderFogClass* shaderMain = 0;
+	ShaderReflectClass* shaderReflect = 0;
+	Shader2DClass* shader2D = 0;
+	ShaderFontClass* shaderFont = 0;
+	ShaderFractalClass* shaderFractal = 0;
+	ShaderFireClass* shaderFire = 0;
+	ShaderBlurClass* shaderBlur = 0;
+	ShaderFilterClass* shaderFilter = 0;
+	ShaderSkyboxClass* shaderSkybox = 0;
+	ShaderParticleClass* shaderPS = 0;
+	ShaderPortalClass* shaderPortal = 0;
+	ShaderWaterClass* shaderWater = 0;
 	result =
-		CreateShader(hwnd, &shaderMain, "../GraphicsEngine/Fog.vs", "../GraphicsEngine/Fog.ps") &&
-		CreateShader(hwnd, &shaderReflect, "../GraphicsEngine/Reflect.vs", "../GraphicsEngine/Reflect.ps") &&
-		CreateShader(hwnd, &shaderWater, "../GraphicsEngine/Water.vs", "../GraphicsEngine/Water.ps") &&
-		CreateShader(hwnd, &shader2D, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/2D.ps") &&
-		CreateShader(hwnd, &shaderFont, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/Font.ps") &&
-		CreateShader(hwnd, &shaderFire, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/Fire.ps", clampSamplerMode) &&
-		CreateShader(hwnd, &shaderBlur, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/Blur.ps") &&
-		CreateShader(hwnd, &shaderFilter, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/Filter.ps") &&
-		CreateShader(hwnd, &shaderSkybox, "../GraphicsEngine/Skybox.vs", "../GraphicsEngine/Skybox.ps", clampSamplerMode) &&
-		CreateShader(hwnd, &shaderPS, "../GraphicsEngine/Particle.vs", "../GraphicsEngine/Particle.ps") &&
-		CreateShader(hwnd, &shaderPortal, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/Portal.ps") &&
-		CreateShader(hwnd, &shaderFractal, "../GraphicsEngine/Fog.vs", "../GraphicsEngine/Fractal.ps");
+		CreateShader(hwnd, &shaderMain) &&
+		CreateShader(hwnd, &shaderReflect) &&
+		CreateShader(hwnd, &shaderWater) &&
+		CreateShader(hwnd, &shader2D) &&
+		CreateShader(hwnd, &shaderFont) &&
+		CreateShader(hwnd, &shaderFire) &&
+		CreateShader(hwnd, &shaderBlur) &&
+		CreateShader(hwnd, &shaderFilter) &&
+		CreateShader(hwnd, &shaderSkybox) &&
+		CreateShader(hwnd, &shaderPS) &&
+		CreateShader(hwnd, &shaderPortal) &&
+		CreateShader(hwnd, &shaderFractal);
 	if (!result)
-		return false;
+		return false;	
 
 	// TEXSETS
 
@@ -135,7 +144,7 @@ bool SceneTestClass::InitializeScene(HWND hwnd)
 	float waterSize = 2;
 	bool opaque = false, transparent = true;
 
-	GameObjectClass* waterGO = 0, * waterCubeGO = 0, * fireGO, * floorGO;	
+	GameObjectClass* waterGO = 0, * waterCubeGO = 0, * fireGO, * floorGO;
 	CreateGameObject(modelMadeline, shaderMain, texSetMoss, opaque, "Madeline1", &m_MadelineGO1);
 	CreateGameObject(modelMadeline, shaderMain, texSetStars, opaque, "Madeline2", &m_MadelineGO2);
 	CreateGameObject(modelIcosphere, shaderMain, texSetMoss, opaque, "IcosphereBig", &m_IcosphereGO);
@@ -275,8 +284,8 @@ bool SceneTestClass::InitializeScene(HWND hwnd)
 
 	int portalResolution = 1024;
 
-	RenderTextureClass* rendMainDisplay=0, *rendPortal1=0, *rendPortal2=0, *rendDepth = 0, *rendPP1 = 0, *rendPP2 = 0, *rendPP3 = 0;
-	result = 
+	RenderTextureClass* rendMainDisplay = 0, * rendPortal1 = 0, * rendPortal2 = 0, * rendDepth = 0, * rendPP1 = 0, * rendPP2 = 0, * rendPP3 = 0;
+	result =
 		CreateRenderTexture(&rendMainDisplay, device, baseTexScale, baseTexScale, SCREEN_DEPTH, SCREEN_NEAR, format) &&
 		CreateRenderTexture(&rendPortal1, device, portalResolution, portalResolution, SCREEN_DEPTH, SCREEN_NEAR, format) &&
 		CreateRenderTexture(&rendPortal2, device, portalResolution, portalResolution, SCREEN_DEPTH, SCREEN_NEAR, format) &&
@@ -292,8 +301,8 @@ bool SceneTestClass::InitializeScene(HWND hwnd)
 	float displayHeight = 1.0f;
 	bool postProcess = true;
 
-	DisplayPlaneClass* displayPP1 = 0, * displayPP2 = 0, * displayPP3 = 0;	
-	result = 
+	DisplayPlaneClass* displayPP1 = 0, * displayPP2 = 0, * displayPP3 = 0;
+	result =
 		CreateDisplayPlane(&m_DisplayPlane, device, displayWidth, displayHeight, rendMainDisplay, shader2D, "MainDisplay", m_Camera) &&
 		CreateDisplayPlane(&displayPP1, device, SCREEN_X, SCREEN_Y, rendPP1, shaderBlur, "Display PP1", postProcess) &&
 		CreateDisplayPlane(&displayPP2, device, SCREEN_X, SCREEN_Y, rendPP2, shaderBlur, "Display PP2", postProcess) &&
@@ -404,26 +413,35 @@ void SceneTestClass::SetDirLight(float x, float y, float z)
 
 	XMVECTOR lightPos = XMVectorSet(x, y, z, 0);
 	lightPos = XMVectorScale(lightPos, -m_settings->m_CurrentData.ShadowMapDistance);
-	m_lightViewMatrix = XMMatrixLookAtLH(lightPos, XMVectorSet(0, 0, 0, 0), XMVectorSet(0, 1, 0, 0));	
+	m_lightView = XMMatrixLookAtLH(lightPos, XMVectorSet(0, 0, 0, 0), XMVectorSet(0, 1, 0, 0));
 }
 
-void SceneTestClass::SetParameters(ShaderClass::ShaderParameters* params)
+void SceneTestClass::SetParameters(ApplicationClass::GlobalParametersType* params)
 {
 	for (int i = 0; i < NUM_POINT_LIGHTS; i++)
 	{
-		params->lightColor.diffuseColor[i] = m_Lights[i].GetDiffuseColor();
-		params->lightPos.lightPosition[i] = m_Lights[i].GetPosition();
+		params->LightColorValues.diffuseColor[i] = m_Lights[i].GetDiffuseColor();
+		params->LightPosValues.lightPosition[i] = m_Lights[i].GetPosition();
 	}
 
-	params->light.ambientColor = m_DirLight->GetAmbientColor();
-	params->light.diffuseColor = m_DirLight->GetDiffuseColor();
-	params->light.lightDirection = m_DirLight->GetDirection();
-	params->light.specularColor = m_DirLight->GetSpecularColor();
-	params->light.specularPower = m_DirLight->GetSpecularPower();
+	params->LightValues.ambientColor = m_DirLight->GetAmbientColor();
+	params->LightValues.diffuseColor = m_DirLight->GetDiffuseColor();
+	params->LightValues.lightDirection = m_DirLight->GetDirection();
+	params->LightValues.specularColor = m_DirLight->GetSpecularColor();
+	params->LightValues.specularPower = m_DirLight->GetSpecularPower();
 
-	params->camera.cameraPosition = m_Camera->GetPosition();
+	params->CameraValues.cameraPosition = m_Camera->GetPosition();
+	params->ShadowValues.shadowView = m_lightView;
 
-	params->shadow.shadowView = m_lightViewMatrix;
+	float fogStart = 0.0f;
+	float fogEnd = 20.0f;
+	if (!m_settings->m_CurrentData.FogEnabled)
+	{
+		fogStart = -9999999.0f;
+		fogEnd = 999999999.0f;
+	}
+	shaderMain->m_CBufferFog.BufferValues.fogStart = fogStart;
+	shaderMain->m_CBufferFog.BufferValues.fogEnd = fogEnd;
 }
 
 void SceneTestClass::OnSwitchTo()

@@ -16,8 +16,8 @@ bool SceneOceanClass::InitializeScene(HWND hwnd)
 	ID3D11DeviceContext* context = m_Direct3D->GetDeviceContext();
 
 	bool clampSamplerMode = true;
-	ShaderClass* shaderMain = 0;
-	result = CreateShader(hwnd, &shaderMain, "../GraphicsEngine/Fog.vs", "../GraphicsEngine/Fog.ps");
+	ShaderFogClass* shaderMain = 0;
+	result = CreateShader(hwnd, &shaderMain);
 	if (!result)
 		return false;
 
@@ -49,7 +49,7 @@ bool SceneOceanClass::LateFrame(InputClass* input, float frameTime)
 	return true;
 }
 
-void SceneOceanClass::SetParameters(ShaderClass::ShaderParameters*)
+void SceneOceanClass::SetParameters()
 {
 }
 

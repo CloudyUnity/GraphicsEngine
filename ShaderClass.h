@@ -25,30 +25,46 @@ using std::unique_ptr;
 
 class ShaderClass : public IShutdown
 {
-private:
+public:
+	struct BufferType {};
+
+	struct CBufferType
+	{
+		ID3D11Buffer* BufferPtr;
+		BufferType BufferValues;
+		BufferType* MappedPtr;
+
+		CBufferType(BufferType values)
+		{
+			BufferPtr = nullptr;
+			BufferValues = values;
+			MappedPtr = nullptr;
+		}
+	};	
+
 	// XMMATRIX = 4x4 floats = 64 bytes
-	struct MatrixBufferType // 192 bytes
+	struct MatrixBufferType : public BufferType // 192 bytes
 	{
 		XMMATRIX world; 
 		XMMATRIX view;
 		XMMATRIX projection;
 	};
-	struct UtilBufferType // 16 bytes
+	struct UtilBufferType : public BufferType // 16 bytes
 	{
 		float time;
 		float texelSizeX;
 		float texelSizeY;
 		float padding;
 	};
-	struct LightColorBufferType // 16n bytes
+	struct LightColorBufferType : public BufferType // 16n bytes
 	{
 		XMFLOAT4 diffuseColor[NUM_LIGHTS];
 	};
-	struct LightPositionBufferType // 16n bytes
+	struct LightPositionBufferType : public BufferType // 16n bytes
 	{
 		XMFLOAT4 lightPosition[NUM_LIGHTS];
 	};
-	struct LightBufferType // 64 bytes
+	struct LightBufferType : public BufferType // 64 bytes
 	{
 		XMFLOAT4 ambientColor;
 		XMFLOAT4 diffuseColor;
@@ -58,58 +74,58 @@ private:
 
 		XMFLOAT4 specularColor;
 	};
-	struct CameraBufferType // 16 bytes
+	struct CameraBufferType : public BufferType // 16 bytes
 	{
 		XMFLOAT3 cameraPosition;
 		float padding;
 	};
-	struct PixelBufferType // 16 bytes
+	struct PixelBufferType : public BufferType // 16 bytes
 	{
 		XMFLOAT4 pixelColor;
 	};
-	struct FogBufferType // 16 bytes
+	struct FogBufferType : public BufferType // 16 bytes
 	{
 		float fogStart;
 		float fogEnd;
 
 		float pad1, pad2;
 	};
-	struct ClipPlaneBufferType // 16 bytes
+	struct ClipPlaneBufferType : public BufferType // 16 bytes
 	{
 		XMFLOAT4 clipPlane;
 	};
-	struct TexTranslationBufferType // 16 bytes
+	struct TexTranslationBufferType : public BufferType // 16 bytes
 	{
 		XMFLOAT2 translation;
 		float timeMultiplier;
 		float pad;
 	};
-	struct AlphaBufferType // 16 bytes
+	struct AlphaBufferType : public BufferType // 16 bytes
 	{
 		float alphaBlend;
 		float pad1, pad2, pad3;
 	};
-	struct ReflectionBufferType // 64 bytes
+	struct ReflectionBufferType : public BufferType // 64 bytes
 	{
 		XMMATRIX reflectionMatrix;
 	};
-	struct WaterBufferType // 16 bytes
+	struct WaterBufferType : public BufferType // 16 bytes
 	{
 		float reflectRefractScale;
 		XMFLOAT3 padding;
 	};
-	struct FireBufferType // 32 bytes
+	struct FireBufferType : public BufferType // 32 bytes
 	{
 		XMFLOAT2 distortion1, distortion2, distortion3;
 		float distortionScale, distortionBias;
 	};
-	struct ShadowBufferType
+	struct ShadowBufferType : public BufferType
 	{
 		XMMATRIX shadowView, shadowProj; 
 		float usingShadows, poissonSpread, shadowBias, shadowCutOff;
 		XMFLOAT4 poissonDisk[NUM_POISSON_SAMPLES];		
 	};
-	struct BlurBufferType // 16 + 16n bytes 
+	struct BlurBufferType : public BufferType // 16 + 16n bytes 
 	{
 		float blurMode;
 
@@ -117,7 +133,7 @@ private:
 
 		XMFLOAT4 weights[BLUR_SAMPLE_SPREAD];
 	};
-	struct FilterBufferType
+	struct FilterBufferType : public BufferType
 	{
 		BOOL grainEnabled, monochromeEnabled, sharpnessEnabled, chromaticEnabled, vignetteEnabled;
 
@@ -127,58 +143,34 @@ private:
 	};
 
 public:
-	struct ShaderParameters
-	{
-		MatrixBufferType matrix;
-		UtilBufferType utils;
-		LightColorBufferType lightColor;
-		LightPositionBufferType lightPos;
-		LightBufferType light;
-		CameraBufferType camera;
-		PixelBufferType pixel;
-		FogBufferType fog;
-		ClipPlaneBufferType clip;
-		TexTranslationBufferType textureTranslation;
-		AlphaBufferType alpha;
-		ReflectionBufferType reflection;
-		WaterBufferType water;
-		FireBufferType fire;
-		ShadowBufferType shadow;
-		BlurBufferType blur;
-		FilterBufferType filter;
-
-		bool reflectionEnabled;
-	};
-
-public:
 	ShaderClass();
 	~ShaderClass();
 
-	bool Initialize(ID3D11Device*, HWND, char*, char*, bool clampSamplerMode = false);
+	virtual bool Initialize(ID3D11Device*, HWND);
 	void Shutdown() override;
-	bool Render(ID3D11DeviceContext*, int, TextureSetClass*, ShaderParameters*);
+	bool Render(ID3D11DeviceContext*, int, TextureSetClass*);
 
-private:
-	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*, bool);
-	bool TryCreateBuffer(ID3D11Device* device, D3D11_BUFFER_DESC bufferDesc, ID3D11Buffer*& ptr, size_t structSize, string, string);
+protected:
+	bool InitializeShader(ID3D11Device*, HWND, const char*, const char*, bool, bool);	
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
-	bool SetShaderParameters(ID3D11DeviceContext*, TextureSetClass*, ShaderParameters*);
+	virtual bool SetShaderParameters(ID3D11DeviceContext*, TextureSetClass*);
 	void RenderShader(ID3D11DeviceContext*, int);
+	void UnmapVertexBuffer(ID3D11DeviceContext* deviceContext, int bufferNumber, ID3D11Buffer** buffer);
+	void UnmapFragmentBuffer(ID3D11DeviceContext* deviceContext, int bufferNumber, ID3D11Buffer** buffer);
+	bool TryCreateBuffer(ID3D11Device* device, BufferType);
 
-	bool ShaderUsesBuffer(std::string, std::string);
-
-private:
+protected:
 	ID3D11VertexShader* m_vertexShader;
 	ID3D11PixelShader* m_pixelShader;
-	ID3D11InputLayout* m_layout;
-	ID3D11Buffer* m_matrixBuffer, * m_utilBuffer, * m_lightColorBuffer, * m_lightPositionBuffer, * m_lightBuffer, * m_cameraBuffer, * m_pixelBuffer, * m_fogBuffer,
-		* m_clipBuffer, * m_texTransBuffer, * m_alphaBuffer, * m_reflectionBuffer, * m_waterBuffer, * m_fireBuffer, * m_shadowBuffer, * m_blurBuffer, * m_filterBuffer;
+	ID3D11InputLayout* m_layout;	
 	ID3D11SamplerState* m_sampleState;
 
-	std::string m_vertexName, m_fragName;
-
 	vector<ID3D11Buffer*> m_bufferList;
+
+	D3D11_BUFFER_DESC m_bufferDesc;
+
+	vector<CBufferType> m_cbufferList;
 
 	template <typename T>
 	bool TryMapBuffer(ID3D11DeviceContext* deviceContext, ID3D11Buffer** buffer, T** outPtr)
@@ -192,9 +184,7 @@ private:
 		*outPtr = (T*)mappedResource.pData;
 
 		return true;
-	}
-
-	void UnmapBuffer(ID3D11DeviceContext* deviceContext, int bufferNumber, ID3D11Buffer** buffer, bool);
+	}	
 };
 
 #endif
