@@ -43,7 +43,7 @@ bool SceneClass::LateFrame(InputClass* input, float frameTime)
 	return true;
 }
 
-void SceneClass::SetParameters(ShaderClass::ShaderParameters*)
+void SceneClass::SetParameters(ApplicationClass::GlobalParametersType*)
 {
 }
 
@@ -80,26 +80,6 @@ bool SceneClass::CreateModel(HWND hwnd, ModelClass** ptr, const char* name)
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
-		return false;
-	}
-
-	m_loadedAssetsList.push_back(*ptr);
-
-	return true;
-}
-
-bool SceneClass::CreateShader(HWND hwnd, ShaderClass** ptr, const char* vertexName, const char* fragName, bool clamp)
-{
-	char vertexShader[128], fragShader[128];
-
-	strcpy_s(vertexShader, vertexName);
-	strcpy_s(fragShader, fragName);
-
-	*ptr = new ShaderClass;
-	bool result = (*ptr)->Initialize(m_Direct3D->GetDevice(), hwnd, vertexShader, fragShader, clamp);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 		return false;
 	}
 

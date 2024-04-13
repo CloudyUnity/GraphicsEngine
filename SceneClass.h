@@ -15,6 +15,19 @@
 #include "rendertextureclass.h"
 #include "displayplaneclass.h"
 #include "ParticleSystemClass.h"
+#include "ApplicationClass.h"
+
+#include "ShaderFogClass.h"
+#include "ShaderReflectClass.h"
+#include "Shader2DClass.h"
+#include "ShaderFontClass.h"
+#include "ShaderFractalClass.h"
+#include "ShaderFireClass.h"
+#include "ShaderFilterClass.h"
+#include "ShaderSkyboxClass.h"
+#include "ShaderParticleClass.h"
+#include "ShaderPortalClass.h"
+#include "ShaderBlurClass.h"
 
 class RenderClass;
 
@@ -35,7 +48,7 @@ public:
 		vector<ParticleSystemClass*> PsList;
 
 		vector<DisplayPlaneClass*> DisplayPlaneList;
-		vector<DisplayPlaneClass*> PostProcessingLayers;
+		vector<DisplayPlaneClass*> PostProcessingLayers;		
 	};
 
 	SceneClass();
@@ -46,7 +59,7 @@ public:
     bool ParticlesFrame(float frameTime);
 	virtual bool Frame(InputClass*, float frameTime);
 	virtual bool LateFrame(InputClass* input, float frameTime);
-	virtual void SetParameters(ShaderClass::ShaderParameters*);
+	virtual void SetParameters(ApplicationClass::GlobalParametersType*);
 	virtual void OnSwitchTo();
 	void Shutdown() override;
 
@@ -55,8 +68,7 @@ public:
 	bool m_InitializedScene;
 
 protected:
-	bool CreateModel(HWND, ModelClass**, const char*);
-	bool CreateShader(HWND, ShaderClass**, const char*, const char*, bool clampSamplerMode = false);
+	bool CreateModel(HWND, ModelClass**, const char*);	
 	void CreateGameObject(ModelClass*, ShaderClass*, TextureSetClass*, bool, const char*, GameObjectClass** ptr = nullptr);
 	void CreateGameObject2D(BitmapClass*, ShaderClass*, GameObjectClass2D** ptr = nullptr);
 	bool CreateText(TextClass** ptr, ShaderClass* shader, FontClass*, int maxLength);
@@ -70,6 +82,9 @@ protected:
 	void SubscribeToRefraction(GameObjectClass* goPtr, int, int);
 	void SubscribeToShadow(GameObjectClass* goPtr, int);
 
+	template <typename T>
+	bool CreateShader(HWND, T**);
+
 	Settings* m_settings;
 	D3DClass* m_Direct3D;
 	RenderClass* m_RenderClass;
@@ -78,5 +93,21 @@ protected:
 
 	vector<IShutdown*> m_loadedAssetsList;
 };
+
+template <typename T>
+bool SceneClass::CreateShader(HWND hwnd, T** ptr)
+{
+	*ptr = new T();
+	bool result = (*ptr)->Initialize(m_Direct3D->GetDevice(), hwnd);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
+		return false;
+	}
+
+	m_loadedAssetsList.push_back(*ptr);
+
+	return true;
+}
 
 #endif

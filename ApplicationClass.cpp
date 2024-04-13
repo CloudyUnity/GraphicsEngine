@@ -1,5 +1,4 @@
 #include "ApplicationClass.h"
-#include "ModelParser.h"
 
 ApplicationClass::ApplicationClass()
 {
@@ -9,7 +8,6 @@ ApplicationClass::ApplicationClass()
 	m_Fps = 0;
 	m_RenderClass = 0;
 	m_Frustum = 0;
-	m_Parameters = 0;
 
 	m_FpsString = 0;
 	m_TextStringMouseBttn = 0;
@@ -31,7 +29,7 @@ bool ApplicationClass::Initialize(HWND hwnd)
 
 	m_Settings = new Settings(4);
 
-	m_Direct3D = new D3DClass;	
+	m_Direct3D = new D3DClass;
 	bool result = m_Direct3D->Initialize(SCREEN_X, SCREEN_Y, V_SYNC, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 	if (!result)
 	{
@@ -52,31 +50,26 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	m_Fps = new FpsClass();
 	m_Fps->Initialize();
 
-	ShaderClass* shader2D = 0;
-	result = InitializeShader(hwnd, &shader2D, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/2D.ps");
+	Shader2DClass* shader2D = 0;
+	ShaderDepthClass* shaderDepth = 0;
+	ShaderFontClass* shaderFont = 0;
+	result =
+		CreateShader(hwnd, &shader2D) &&
+		CreateShader(hwnd, &shaderDepth) &&
+		CreateShader(hwnd, &shaderFont);
 	if (!result)
 		return false;
 
 	m_RenderClass = new RenderClass;
 	result = m_RenderClass->Initialize(m_Direct3D, m_Frustum, m_Settings, shader2D);
 	if (!result)
-		return false;		
-
-	m_startTime = std::chrono::high_resolution_clock::now();
-
-	m_Parameters = new ShaderClass::ShaderParameters;
-	UpdateParameters();
-
-	// SHADERS
-
-	ShaderClass* shaderDepth = 0, * shaderFont = 0;
-	result = 
-		InitializeShader(hwnd, &shaderFont, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/Font.ps") &&
-		InitializeShader(hwnd, &shaderDepth, "../GraphicsEngine/Depth.vs", "../GraphicsEngine/Depth.ps");
-	if (!result)
 		return false;
 
 	m_RenderClass->SetDepthShader(shaderDepth);
+
+	m_startTime = std::chrono::high_resolution_clock::now();
+
+	UpdateParameters();	
 
 	// TEXT
 
@@ -87,10 +80,10 @@ bool ApplicationClass::Initialize(HWND hwnd)
 
 	int maxLength = 32;
 	result =
-		InitializeTextClass(&m_FpsString, shaderFont, m_Font, maxLength) &&
-		InitializeTextClass(&m_TextStringMouseX, shaderFont, m_Font, maxLength) &&
-		InitializeTextClass(&m_TextStringMouseY, shaderFont, m_Font, maxLength) &&
-		InitializeTextClass(&m_TextStringMouseBttn, shaderFont, m_Font, maxLength);
+		CreateText(&m_FpsString, shaderFont, m_Font, maxLength) &&
+		CreateText(&m_TextStringMouseX, shaderFont, m_Font, maxLength) &&
+		CreateText(&m_TextStringMouseY, shaderFont, m_Font, maxLength) &&
+		CreateText(&m_TextStringMouseBttn, shaderFont, m_Font, maxLength);
 	if (!result)
 		return false;
 
@@ -116,27 +109,7 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	m_currentScene->m_InitializedScene = true;
 }
 
-bool ApplicationClass::InitializeShader(HWND hwnd, ShaderClass** ptr, const char* vertexName, const char* fragName, bool clamp)
-{
-	char vertexShader[128], fragShader[128];
-
-	strcpy_s(vertexShader, vertexName);
-	strcpy_s(fragShader, fragName);
-
-	*ptr = new ShaderClass;
-	bool result = (*ptr)->Initialize(m_Direct3D->GetDevice(), hwnd, vertexShader, fragShader, clamp);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
-		return false;
-	}
-
-	m_loadedAssetsList.push_back(*ptr);
-
-	return true;
-}
-
-bool ApplicationClass::InitializeTextClass(TextClass** ptr, ShaderClass* shader, FontClass* font, int maxLength)
+bool ApplicationClass::CreateText(TextClass** ptr, ShaderClass* shader, FontClass* font, int maxLength)
 {
 	*ptr = new TextClass;
 	bool result = (*ptr)->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), SCREEN_X, SCREEN_Y, maxLength, shader);
@@ -155,7 +128,7 @@ void ApplicationClass::UpdateParameters()
 {
 	m_Parameters->utils.texelSizeX = 1.0f / (SCREEN_X * m_Settings->m_CurrentData.DownScaleMult);
 	m_Parameters->utils.texelSizeY = 1.0f / (SCREEN_Y * m_Settings->m_CurrentData.DownScaleMult);
-	
+
 	if (!m_Settings->m_CurrentData.FogEnabled)
 	{
 		m_Parameters->fog.fogStart = -9999999.0f;
@@ -247,7 +220,7 @@ void ApplicationClass::Shutdown()
 	{
 		delete m_Fps;
 		m_Fps = 0;
-	}	
+	}
 
 	if (m_Frustum)
 	{
@@ -275,7 +248,7 @@ bool ApplicationClass::Frame(HWND hwnd, InputClass* input)
 
 	m_Timer->Frame();
 	float frameTime = m_Timer->GetTime();
-	
+
 	if (input->GetKeyDown(DIK_ESCAPE))
 		return false;
 
@@ -287,7 +260,7 @@ bool ApplicationClass::Frame(HWND hwnd, InputClass* input)
 
 	bool mouseDown = input->IsMousePressed();
 	if (!UpdateMouseStrings(mouseX, mouseY, mouseDown))
-		return false;	
+		return false;
 
 	m_Fps->Frame();
 
@@ -310,10 +283,10 @@ bool ApplicationClass::SwitchScene(HWND hwnd)
 			continue;
 
 		int newIndex = (i + 1) % m_sceneList.size();
-		m_currentScene = m_sceneList.at(newIndex);		
+		m_currentScene = m_sceneList.at(newIndex);
 		if (!m_currentScene->m_InitializedScene)
 		{
-			m_currentScene->InitializeScene(hwnd);			
+			m_currentScene->InitializeScene(hwnd);
 			m_currentScene->m_InitializedScene = true;
 		}
 		m_currentScene->OnSwitchTo();
@@ -336,11 +309,11 @@ bool ApplicationClass::Render()
 	sceneData = *(m_currentScene->GetSceneData());
 	for (auto overlayText : m_overlayTextList)
 		sceneData.TextList.push_back(overlayText);
-	
+
 	result = m_RenderClass->Render(m_Settings, m_Parameters, &sceneData);
 	if (!result)
 		return false;
-	
+
 	return true;
 }
 
@@ -351,11 +324,11 @@ bool ApplicationClass::UpdateMouseStrings(int mouseX, int mouseY, bool mouseDown
 	sprintf_s(str, "Mouse X: %d", mouseX);
 	m_TextStringMouseX->SetText(str);
 
-	sprintf_s(str, "Mouse Y: %d", mouseY);	
+	sprintf_s(str, "Mouse Y: %d", mouseY);
 	m_TextStringMouseY->SetText(str);
 
 	sprintf_s(str, sizeof(str), "Mouse Button: %s", (mouseDown ? "Yes" : "No"));
-	m_TextStringMouseBttn->SetText(str);	
+	m_TextStringMouseBttn->SetText(str);
 
 	return m_TextStringMouseX->UpdateText() && m_TextStringMouseY->UpdateText() && m_TextStringMouseBttn->UpdateText();
 }

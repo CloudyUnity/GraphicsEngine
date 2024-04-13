@@ -13,7 +13,7 @@ public:
 
 	bool Frame(InputClass*, float frameTime) override;
 	bool LateFrame(InputClass* input, float frameTime) override;
-	void SetParameters(ShaderClass::ShaderParameters*) override;
+	void SetParameters(ApplicationClass::GlobalParametersType*) override;
 	void OnSwitchTo() override;
 	void Shutdown();
 	
@@ -35,7 +35,7 @@ private:
 
 	XMVECTOR m_previousPortalOffset1;
 	XMVECTOR m_previousPortalOffset2;
-	XMMATRIX m_lightViewMatrix;
+	XMMATRIX m_lightView;
 };
 
 #endif

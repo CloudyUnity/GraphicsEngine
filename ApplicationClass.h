@@ -25,6 +25,8 @@
 #include "IShutdown.h"
 #include "SceneTestClass.h"
 #include "SceneOceanClass.h"
+#include "ModelParser.h"
+#include "ShaderDepthClass.h"
 
 using std::vector;
 using std::string;
@@ -36,12 +38,21 @@ using std::unique_ptr;
 class ApplicationClass : IShutdown
 {
 public:
+	struct GlobalParametersType
+	{
+		ShaderClass::UtilBufferType Utils;
+
+		ShaderClass::LightBufferType LightValues;
+		ShaderClass::LightPositionBufferType LightPosValues;
+		ShaderClass::LightColorBufferType LightColorValues;
+		ShaderClass::CameraBufferType CameraValues;
+		ShaderClass::ShadowBufferType ShadowValues;
+	};
 	ApplicationClass();
 	~ApplicationClass();
 
 	bool Initialize(HWND);
-	bool InitializeShader(HWND, ShaderClass**, const char*, const char*, bool clampSamplerMode = false);
-	bool InitializeTextClass(TextClass** ptr, ShaderClass* shader, FontClass*, int maxLength);
+	bool CreateText(TextClass** ptr, ShaderClass* shader, FontClass*, int maxLength);
 
 	void UpdateParameters();
 
@@ -55,13 +66,15 @@ private:
 	bool Render();
 	bool UpdateMouseStrings(int, int, bool);	
 
+	template <typename T>
+	bool CreateShader(HWND, T**);
+
 private:
 	D3DClass* m_Direct3D;	
 	RenderClass* m_RenderClass;
 	TimerClass* m_Timer;
 	FpsClass* m_Fps;
 	FrustumClass* m_Frustum;
-	ShaderClass::ShaderParameters* m_Parameters;
 	Settings* m_Settings;
 	FontClass* m_Font; // Shutdown
 
@@ -74,5 +87,21 @@ private:
 	SceneClass* m_currentScene;
 	vector<SceneClass*> m_sceneList;
 };
+
+template <typename T>
+bool SceneClass::CreateShader(HWND hwnd, T** ptr)
+{
+	*ptr = new T();
+	bool result = (*ptr)->Initialize(m_Direct3D->GetDevice(), hwnd);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
+		return false;
+	}
+
+	m_loadedAssetsList.push_back(*ptr);
+
+	return true;
+}
 
 #endif

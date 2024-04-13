@@ -230,11 +230,11 @@ bool RenderClass::RenderGameObjects(RenderInfoType* renderInfo, bool transparent
 		if (go->m_NameIdentifier == "IcosphereBig")
 			renderInfo->Params->clip.clipPlane = XMFLOAT4(0.0f, -1.0f, 0.0f, 2.5f);
 
-		if (go->m_BackCullingDisabled)
-			m_Direct3D->SetBackCulling(renderInfo->Settings->m_CurrentData.WireframeMode, false);
-
 		if (go->m_NameIdentifier == "Skybox" && !renderInfo->Settings->m_CurrentData.SkyboxEnabled)
 			continue;
+
+		if (go->m_BackCullingDisabled)
+			m_Direct3D->SetBackCulling(renderInfo->Settings->m_CurrentData.WireframeMode, false);
 
 		renderInfo->Params->reflection.reflectionMatrix = go->GetReflectionMatrix();
 		renderInfo->Params->shadow.usingShadows = renderInfo->Settings->m_CurrentData.ShadowsEnabled && go->IsSubscribedToShadows();
