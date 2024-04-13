@@ -5,10 +5,18 @@ cbuffer MatrixBuffer : register(b0)
     matrix projectionMatrix;
 };
 
+cbuffer UtilBuffer: register(b1)
+{
+    float time;
+    float texelX;
+    float texelY;
+    float pad4;
+};
+
 struct ConstantOutputType
 {
-    float edges[4] : SV_TessFactor;
-    float inside[2] : SV_InsideTessFactor;
+    float edges[3] : SV_TessFactor;
+    float inside : SV_InsideTessFactor;
 };
 
 struct DomainInputType
@@ -29,16 +37,17 @@ struct PixelInputType
     float3 binormal : BINORMAL;    
 };
 
-[domain("quad")]
+[domain("tri")]
 
-PixelInputType DS_MAIN(ConstantOutputType input, float2 uvwCoord : SV_DomainLocation, const OutputPatch<DomainInputType, 4> patch)
+PixelInputType DS_MAIN(ConstantOutputType input, float3 uvwCoord : SV_DomainLocation, const OutputPatch<DomainInputType, 3> patch)
 {
     float4 vertexPosition;
     float3 vertexNormal, vertexTangent, vertexBinormal;
     PixelInputType output; 
 
     // Determine the position of the new vertex.
-    vertexPosition = lerp(lerp(patch[0].position, patch[1].position, uvwCoord.x), lerp(patch[3].position, patch[2].position, uvwCoord.x), uvwCoord.y);
+    vertexPosition = uvwCoord.x * patch[0].position + uvwCoord.y * patch[1].position + uvwCoord.z * patch[2].position;
+    vertexPosition.y += sin(time + vertexPosition.x) * 3 + 3;
     vertexPosition.w = 1.0f;
     
     // Calculate the position of the new vertex against the world, view, and projection matrices.
@@ -46,11 +55,11 @@ PixelInputType DS_MAIN(ConstantOutputType input, float2 uvwCoord : SV_DomainLoca
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
 
-    output.tex = lerp(lerp(patch[0].tex, patch[1].tex, uvwCoord.x), lerp(patch[3].tex, patch[2].tex, uvwCoord.x), uvwCoord.y);
+    output.tex = uvwCoord.x * patch[0].tex + uvwCoord.y * patch[1].tex + uvwCoord.z * patch[2].tex;
 
-    vertexNormal = lerp(lerp(patch[0].normal, patch[1].normal, uvwCoord.x), lerp(patch[3].normal, patch[2].normal, uvwCoord.x), uvwCoord.y);
-    vertexTangent = lerp(lerp(patch[0].tangent, patch[1].tangent, uvwCoord.x), lerp(patch[3].tangent, patch[2].tangent, uvwCoord.x), uvwCoord.y);
-    vertexBinormal = lerp(lerp(patch[0].binormal, patch[1].binormal, uvwCoord.x), lerp(patch[3].binormal, patch[2].binormal, uvwCoord.x), uvwCoord.y);
+    vertexNormal = uvwCoord.x * patch[0].normal + uvwCoord.y * patch[1].normal + uvwCoord.z * patch[2].normal;
+    vertexTangent = uvwCoord.x * patch[0].tangent + uvwCoord.y * patch[1].tangent + uvwCoord.z * patch[2].tangent;
+    vertexBinormal = uvwCoord.x * patch[0].binormal + uvwCoord.y * patch[1].binormal + uvwCoord.z * patch[2].binormal;
 
     output.normal = mul(vertexNormal, (float3x3)worldMatrix);	
     output.normal = normalize(output.normal);

@@ -17,9 +17,10 @@ bool SceneOceanClass::InitializeScene(HWND hwnd)
 
 	bool clampSamplerMode = true;
 	ShaderClass* shaderFractal = 0;
-	ShaderTessClass* shaderOcean = 0;
+	ShaderTessClass* shaderOcean = 0, * shaderOceanTri = 0;
 	result = 
 		CreateShader(hwnd, &shaderOcean, "../GraphicsEngine/Ocean.vs", "../GraphicsEngine/Ocean.hs", "../GraphicsEngine/Ocean.ds", "../GraphicsEngine/Ocean.ps") &&
+		CreateShader(hwnd, &shaderOceanTri, "../GraphicsEngine/Ocean.vs", "../GraphicsEngine/OceanTri.hs", "../GraphicsEngine/OceanTri.ds", "../GraphicsEngine/Ocean.ps") &&
 		CreateShader(hwnd, &shaderFractal, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/Fractal.ps");
 	if (!result)
 		return false;
@@ -35,9 +36,13 @@ bool SceneOceanClass::InitializeScene(HWND hwnd)
 	if (!result)
 		return false;
 
-	modelPlane->SetPrimitiveControlPointPatchList(true);
+	modelPlane->SetPrimitiveControlPointPatchList(3);
+	modelCube->SetPrimitiveControlPointPatchList(3);
 
-	CreateGameObject(modelPlane, shaderOcean, texSetOcean, false, "Ocean", &m_GoOcean);
+	//GameObjectClass* goTest;
+	//CreateGameObject(modelCube, shaderOceanTri, texSetOcean, false, "Test", &goTest);
+
+	CreateGameObject(modelPlane, shaderOceanTri, texSetOcean, false, "Ocean", &m_GoOcean);
 	m_GoOcean->SetScale(10, 1, 10);
 	m_GoOcean->SetPosition(0, -5, 10);
 

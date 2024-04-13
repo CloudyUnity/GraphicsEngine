@@ -712,10 +712,10 @@ bool ShaderClass::ShaderUsesBuffer(std::string shader, std::string buffer)
 		return buffer == "Matrix";
 	}
 
-	if (shader == "Ocean.hs")
+	if (shader == "Ocean.hs" || shader == "OceanTri.hs")
 		return buffer == "Tess";
-	if (shader == "Ocean.ds")
-		return buffer == "Matrix";
+	if (shader == "Ocean.ds" || shader == "OceanTri.ds")
+		return buffer == "Matrix" || buffer == "Util";
 	if (shader == "Ocean.ps")
 		return buffer == "Util";
 

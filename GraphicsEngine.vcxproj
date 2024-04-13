@@ -217,6 +217,8 @@
     <None Include="Ocean.hs" />
     <None Include="Ocean.ps" />
     <None Include="Ocean.vs" />
+    <None Include="OceanTri.ds" />
+    <None Include="OceanTri.hs" />
     <None Include="Particle.ps" />
     <None Include="Particle.vs" />
     <None Include="Portal.ps" />
