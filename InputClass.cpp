@@ -91,6 +91,9 @@ bool InputClass::Frame()
 {
 	bool result;
 
+	for (int i = 0; i < 256; i++)
+		m_keyboardStateLast[i] = m_keyboardState[i];
+
 	result = ReadKeyboard();
 	if (!result)
 		return false;
@@ -150,69 +153,73 @@ void InputClass::ProcessInput()
 	m_mouseY = cursorPos.y;
 }
 
-bool InputClass::IsKeyPressed(unsigned char keyCode)
+bool InputClass::GetKey(unsigned char keyCode)
 {
-	// Do a bitwise and on the keyboard state to check if the escape key is currently being pressed.
 	return m_keyboardState[keyCode] & 0x80;
+}
+
+bool InputClass::GetKeyDown(unsigned char keyCode)
+{
+	return (m_keyboardStateLast[keyCode] & 0x80) == 0 && (m_keyboardState[keyCode] & 0x80) != 0;
 }
 
 bool InputClass::IsNumberPressed(int& outNumber)
 {
-	if (IsKeyPressed(DIK_0))
+	if (GetKey(DIK_0))
 	{
 		outNumber = 0;
 		return true;
 	}
 
-	if (IsKeyPressed(DIK_1))
+	if (GetKey(DIK_1))
 	{
 		outNumber = 1;
 		return true;
 	}
 
-	if (IsKeyPressed(DIK_2))
+	if (GetKey(DIK_2))
 	{
 		outNumber = 2;
 		return true;
 	}
 
-	if (IsKeyPressed(DIK_3))
+	if (GetKey(DIK_3))
 	{
 		outNumber = 3;
 		return true;
 	}
 
-	if (IsKeyPressed(DIK_4))
+	if (GetKey(DIK_4))
 	{
 		outNumber = 4;
 		return true;
 	}
 
-	if (IsKeyPressed(DIK_5))
+	if (GetKey(DIK_5))
 	{
 		outNumber = 5;
 		return true;
 	}
 
-	if (IsKeyPressed(DIK_6))
+	if (GetKey(DIK_6))
 	{
 		outNumber = 6;
 		return true;
 	}
 
-	if (IsKeyPressed(DIK_7))
+	if (GetKey(DIK_7))
 	{
 		outNumber = 7;
 		return true;
 	}
 
-	if (IsKeyPressed(DIK_8))
+	if (GetKey(DIK_8))
 	{
 		outNumber = 8;
 		return true;
 	}
 
-	if (IsKeyPressed(DIK_9))
+	if (GetKey(DIK_9))
 	{
 		outNumber = 9;
 		return true;

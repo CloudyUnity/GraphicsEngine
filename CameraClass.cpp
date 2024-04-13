@@ -110,18 +110,18 @@ void CameraClass::Frame(InputClass* Input, float frameTime, float camSpeed, floa
 	float sinZ = (float)sin(m_rotationZ * (float)DEG_TO_RAD);
 	float cosZ = (float)cos(m_rotationZ * (float)DEG_TO_RAD);
 
-	if (Input->IsKeyPressed(DIK_C))
+	if (Input->GetKey(DIK_C))
 	{
-		if (Input->IsKeyPressed(DIK_A))
+		if (Input->GetKey(DIK_A))
 			m_rotationZ += rotSpeed;
 
-		if (Input->IsKeyPressed(DIK_D))
+		if (Input->GetKey(DIK_D))
 			m_rotationZ -= rotSpeed;
 
-		if (Input->IsKeyPressed(DIK_W))
+		if (Input->GetKey(DIK_W))
 			m_rotationX += rotSpeed;
 
-		if (Input->IsKeyPressed(DIK_S))
+		if (Input->GetKey(DIK_S))
 			m_rotationX -= rotSpeed;
 
 		m_rotationX = (float)fmod(m_rotationX, 360);
@@ -130,47 +130,47 @@ void CameraClass::Frame(InputClass* Input, float frameTime, float camSpeed, floa
 		return;
 	}
 
-	if (Input->IsKeyPressed(DIK_A))
+	if (Input->GetKey(DIK_A))
 	{
 		m_positionX -= cosY * cosZ * speed;
 		m_positionY -= sinZ * speed;
 		m_positionZ += sinY * cosZ * speed;
 	}
 
-	if (Input->IsKeyPressed(DIK_D))
+	if (Input->GetKey(DIK_D))
 	{
 		m_positionX += cosY * cosZ * speed;
 		m_positionY += sinZ * speed;
 		m_positionZ -= sinY * cosZ * speed;
 	}
 
-	if (Input->IsKeyPressed(DIK_W))
+	if (Input->GetKey(DIK_W))
 	{
 		m_positionX += sinY * speed;
 		m_positionZ += cosY * speed;
 	}
 
-	if (Input->IsKeyPressed(DIK_S))
+	if (Input->GetKey(DIK_S))
 	{
 		m_positionX -= sinY * speed;
 		m_positionZ -= cosY * speed;
 	}
 
-	if (Input->IsKeyPressed(DIK_E))
+	if (Input->GetKey(DIK_E))
 		m_positionY += speed;
 
-	if (Input->IsKeyPressed(DIK_Q))
+	if (Input->GetKey(DIK_Q))
 		m_positionY -= speed;
 
-	if (Input->IsKeyPressed(DIK_X))
+	if (Input->GetKey(DIK_X))
 		m_rotationY += rotSpeed;
 
-	if (Input->IsKeyPressed(DIK_Z))
+	if (Input->GetKey(DIK_Z))
 		m_rotationY -= rotSpeed;
 
 	m_rotationY = (float)fmod(m_rotationY, 360);
 
-	if (Input->IsKeyPressed(DIK_R)) {
+	if (Input->GetKey(DIK_R)) {
 		m_positionX = 0;
 		m_positionY = 0;
 		m_positionZ = -5.0f;

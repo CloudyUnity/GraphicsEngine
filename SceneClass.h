@@ -30,23 +30,29 @@ public:
 		vector<GameObjectClass*> GoShadowList;
 
 		vector<GameObjectClass2D*> Go2DList;
-		vector<TextClass*> TextList;		
-		vector<DisplayPlaneClass*> DisplayPlaneList;
+		vector<TextClass*> TextList;				
+
 		vector<ParticleSystemClass*> PsList;
+
+		vector<DisplayPlaneClass*> DisplayPlaneList;
+		vector<DisplayPlaneClass*> PostProcessingLayers;
 	};
 
 	SceneClass();
 
-    bool InitializeMembers(Settings* settings, D3DClass* d3d);
-	virtual bool InitializeScene(HWND hwnd, RenderClass* renderClass);
+    bool InitializeMembers(Settings* settings, D3DClass* d3d, RenderClass* renderClass);
+	virtual bool InitializeScene(HWND hwnd);
 
     bool ParticlesFrame(float frameTime);
 	virtual bool Frame(InputClass*, float frameTime);
 	virtual bool LateFrame(InputClass* input, float frameTime);
 	virtual void SetParameters(ShaderClass::ShaderParameters*);
+	virtual void OnSwitchTo();
 	void Shutdown() override;
 
 	SceneDataType* GetSceneData();
+
+	bool m_InitializedScene;
 
 protected:
 	bool CreateModel(HWND, ModelClass**, const char*);
@@ -58,7 +64,7 @@ protected:
 	bool CreateBitmap(BitmapClass**, const char*);
 	bool CreateParticleSystem(ParticleSystemClass**, ParticleSystemClass::ParticleSystemData, ShaderClass*, TextureSetClass*, const char*);
 	bool CreateRenderTexture(RenderTextureClass**, ID3D11Device*, int, int, float, float, int);
-	bool CreateDisplayPlane(DisplayPlaneClass**, ID3D11Device*, float, float, RenderTextureClass*, ShaderClass*, const char*, bool render = true, CameraClass* cam = nullptr);
+	bool CreateDisplayPlane(DisplayPlaneClass**, ID3D11Device*, float, float, RenderTextureClass*, ShaderClass*, const char*, bool postProcess = false, CameraClass* cam = nullptr);
 
 	void SubscribeToReflection(GameObjectClass* goPtr, int, int);
 	void SubscribeToRefraction(GameObjectClass* goPtr, int, int);
@@ -66,6 +72,7 @@ protected:
 
 	Settings* m_settings;
 	D3DClass* m_Direct3D;
+	RenderClass* m_RenderClass;
 	vector<ParticleSystemClass*> m_renderedPSList;
 	SceneDataType* m_sceneData;
 

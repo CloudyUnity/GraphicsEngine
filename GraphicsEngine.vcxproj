@@ -155,6 +155,7 @@
     <ClInclude Include="RenderClass.h" />
     <ClInclude Include="RenderTextureClass.h" />
     <ClInclude Include="SceneClass.h" />
+    <ClInclude Include="SceneOceanClass.h" />
     <ClInclude Include="SceneTestClass.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="SystemClass.h" />
@@ -186,6 +187,7 @@
     <ClCompile Include="RenderClass.cpp" />
     <ClCompile Include="RenderTextureClass.cpp" />
     <ClCompile Include="SceneClass.cpp" />
+    <ClCompile Include="SceneOceanClass.cpp" />
     <ClCompile Include="SceneTestClass.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="SystemClass.cpp" />

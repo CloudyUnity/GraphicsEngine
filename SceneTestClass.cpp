@@ -27,20 +27,15 @@ SceneTestClass::SceneTestClass()
 
 	m_cursorGO2D = 0;
 	m_spinnerGO2D = 0;
-
-	m_dirLightX = 0;
-	m_dirLightY = 0;
-	m_dirLightZ = 0;
 }
 
-bool SceneTestClass::InitializeScene(HWND hwnd, RenderClass* renderClass)
+bool SceneTestClass::InitializeScene(HWND hwnd)
 {
 	bool result;
 
 	m_Camera = new CameraClass;
 	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
 	m_Camera->Initialize2DView();
-	renderClass->SetCurrentCamera(m_Camera);
 
 	ID3D11Device* device = m_Direct3D->GetDevice();
 	ID3D11DeviceContext* context = m_Direct3D->GetDeviceContext();
@@ -137,10 +132,10 @@ bool SceneTestClass::InitializeScene(HWND hwnd, RenderClass* renderClass)
 
 	// GAMEOBJECTS
 
-	GameObjectClass* waterGO = 0, * waterCubeGO = 0, * fireGO, * floorGO;
 	float waterSize = 2;
 	bool opaque = false, transparent = true;
 
+	GameObjectClass* waterGO = 0, * waterCubeGO = 0, * fireGO, * floorGO;	
 	CreateGameObject(modelMadeline, shaderMain, texSetMoss, opaque, "Madeline1", &m_MadelineGO1);
 	CreateGameObject(modelMadeline, shaderMain, texSetStars, opaque, "Madeline2", &m_MadelineGO2);
 	CreateGameObject(modelIcosphere, shaderMain, texSetMoss, opaque, "IcosphereBig", &m_IcosphereGO);
@@ -224,10 +219,6 @@ bool SceneTestClass::InitializeScene(HWND hwnd, RenderClass* renderClass)
 
 	// LIGHTS
 
-	m_dirLightX = -1.0f;
-	m_dirLightY = -1.0f;
-	m_dirLightZ = -1.0f;
-
 	m_Lights = new LightClass[NUM_POINT_LIGHTS];
 
 	m_Lights[0].SetDiffuseColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -245,7 +236,7 @@ bool SceneTestClass::InitializeScene(HWND hwnd, RenderClass* renderClass)
 	m_DirLight = new LightClass();
 	m_DirLight->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
 	m_DirLight->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-	m_DirLight->SetDirection(m_dirLightX, m_dirLightY, m_dirLightZ);
+	m_DirLight->SetDirection(0, 0, 0);
 	m_DirLight->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_DirLight->SetSpecularPower(32.0f);
 
@@ -285,7 +276,6 @@ bool SceneTestClass::InitializeScene(HWND hwnd, RenderClass* renderClass)
 	int portalResolution = 1024;
 
 	RenderTextureClass* rendMainDisplay=0, *rendPortal1=0, *rendPortal2=0, *rendDepth = 0, *rendPP1 = 0, *rendPP2 = 0, *rendPP3 = 0;
-
 	result = 
 		CreateRenderTexture(&rendMainDisplay, device, baseTexScale, baseTexScale, SCREEN_DEPTH, SCREEN_NEAR, format) &&
 		CreateRenderTexture(&rendPortal1, device, portalResolution, portalResolution, SCREEN_DEPTH, SCREEN_NEAR, format) &&
@@ -300,14 +290,14 @@ bool SceneTestClass::InitializeScene(HWND hwnd, RenderClass* renderClass)
 
 	float displayWidth = 1.0f;
 	float displayHeight = 1.0f;
+	bool postProcess = true;
 
-	DisplayPlaneClass* displayPP1 = 0, * displayPP2 = 0, * displayPP3 = 0;
-
+	DisplayPlaneClass* displayPP1 = 0, * displayPP2 = 0, * displayPP3 = 0;	
 	result = 
 		CreateDisplayPlane(&m_DisplayPlane, device, displayWidth, displayHeight, rendMainDisplay, shader2D, "MainDisplay", m_Camera) &&
-		CreateDisplayPlane(&displayPP1, device, SCREEN_X, SCREEN_Y, rendPP1, shaderBlur, "Display PP1", false) &&
-		CreateDisplayPlane(&displayPP2, device, SCREEN_X, SCREEN_Y, rendPP2, shaderBlur, "Display PP2", false) &&
-		CreateDisplayPlane(&displayPP3, device, SCREEN_X, SCREEN_Y, rendPP3, shaderFilter, "Display PP3", false) &&
+		CreateDisplayPlane(&displayPP1, device, SCREEN_X, SCREEN_Y, rendPP1, shaderBlur, "Display PP1", postProcess) &&
+		CreateDisplayPlane(&displayPP2, device, SCREEN_X, SCREEN_Y, rendPP2, shaderBlur, "Display PP2", postProcess) &&
+		CreateDisplayPlane(&displayPP3, device, SCREEN_X, SCREEN_Y, rendPP3, shaderFilter, "Display PP3", postProcess) &&
 		CreateDisplayPlane(&m_DisplayPortal1, device, displayWidth, displayHeight, rendPortal1, shaderPortal, "Display Portal1") &&
 		CreateDisplayPlane(&m_DisplayPortal2, device, displayWidth, displayHeight, rendPortal2, shaderPortal, "Display Portal2");
 	if (!result)
@@ -318,9 +308,6 @@ bool SceneTestClass::InitializeScene(HWND hwnd, RenderClass* renderClass)
 	displayPP1->SetScale(displaySize, displaySize, displaySize);
 	displayPP2->SetScale(displaySize, displaySize, displaySize);
 	displayPP3->SetScale(displaySize, displaySize, displaySize);
-	renderClass->AddPostProcessingLayer(displayPP1);
-	renderClass->AddPostProcessingLayer(displayPP2);
-	renderClass->AddPostProcessingLayer(displayPP3);
 
 	m_DisplayPortal1->SetPosition(8, 0.0f, 0);
 	m_DisplayPortal1->SetRotation(0, 0, 0);
@@ -413,10 +400,6 @@ bool SceneTestClass::LateFrame(InputClass* input, float frameTime)
 
 void SceneTestClass::SetDirLight(float x, float y, float z)
 {
-	m_dirLightX = x;
-	m_dirLightY = y;
-	m_dirLightZ = z;
-
 	m_DirLight->SetDirection(x, y, z);
 
 	XMVECTOR lightPos = XMVectorSet(x, y, z, 0);
@@ -441,6 +424,11 @@ void SceneTestClass::SetParameters(ShaderClass::ShaderParameters* params)
 	params->camera.cameraPosition = m_Camera->GetPosition();
 
 	params->shadow.shadowView = m_lightViewMatrix;
+}
+
+void SceneTestClass::OnSwitchTo()
+{
+	m_RenderClass->SetCurrentCamera(m_Camera);
 }
 
 void SceneTestClass::Shutdown()

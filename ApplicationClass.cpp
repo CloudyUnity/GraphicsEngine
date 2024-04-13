@@ -62,11 +62,7 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	if (!result)
 		return false;		
 
-	// VARIABLES
-
 	m_startTime = std::chrono::high_resolution_clock::now();
-
-	// PARAMETERS
 
 	m_Parameters = new ShaderClass::ShaderParameters;
 	UpdateParameters();
@@ -107,11 +103,17 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	// SCENES
 
 	SceneTestClass* sceneTest = new SceneTestClass();
-	sceneTest->InitializeMembers(m_Settings, m_Direct3D);
+	sceneTest->InitializeMembers(m_Settings, m_Direct3D, m_RenderClass);
 	m_sceneList.push_back(sceneTest);
 
+	SceneOceanClass* sceneOcean = new SceneOceanClass();
+	sceneOcean->InitializeMembers(m_Settings, m_Direct3D, m_RenderClass);
+	m_sceneList.push_back(sceneOcean);
+
 	m_currentScene = sceneTest;
-	m_currentScene->InitializeScene(hwnd, m_RenderClass);
+	m_currentScene->InitializeScene(hwnd);
+	m_currentScene->OnSwitchTo();
+	m_currentScene->m_InitializedScene = true;
 }
 
 bool ApplicationClass::InitializeShader(HWND hwnd, ShaderClass** ptr, const char* vertexName, const char* fragName, bool clamp)
@@ -262,7 +264,7 @@ void ApplicationClass::Shutdown()
 	}
 }
 
-bool ApplicationClass::Frame(InputClass* input)
+bool ApplicationClass::Frame(HWND hwnd, InputClass* input)
 {
 	int outSettingsIndex;
 	if (input->IsNumberPressed(outSettingsIndex))
@@ -274,8 +276,11 @@ bool ApplicationClass::Frame(InputClass* input)
 	m_Timer->Frame();
 	float frameTime = m_Timer->GetTime();
 	
-	if (input->IsKeyPressed(DIK_ESCAPE))
+	if (input->GetKeyDown(DIK_ESCAPE))
 		return false;
+
+	if (input->GetKeyDown(DIK_SPACE))
+		SwitchScene(hwnd);
 
 	int mouseX, mouseY;
 	input->GetMouseLocation(mouseX, mouseY);
@@ -295,6 +300,27 @@ bool ApplicationClass::Frame(InputClass* input)
 bool ApplicationClass::LateFrame(InputClass* input, float frameTime)
 {
 	return m_currentScene->LateFrame(input, frameTime);
+}
+
+bool ApplicationClass::SwitchScene(HWND hwnd)
+{
+	for (int i = 0; i < m_sceneList.size(); i++)
+	{
+		if (m_sceneList.at(i) != m_currentScene)
+			continue;
+
+		int newIndex = (i + 1) % m_sceneList.size();
+		m_currentScene = m_sceneList.at(newIndex);		
+		if (!m_currentScene->m_InitializedScene)
+		{
+			m_currentScene->InitializeScene(hwnd);			
+			m_currentScene->m_InitializedScene = true;
+		}
+		m_currentScene->OnSwitchTo();
+		return true;
+	}
+
+	return false;
 }
 
 bool ApplicationClass::Render()

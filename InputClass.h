@@ -20,7 +20,8 @@ public:
     void Shutdown() override;
     bool Frame();
 
-    bool IsKeyPressed(unsigned char keyCode);
+    bool GetKey(unsigned char keyCode);
+    bool GetKeyDown(unsigned char keyCode);
     bool IsNumberPressed(int& outNumber);
     void GetMouseLocation(int&, int&);
     bool IsMousePressed();
@@ -35,6 +36,7 @@ private:
     IDirectInputDevice8* m_keyboard;
     IDirectInputDevice8* m_mouse;
     unsigned char m_keyboardState[256];
+    unsigned char m_keyboardStateLast[256];
     DIMOUSESTATE m_mouseState;
     int m_screenWidth, m_screenHeight, m_mouseX, m_mouseY;
     HWND m_hwnd;

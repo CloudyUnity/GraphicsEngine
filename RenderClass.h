@@ -39,7 +39,6 @@ public:
 	void RenderReflectionNextAvailableFrame();
 
 	void SetDepthShader(ShaderClass*);
-	void AddPostProcessingLayer(DisplayPlaneClass*);
 	void SetCurrentCamera(CameraClass* cam);
 
 	void ClearShaderResources();
@@ -62,7 +61,7 @@ private:
 
 	bool RenderPostProcessing(RenderInfoType*);
 
-	void ResetViewport(Settings*);
+	void ResetViewport(RenderInfoType*);
 
 private:
 	D3DClass* m_Direct3D;
@@ -72,7 +71,6 @@ private:
 	ShaderClass* m_depthShader;
 	RenderTextureClass* m_rendDepth; // Shutdown
 	DisplayPlaneClass* m_depthBufferDisplay;
-	vector<DisplayPlaneClass*> m_postProcessingLayers;
 
 	int m_framesSinceReflectionRender;
 	int m_framesSinceShadowMapRender;

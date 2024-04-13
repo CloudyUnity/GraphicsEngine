@@ -141,6 +141,9 @@
     <ClInclude Include="IShutdown.h">
       <Filter>Source Files\Interfaces</Filter>
     </ClInclude>
+    <ClInclude Include="SceneOceanClass.h">
+      <Filter>Source Files\Scenes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ApplicationClass.cpp">
@@ -229,6 +232,9 @@
     </ClCompile>
     <ClCompile Include="IShutdown.cpp">
       <Filter>Source Files\Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneOceanClass.cpp">
+      <Filter>Source Files\Scenes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

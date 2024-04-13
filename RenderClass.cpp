@@ -80,13 +80,13 @@ bool RenderClass::Render(Settings* settings, ShaderClass::ShaderParameters* para
 	renderInfo.Params = params;
 	renderInfo.Settings = settings;
 
-	if (settings->m_CurrentData.PostProcessingEnabled)
+	if (settings->m_CurrentData.PostProcessingEnabled && sceneData->PostProcessingLayers.size() > 0)
 	{
 		m_Direct3D->BeginScene(1, 0, 0, 1);
 
 		ClearShaderResources();
-		m_postProcessingLayers.at(0)->m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
-		m_postProcessingLayers.at(0)->m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0, 0, 1, fogA);
+		renderInfo.SceneData->PostProcessingLayers.at(0)->m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+		renderInfo.SceneData->PostProcessingLayers.at(0)->m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0, 0, 1, fogA);
 	}
 	else
 		m_Direct3D->BeginScene(fogR, fogG, fogB, fogA);
@@ -161,7 +161,7 @@ bool RenderClass::Render(Settings* settings, ShaderClass::ShaderParameters* para
 	if (!result)
 		return false;
 
-	if (settings->m_CurrentData.PostProcessingEnabled)
+	if (settings->m_CurrentData.PostProcessingEnabled && sceneData->PostProcessingLayers.size() > 0)
 	{
 		result = RenderPostProcessing(&renderInfo);
 		if (!result)
@@ -439,7 +439,7 @@ bool RenderClass::RenderToReflectionTexture(GameObjectClass* go, RenderInfoType*
 	if (!result)
 		return false;
 
-	ResetViewport(renderInfo->Settings);
+	ResetViewport(renderInfo);
 
 	renderInfo->Params->clip.clipPlane = clipPlane;
 
@@ -477,7 +477,7 @@ bool RenderClass::RenderToRefractionTexture(GameObjectClass* go, RenderInfoType*
 	if (!result)
 		return false;
 
-	ResetViewport(renderInfo->Settings);
+	ResetViewport(renderInfo);
 
 	renderInfo->Params->clip.clipPlane = clipPlane;
 
@@ -494,7 +494,7 @@ bool RenderClass::RenderToShadowTexture(RenderInfoType* renderInfo)
 	if (!result)
 		return false;
 
-	ResetViewport(renderInfo->Settings);
+	ResetViewport(renderInfo);
 
 	return true;
 }
@@ -517,7 +517,7 @@ bool RenderClass::RenderToTexture(RenderTextureClass* rendTex, RenderInfoType* r
 	if (!result)
 		return false;
 
-	ResetViewport(renderInfo->Settings);
+	ResetViewport(renderInfo);
 
 	return true;
 }
@@ -577,21 +577,16 @@ void RenderClass::SetDepthShader(ShaderClass* shader)
 	m_depthShader = shader;
 }
 
-void RenderClass::AddPostProcessingLayer(DisplayPlaneClass* display)
-{
-	m_postProcessingLayers.push_back(display);
-}
-
 void RenderClass::SetCurrentCamera(CameraClass* cam)
 {
 	m_Camera = cam;
 }
 
-void RenderClass::ResetViewport(Settings* settings)
+void RenderClass::ResetViewport(RenderInfoType* renderInfo)
 {
-	if (settings->m_CurrentData.PostProcessingEnabled)
+	if (renderInfo->Settings->m_CurrentData.PostProcessingEnabled && renderInfo->SceneData->PostProcessingLayers.size() > 0)
 	{
-		m_postProcessingLayers.at(0)->m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+		renderInfo->SceneData->PostProcessingLayers.at(0)->m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
 		return;
 	}
 
