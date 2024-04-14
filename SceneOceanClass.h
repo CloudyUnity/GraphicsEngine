@@ -3,6 +3,7 @@
 
 #include "SceneClass.h"
 #include "RenderClass.h"
+#include "ModelLineListClass.h"
 
 class SceneOceanClass : public SceneClass
 {
@@ -23,6 +24,9 @@ private:
 	LightClass* m_DirLight;
 
 	GameObjectClass* m_GoOcean;
+	ModelLineListClass* m_debugLineLight, *m_debugLineTangent, *m_debugLineBinormal, *m_debugLineNormal;
+	XMFLOAT4 m_oceanSines[SIN_COUNT];
+	float m_time;
 };
 
 #endif

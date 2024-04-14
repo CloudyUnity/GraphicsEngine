@@ -1,4 +1,4 @@
-#define SIN_COUNT 4
+#define SIN_COUNT 3
 
 cbuffer MatrixBuffer : register(b0)
 {
@@ -9,7 +9,7 @@ cbuffer MatrixBuffer : register(b0)
 
 cbuffer OceanSineBuffer : register(b1)
 {
-    float4 ampPhaseFreqXFreqZ[SIN_COUNT];
+    float4 ampPhaseFreq[SIN_COUNT];
 }
 
 cbuffer UtilBuffer: register(b2)
@@ -55,32 +55,32 @@ PixelInputType DS_MAIN(ConstantOutputType input, float3 uvwCoord : SV_DomainLoca
 
     // Determine the position of the new vertex.
     vertexPosition = uvwCoord.x * patch[0].position + uvwCoord.y * patch[1].position + uvwCoord.z * patch[2].position;
+    vertexPosition.w = 1.0f;
+    float4 worldPosition = mul(vertexPosition, worldMatrix);
 
     float ddx = 0;
     float ddz = 0;
 
+    float2 D = float2(1, 1);
+    float align = dot(D, worldPosition.xz);
+
+    // Debug
+    float t = time;
+
     for (int i = 0; i < SIN_COUNT; i++)
     {
-        float amp = ampPhaseFreqXFreqZ[i].x;
-        float phase = ampPhaseFreqXFreqZ[i].y;
-        float freqX = ampPhaseFreqXFreqZ[i].z;
-        float freqZ = ampPhaseFreqXFreqZ[i].w;
+        float amp = ampPhaseFreq[i].x;
+        float phase = ampPhaseFreq[i].y;
+        float freq = ampPhaseFreq[i].z;
 
-        float offset = freqX * vertexPosition.x + freqZ * vertexPosition.z;
+        vertexPosition.y += amp * sin(phase * t + align * freq);
 
-        vertexPosition.y += amp * sin(phase * time + offset);
-
-        ddx += amp * freqX * cos(phase * time + offset);
-        ddz += amp * freqZ * cos(phase * time + offset);
+        ddx += amp * freq * D.x * cos(phase * t + align * freq);
+        ddz += amp * freq * D.y * cos(phase * t + align * freq);
     }       
     
-    float3 tangent = float3(1, 0, ddx);
-    float3 binormal = float3(0, 1, ddz);
-    output.normal = normalize(cross(binormal, tangent));
-    // output.normal = mul(output.normal, (float3x3)worldMatrix);	
-    // output.normal = normalize(output.normal);
-
-    vertexPosition.w = 1.0f;
+    output.normal = float3(-ddx, 1, -ddz);
+    output.normal = normalize(output.normal);    
     
     // Calculate the position of the new vertex against the world, view, and projection matrices.
     output.position = mul(vertexPosition, worldMatrix);
@@ -88,8 +88,7 @@ PixelInputType DS_MAIN(ConstantOutputType input, float3 uvwCoord : SV_DomainLoca
     output.position = mul(output.position, projectionMatrix);
 
     output.tex = uvwCoord.x * patch[0].tex + uvwCoord.y * patch[1].tex + uvwCoord.z * patch[2].tex;
-
-    float4 worldPosition = mul(vertexPosition, worldMatrix);
+    
     output.viewDirection = normalize(cameraPosition.xyz - worldPosition.xyz);
 
     return output;
