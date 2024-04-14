@@ -128,6 +128,7 @@ bool ShaderTessClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* v
 		TryCreateBuffer(device, bufferDesc, m_matrixBuffer, sizeof(MatrixBufferType), m_domainName, "Matrix") &&
 		TryCreateBuffer(device, bufferDesc, m_utilBuffer, sizeof(UtilBufferType), m_domainName, "Util") &&
 		TryCreateBuffer(device, bufferDesc, m_oceanSineBuffer, sizeof(OceanSineBufferType), m_domainName, "OceanSine") &&
+		TryCreateBuffer(device, bufferDesc, m_cameraBuffer, sizeof(CameraBufferType), m_domainName, "Camera") &&
 		TryCreateBuffer(device, bufferDesc, m_tesselationBuffer, sizeof(TessellationBufferType), m_hullName, "Tess");
 	if (!result)
 		return false;
@@ -211,6 +212,17 @@ bool ShaderTessClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Te
 		}
 
 		UnmapDomainBuffer(deviceContext, 1, &m_oceanSineBuffer);
+	}
+
+	if (ShaderUsesBuffer(m_domainName, "Camera"))
+	{
+		CameraBufferType* ptr;
+		if (!TryMapBuffer(deviceContext, &m_cameraBuffer, &ptr))
+			return false;
+
+		ptr->cameraPosition = params->camera.cameraPosition;
+
+		UnmapDomainBuffer(deviceContext, 3, &m_cameraBuffer);
 	}
 
 	return true;

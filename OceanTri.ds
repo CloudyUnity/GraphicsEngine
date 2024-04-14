@@ -9,7 +9,7 @@ cbuffer MatrixBuffer : register(b0)
 
 cbuffer OceanSineBuffer : register(b1)
 {
-    float4 ampPhaseFreqXFreqY[SIN_COUNT];
+    float4 ampPhaseFreqXFreqZ[SIN_COUNT];
 }
 
 cbuffer UtilBuffer: register(b2)
@@ -18,6 +18,12 @@ cbuffer UtilBuffer: register(b2)
     float texelX;
     float texelY;
     float pad4;
+};
+
+cbuffer CameraBuffer : register(b3)
+{
+    float3 cameraPosition;
+    float padding;
 };
 
 struct ConstantOutputType
@@ -30,9 +36,6 @@ struct DomainInputType
 {
     float4 position : POSITION;
     float2 tex : TEXCOORD0;
-    float3 normal : NORMAL;
-    float3 tangent : TANGENT;
-    float3 binormal : BINORMAL;
 };
 
 struct PixelInputType
@@ -40,8 +43,7 @@ struct PixelInputType
     float4 position : SV_POSITION0;
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
-    float3 tangent : TANGENT;
-    float3 binormal : BINORMAL;    
+    float3 viewDirection : TEXCOORD1;
 };
 
 [domain("tri")]
@@ -49,17 +51,34 @@ struct PixelInputType
 PixelInputType DS_MAIN(ConstantOutputType input, float3 uvwCoord : SV_DomainLocation, const OutputPatch<DomainInputType, 3> patch)
 {
     float4 vertexPosition;
-    float3 vertexNormal, vertexTangent, vertexBinormal;
     PixelInputType output; 
 
     // Determine the position of the new vertex.
     vertexPosition = uvwCoord.x * patch[0].position + uvwCoord.y * patch[1].position + uvwCoord.z * patch[2].position;
 
+    float ddx = 0;
+    float ddz = 0;
+
     for (int i = 0; i < SIN_COUNT; i++)
     {
-        float offset = ampPhaseFreqXFreqY[i].z * vertexPosition.x * ampPhaseFreqXFreqY[i].w * vertexPosition.z;
-        vertexPosition.y += ampPhaseFreqXFreqY[i].x * sin(ampPhaseFreqXFreqY[i].y * time + offset);
-    }        
+        float amp = ampPhaseFreqXFreqZ[i].x;
+        float phase = ampPhaseFreqXFreqZ[i].y;
+        float freqX = ampPhaseFreqXFreqZ[i].z;
+        float freqZ = ampPhaseFreqXFreqZ[i].w;
+
+        float offset = freqX * vertexPosition.x + freqZ * vertexPosition.z;
+
+        vertexPosition.y += amp * sin(phase * time + offset);
+
+        ddx += amp * freqX * cos(phase * time + offset);
+        ddz += amp * freqZ * cos(phase * time + offset);
+    }       
+    
+    float3 tangent = float3(1, 0, ddx);
+    float3 binormal = float3(0, 1, ddz);
+    output.normal = normalize(cross(binormal, tangent));
+    // output.normal = mul(output.normal, (float3x3)worldMatrix);	
+    // output.normal = normalize(output.normal);
 
     vertexPosition.w = 1.0f;
     
@@ -70,18 +89,8 @@ PixelInputType DS_MAIN(ConstantOutputType input, float3 uvwCoord : SV_DomainLoca
 
     output.tex = uvwCoord.x * patch[0].tex + uvwCoord.y * patch[1].tex + uvwCoord.z * patch[2].tex;
 
-    vertexNormal = uvwCoord.x * patch[0].normal + uvwCoord.y * patch[1].normal + uvwCoord.z * patch[2].normal;
-    vertexTangent = uvwCoord.x * patch[0].tangent + uvwCoord.y * patch[1].tangent + uvwCoord.z * patch[2].tangent;
-    vertexBinormal = uvwCoord.x * patch[0].binormal + uvwCoord.y * patch[1].binormal + uvwCoord.z * patch[2].binormal;
-
-    output.normal = mul(vertexNormal, (float3x3)worldMatrix);	
-    output.normal = normalize(output.normal);
-
-    output.tangent = mul(vertexTangent, (float3x3)worldMatrix);
-    output.tangent = normalize(output.tangent);
-
-    output.binormal = mul(vertexBinormal, (float3x3)worldMatrix);
-    output.binormal = normalize(output.binormal);
+    float4 worldPosition = mul(vertexPosition, worldMatrix);
+    output.viewDirection = normalize(cameraPosition.xyz - worldPosition.xyz);
 
     return output;
 }

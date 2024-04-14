@@ -150,6 +150,7 @@
     <ClInclude Include="LightClass.h" />
     <ClInclude Include="MathUtilsClass.h" />
     <ClInclude Include="ModelClass.h" />
+    <ClInclude Include="ModelLineListClass.h" />
     <ClInclude Include="ModelParser.h" />
     <ClInclude Include="ParticleSystemClass.h" />
     <ClInclude Include="RenderClass.h" />
@@ -183,6 +184,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MathUtilsClass.cpp" />
     <ClCompile Include="ModelClass.cpp" />
+    <ClCompile Include="ModelLineListClass.cpp" />
     <ClCompile Include="ModelParser.cpp" />
     <ClCompile Include="ParticleSystemClass.cpp" />
     <ClCompile Include="RenderClass.cpp" />
@@ -210,6 +212,8 @@
     <None Include="Font.ps" />
     <None Include="Fractal.ps" />
     <None Include="Light.vs" />
+    <None Include="Line.ps" />
+    <None Include="Line.vs" />
     <None Include="MultiTex.ps" />
     <None Include="Blur.ps" />
     <None Include="Blur.vs" />

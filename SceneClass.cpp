@@ -88,6 +88,21 @@ bool SceneClass::CreateModel(HWND hwnd, ModelClass** ptr, const char* name)
 	return true;
 }
 
+bool SceneClass::CreateModel(HWND hwnd, ModelLineListClass** ptr, vector<XMFLOAT3> points)
+{
+	*ptr = new ModelLineListClass();
+	bool result = (*ptr)->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), points);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
+		return false;
+	}
+
+	m_loadedAssetsList.push_back(*ptr);
+
+	return true;
+}
+
 bool SceneClass::CreateShader(HWND hwnd, ShaderClass** ptr, const char* vertexName, const char* fragName, bool clamp)
 {
 	char vertexShader[128], fragShader[128];

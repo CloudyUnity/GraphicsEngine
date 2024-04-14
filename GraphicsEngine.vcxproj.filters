@@ -150,6 +150,9 @@
     <ClInclude Include="ShaderTessClass.h">
       <Filter>Source Files\Primitives</Filter>
     </ClInclude>
+    <ClInclude Include="ModelLineListClass.h">
+      <Filter>Source Files\Primitives</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ApplicationClass.cpp">
@@ -245,6 +248,9 @@
     <ClCompile Include="ShaderTessClass.cpp">
       <Filter>Source Files\Primitives</Filter>
     </ClCompile>
+    <ClCompile Include="ModelLineListClass.cpp">
+      <Filter>Source Files\Primitives</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Fog.vs">
@@ -333,6 +339,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="OceanTri.ds">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Line.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Line.ps">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
