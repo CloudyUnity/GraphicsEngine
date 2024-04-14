@@ -14,18 +14,12 @@ struct HullInputType
 {
     float4 position : POSITION;
     float2 tex : TEXCOORD0;
-    float3 normal : NORMAL;
-    float3 tangent : TANGENT;
-    float3 binormal : BINORMAL;
 };
 
 struct DomainInputType
 {
     float4 position : POSITION;
     float2 tex : TEXCOORD0;
-    float3 normal : NORMAL;
-    float3 tangent : TANGENT;
-    float3 binormal : BINORMAL;
 };
 
 ConstantOutputType PatchConstantFunction(InputPatch<HullInputType, 4> inputPatch, uint patchId : SV_PrimitiveID)
@@ -56,9 +50,6 @@ DomainInputType HS_MAIN(InputPatch<HullInputType, 4> patch, uint pointId : SV_Ou
 
     output.position = patch[pointId].position;
     output.tex = patch[pointId].tex;
-    output.normal = patch[pointId].normal;
-    output.tangent = patch[pointId].tangent;
-    output.binormal = patch[pointId].binormal;
 
     return output;
 }

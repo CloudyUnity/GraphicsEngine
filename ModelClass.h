@@ -46,7 +46,7 @@ public:
 	~ModelClass();
 
 	bool Initialize(ID3D11Device*, ID3D11DeviceContext*, char*);
-	void RenderBuffers(ID3D11DeviceContext*);
+	virtual void RenderBuffers(ID3D11DeviceContext*);
 	void Shutdown() override;
 
 	int GetIndexCount();
@@ -55,7 +55,7 @@ public:
 	void SetPrimitiveControlPointPatchList(int);
 
 private:
-	bool InitializeBuffers(ID3D11Device*);
+	virtual bool InitializeBuffers(ID3D11Device*);
 	void ShutdownBuffers();		
 	bool LoadModel(char*);
 	void ReleaseModel();
@@ -63,6 +63,7 @@ private:
 	void CalculateModelVectors();
 	void CalculateTangentBinormal(TempVertexType, TempVertexType, TempVertexType, VectorType&, VectorType&);	
 
+protected:
 	ID3D11Buffer* m_vertexBuffer, * m_indexBuffer;
 	int m_vertexCount, m_indexCount;	
 	ModelType* m_model;

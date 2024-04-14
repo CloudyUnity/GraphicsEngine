@@ -16,6 +16,7 @@
 #include "displayplaneclass.h"
 #include "ParticleSystemClass.h"
 #include "ShaderTessClass.h"
+#include "ModelLineListClass.h"
 
 class RenderClass;
 
@@ -57,6 +58,7 @@ public:
 
 protected:
 	bool CreateModel(HWND, ModelClass**, const char*);
+	bool CreateModel(HWND, ModelLineListClass**, vector<XMFLOAT3>);
 	bool CreateShader(HWND, ShaderClass**, const char*, const char*, bool clampSamplerMode = false);
 	bool CreateShader(HWND, ShaderTessClass**, const char*, const char*, const char*, const char*, bool clampSamplerMode = false);
 	void CreateGameObject(ModelClass*, ShaderClass*, TextureSetClass*, bool, const char*, GameObjectClass** ptr = nullptr);
