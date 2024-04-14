@@ -14,11 +14,13 @@ private:
 public:
 	bool Initialize(ID3D11Device*, ID3D11DeviceContext*, vector<XMFLOAT3>);
 	void RenderBuffers(ID3D11DeviceContext*) override;
+	bool UpdateBuffers(ID3D11DeviceContext*, vector<XMFLOAT3>);
 
 private:
 	bool InitializeBuffers(ID3D11Device*) override;
 
 	vector<XMFLOAT3> m_points;
+	LineVertexType* m_vertices;
 };
 
 #endif

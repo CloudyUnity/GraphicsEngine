@@ -238,6 +238,18 @@ bool RenderClass::RenderGameObjects(RenderInfoType* renderInfo, bool transparent
 		if (go->m_NameIdentifier == "Skybox" && !renderInfo->Settings->m_CurrentData.SkyboxEnabled)
 			continue;
 
+		if (go->m_NameIdentifier == "LineYellow")
+			renderInfo->Params->pixel.pixelColor = XMFLOAT4(1, 1, 0, 1);
+
+		if (go->m_NameIdentifier == "LineRed")
+			renderInfo->Params->pixel.pixelColor = XMFLOAT4(1, 0, 0, 1);
+
+		if (go->m_NameIdentifier == "LineBlue")
+			renderInfo->Params->pixel.pixelColor = XMFLOAT4(0, 0, 1, 1);
+
+		if (go->m_NameIdentifier == "LineGreen")
+			renderInfo->Params->pixel.pixelColor = XMFLOAT4(0, 1, 0, 1);
+
 		renderInfo->Params->reflection.reflectionMatrix = go->GetReflectionMatrix();
 		renderInfo->Params->shadow.usingShadows = renderInfo->Settings->m_CurrentData.ShadowsEnabled && go->IsSubscribedToShadows();
 
