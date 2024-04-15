@@ -51,6 +51,7 @@ public:
 
 	int GetIndexCount();
 	float GetBoundingRadius();	
+	void SetCustomBoundingRadius(float);
 
 	void SetPrimitiveControlPointPatchList(int);
 

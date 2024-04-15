@@ -61,7 +61,8 @@ protected:
 	bool CreateModel(HWND, ModelLineListClass**, vector<XMFLOAT3>);
 	bool CreateShader(HWND, ShaderClass**, const char*, const char*, bool clampSamplerMode = false);
 	bool CreateShader(HWND, ShaderTessClass**, const char*, const char*, const char*, const char*, bool clampSamplerMode = false);
-	void CreateGameObject(ModelClass*, ShaderClass*, TextureSetClass*, bool, const char*, GameObjectClass** ptr = nullptr);
+	void CreateGameObject(ModelClass*, ShaderClass*, TextureSetClass*, bool, const char*, GameObjectClass*& ptr);
+	void CreateGameObject(ModelClass*, ShaderClass*, TextureSetClass*, bool, const char*);
 	void CreateGameObject2D(BitmapClass*, ShaderClass*, GameObjectClass2D** ptr = nullptr);
 	bool CreateText(TextClass** ptr, ShaderClass* shader, FontClass*, int maxLength);
 	void CreateTexSet(TextureSetClass** ptr);

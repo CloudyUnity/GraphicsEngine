@@ -42,9 +42,9 @@ float4 PS_MAIN(PixelInputType input) : SV_TARGET
     if(intensity > 0.0f)
     {        
         colorSum += diffuseDirColor * intensity;
-        // float3 reflection = normalize(2.0f * intensity * input.normal + lightDirection); 
-        // float4 specular = pow(saturate(dot(reflection, input.viewDirection)), specularPower);
-        // colorSum += specular * specularColor;
+        float3 reflection = normalize(2.0f * intensity * input.normal + lightDirection); 
+        float4 specular = pow(saturate(dot(reflection, input.viewDirection)), specularPower);
+        colorSum += specular * specularColor;
     }
 
     float4 finalColor = saturate(saturate(colorSum));

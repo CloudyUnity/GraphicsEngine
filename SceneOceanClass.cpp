@@ -14,11 +14,11 @@ bool SceneOceanClass::InitializeScene(HWND hwnd)
 
 	float dirLightX = 0.0;
 	float dirLightY = -0.5f;
-	float dirLightZ = 1.0;
+	float dirLightZ = -1.0;
 
 	m_DirLight = new LightClass();
-	m_DirLight->SetAmbientColor(0.2f, 0.2f, 0.3f, 1.0f);
-	m_DirLight->SetDiffuseColor(0.8f, 1.0f, 1.0f, 1.0f);
+	m_DirLight->SetAmbientColor(0.0f, 0.106f, 0.15294f, 1.0f);
+	m_DirLight->SetDiffuseColor(0.2235f, 0.30588f, 0.34902f, 1.0f);
 	m_DirLight->SetDirection(dirLightX, dirLightY, dirLightZ);
 	m_DirLight->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_DirLight->SetSpecularPower(32.0f);
@@ -65,6 +65,7 @@ bool SceneOceanClass::InitializeScene(HWND hwnd)
 	bool usingTri = true;
 
 	modelPlane->SetPrimitiveControlPointPatchList(usingTri ? 3 : 4);
+	modelPlane->SetCustomBoundingRadius(modelPlane->GetBoundingRadius() * 2.0f);
 	modelCube->SetPrimitiveControlPointPatchList(3);
 
 	// GOS
@@ -72,23 +73,33 @@ bool SceneOceanClass::InitializeScene(HWND hwnd)
 	GameObjectClass* goTest;
 	// CreateGameObject(modelCube, shaderOceanTri, texSetOcean, false, "Test", &goTest);
 
-	GameObjectClass* debugLineGo, * debugLineTangent, * debugLineNormal, * debugLineBinormal;
-	CreateGameObject(m_debugLineLight, shaderLine, nullptr, false, "LineYellow", &debugLineGo);
-	CreateGameObject(m_debugLineNormal, shaderLine, nullptr, false, "LineBlue", &debugLineNormal);
-	CreateGameObject(m_debugLineTangent, shaderLine, nullptr, false, "LineRed", &debugLineTangent);
-	CreateGameObject(m_debugLineBinormal, shaderLine, nullptr, false, "LineGreen", &debugLineBinormal);
+	CreateGameObject(m_debugLineLight, shaderLine, nullptr, false, "LineYellow");
+	CreateGameObject(m_debugLineNormal, shaderLine, nullptr, false, "LineBlue");
+	//CreateGameObject(m_debugLineTangent, shaderLine, nullptr, false, "LineRed");
+	//CreateGameObject(m_debugLineBinormal, shaderLine, nullptr, false, "LineGreen");
 
-	CreateGameObject(modelPlane, (usingTri ? shaderOceanTri : shaderOcean), texSetOcean, false, "Ocean", &m_GoOcean);
-	m_GoOcean->SetScale(20, 1, 20);
-	m_GoOcean->SetPosition(0, 0, 0);
-	m_GoOcean->SetBackCulling(false);
+	bool detailMode = true;
+
+	float size = detailMode ? 1.5f : 10;
+	float gridSize = detailMode ? 20 : 40;
+	XMFLOAT2 startPos = XMFLOAT2(-gridSize * size * 0.5f + size * 0.5f, -gridSize * size * 0.5f + size * 0.5f);
+	for (int i = 0; i < gridSize; i++)
+	{
+		for (int j = 0; j < gridSize; j++)
+		{
+			GameObjectClass* ptr;
+			CreateGameObject(modelPlane, (usingTri ? shaderOceanTri : shaderOcean), texSetOcean, false, "Ocean" + i, ptr);
+			ptr->SetScale(size, 1, size);
+			ptr->SetPosition(startPos.x + i * size, 0, startPos.y + j * size);
+			ptr->SetBackCulling(false);
+		}
+	}	
 
 	return true;
 }
 
 bool SceneOceanClass::Frame(InputClass* input, float frameTime)
 {
-	XMFLOAT2 D = XMFLOAT2(1, 1);
 	float ddx = 0, ddz = 0;
 	float posY = 0;
 
@@ -97,15 +108,19 @@ bool SceneOceanClass::Frame(InputClass* input, float frameTime)
 		float a = m_oceanSines[i].x;
 		float p = m_oceanSines[i].y;
 		float freq = m_oceanSines[i].z;		
+		float theta = m_oceanSines[i].w;
+		XMFLOAT2 D = XMFLOAT2(cos(theta), sin(theta));
 
-		posY += a * sin(p * m_time);
+		float exponent = sin(p * m_time) - 1;
+		posY += a * exp(exponent);
 
-		ddx += a * freq * D.x * cos(p * m_time);
-		ddz += a * freq * D.y * cos(p * m_time);
+		float cosine = cos(p * m_time);
+		ddx += a * freq * D.x * cosine * exp(exponent);
+		ddz += a * freq * D.y * cosine * exp(exponent);
 	}
 
-	XMFLOAT3 tangent = XMFLOAT3(1, 0, ddz);
-	XMFLOAT3 binormal = XMFLOAT3(0, 1, ddx);
+	// XMFLOAT3 tangent = XMFLOAT3(1, 0, ddz);
+	// XMFLOAT3 binormal = XMFLOAT3(0, 1, ddx);
 	XMFLOAT3 normal = XMFLOAT3(-ddx, 1, -ddz);
 	float mag = sqrt(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
 	normal.x /= mag;
@@ -114,15 +129,15 @@ bool SceneOceanClass::Frame(InputClass* input, float frameTime)
 
 	vector<XMFLOAT3> points;
 
-	points.push_back(XMFLOAT3(tangent.x * 1000, tangent.y * 1000 + posY, tangent.z * 1000));
-	points.push_back(XMFLOAT3(0, posY, 0));
-	m_debugLineTangent->UpdateBuffers(m_Direct3D->GetDeviceContext(), points);
-	points.clear();
+	//points.push_back(XMFLOAT3(tangent.x * 1000, tangent.y * 1000 + posY, tangent.z * 1000));
+	//points.push_back(XMFLOAT3(0, posY, 0));
+	//m_debugLineTangent->UpdateBuffers(m_Direct3D->GetDeviceContext(), points);
+	//points.clear();
 
-	points.push_back(XMFLOAT3(binormal.x * 1000, binormal.y * 1000 + posY, binormal.z * 1000));
-	points.push_back(XMFLOAT3(0, posY, 0));
-	m_debugLineBinormal->UpdateBuffers(m_Direct3D->GetDeviceContext(), points);
-	points.clear();
+	//points.push_back(XMFLOAT3(binormal.x * 1000, binormal.y * 1000 + posY, binormal.z * 1000));
+	//points.push_back(XMFLOAT3(0, posY, 0));
+	//m_debugLineBinormal->UpdateBuffers(m_Direct3D->GetDeviceContext(), points);
+	//points.clear();
 
 	points.push_back(XMFLOAT3(normal.x * 1000, normal.y * 1000 + posY, normal.z * 1000));
 	points.push_back(XMFLOAT3(0, posY, 0));

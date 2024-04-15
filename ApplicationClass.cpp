@@ -215,17 +215,19 @@ void ApplicationClass::UpdateParameters()
 		m_Parameters->filter.sharpnessStrength = 0.2f;
 	}
 
-	m_Parameters->tesselation.tessellationAmount = 100;
-
-	float a = 0.13f;
-	float p = -0.8f;
-	float w1 = 0.6f;
+	m_Parameters->tesselation.tessellationAmount = 64;
+	
+	float a = 0.9f;
+	float p = 0.8f;
+	float w = 1.0f;
+	float theta = 104;
 	for (int i = 0; i < SIN_COUNT; i++)
 	{
-		m_Parameters->oceanSine.ampPhaseFreq[i] = XMFLOAT4(a, p, w1, 0);
-		a *= 0.89f * -1;
-		p *= 1.85f * -1;
-		w1 *= 1.1f * -1;
+		m_Parameters->oceanSine.ampPhaseFreq[i] = XMFLOAT4(a, p, w, theta);
+		a *= 0.8f;
+		p *= -1.1f;
+		w *= -1.12f;
+		theta += 30;
 	}	
 }
 
