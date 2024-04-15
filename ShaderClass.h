@@ -2,7 +2,7 @@
 #define _shaderclass_H_
 
 const int NUM_LIGHTS = 4;
-const int SIN_COUNT = 3;
+const int SIN_COUNT = 32;
 
 #include <d3d11.h>
 #include <d3dcompiler.h>

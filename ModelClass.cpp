@@ -46,6 +46,11 @@ float ModelClass::GetBoundingRadius()
 	return m_boundingRadius;
 }
 
+void ModelClass::SetCustomBoundingRadius(float radii)
+{
+	m_boundingRadius = radii;
+}
+
 void ModelClass::SetPrimitiveControlPointPatchList(int pointCount)
 {
 	m_primitiveControlPointPatchList = pointCount;

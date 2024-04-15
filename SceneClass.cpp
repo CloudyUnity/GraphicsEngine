@@ -145,18 +145,32 @@ bool SceneClass::CreateShader(HWND hwnd, ShaderTessClass** ptr, const char* vert
 	return true;
 }
 
-void SceneClass::CreateGameObject(ModelClass* model, ShaderClass* shader, TextureSetClass* texSet, bool transparent, const char* name, GameObjectClass** ptr)
+void SceneClass::CreateGameObject(ModelClass* model, ShaderClass* shader, TextureSetClass* texSet, bool transparent, const char* name, GameObjectClass*& ptr)
 {
-	*ptr = new GameObjectClass;
+	ptr = new GameObjectClass();
 
-	(*ptr)->Initialize(model, shader, texSet, name);
+	ptr->Initialize(model, shader, texSet, name);
 
-	m_loadedAssetsList.push_back(*ptr);
+	m_loadedAssetsList.push_back(ptr);
 
 	if (transparent)
-		m_sceneData->GoTransList.push_back(*ptr);
+		m_sceneData->GoTransList.push_back(ptr);
 	else
-		m_sceneData->GoOpaqueList.push_back(*ptr);
+		m_sceneData->GoOpaqueList.push_back(ptr);
+}
+
+void SceneClass::CreateGameObject(ModelClass* model, ShaderClass* shader, TextureSetClass* texSet, bool transparent, const char* name)
+{
+	GameObjectClass* ptr = new GameObjectClass();
+
+	ptr->Initialize(model, shader, texSet, name);
+
+	m_loadedAssetsList.push_back(ptr);
+
+	if (transparent)
+		m_sceneData->GoTransList.push_back(ptr);
+	else
+		m_sceneData->GoOpaqueList.push_back(ptr);
 }
 
 void SceneClass::CreateGameObject2D(BitmapClass* bitmap, ShaderClass* shader, GameObjectClass2D** ptr)

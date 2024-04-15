@@ -136,19 +136,19 @@ bool SceneTestClass::InitializeScene(HWND hwnd)
 	bool opaque = false, transparent = true;
 
 	GameObjectClass* waterGO = 0, * waterCubeGO = 0, * fireGO, * floorGO;	
-	CreateGameObject(modelMadeline, shaderMain, texSetMoss, opaque, "Madeline1", &m_MadelineGO1);
-	CreateGameObject(modelMadeline, shaderMain, texSetStars, opaque, "Madeline2", &m_MadelineGO2);
-	CreateGameObject(modelIcosphere, shaderMain, texSetMoss, opaque, "IcosphereBig", &m_IcosphereGO);
-	CreateGameObject(modelIcosphere, shaderMain, texSetSnow, transparent, "IcosphereTrans", &m_transIcoGO);
-	CreateGameObject(modelMountain, shaderMain, texSetSnow, opaque, "Mountain", &m_mountainGO);
-	CreateGameObject(modelPlane, shaderWater, texSetWater, transparent, "Water", &waterGO);
-	CreateGameObject(modelCube, shaderReflect, texSetReflection, opaque, "GlassCube", &m_cubeGO);
-	CreateGameObject(modelCube, shaderMain, texSetMoss, opaque, "WaterCube", &waterCubeGO);
-	CreateGameObject(modelCube, shaderFractal, texSetNone, opaque, "Fractal", &m_fractalGO);
-	CreateGameObject(modelPlane, shaderFire, texSetFire, transparent, "Fire", &fireGO);
-	CreateGameObject(modelPlane, shaderMain, texSetSnow, opaque, "Floor", &floorGO);
-	CreateGameObject(modelCube, shaderSkybox, texSetSkybox, opaque, "Skybox", &m_skyboxGO);
-	CreateGameObject(modelIcosphere, shaderMain, texSetSnow, opaque, "Test", &m_testIcoGO);
+	CreateGameObject(modelMadeline, shaderMain, texSetMoss, opaque, "Madeline1", m_MadelineGO1);
+	CreateGameObject(modelMadeline, shaderMain, texSetStars, opaque, "Madeline2", m_MadelineGO2);
+	CreateGameObject(modelIcosphere, shaderMain, texSetMoss, opaque, "IcosphereBig", m_IcosphereGO);
+	CreateGameObject(modelIcosphere, shaderMain, texSetSnow, transparent, "IcosphereTrans", m_transIcoGO);
+	CreateGameObject(modelMountain, shaderMain, texSetSnow, opaque, "Mountain", m_mountainGO);
+	CreateGameObject(modelPlane, shaderWater, texSetWater, transparent, "Water", waterGO);
+	CreateGameObject(modelCube, shaderReflect, texSetReflection, opaque, "GlassCube", m_cubeGO);
+	CreateGameObject(modelCube, shaderMain, texSetMoss, opaque, "WaterCube", waterCubeGO);
+	CreateGameObject(modelCube, shaderFractal, texSetNone, opaque, "Fractal", m_fractalGO);
+	CreateGameObject(modelPlane, shaderFire, texSetFire, transparent, "Fire", fireGO);
+	CreateGameObject(modelPlane, shaderMain, texSetSnow, opaque, "Floor", floorGO);
+	CreateGameObject(modelCube, shaderSkybox, texSetSkybox, opaque, "Skybox", m_skyboxGO);
+	CreateGameObject(modelIcosphere, shaderMain, texSetSnow, opaque, "Test", m_testIcoGO);
 
 	m_MadelineGO2->SetPosition(3, 0, 3);
 	m_MadelineGO2->SetScale(0.5f, 0.5f, 0.5f);

@@ -1,4 +1,4 @@
-#define SIN_COUNT 3
+#define SIN_COUNT 32
 
 cbuffer MatrixBuffer : register(b0)
 {
@@ -58,11 +58,10 @@ PixelInputType DS_MAIN(ConstantOutputType input, float3 uvwCoord : SV_DomainLoca
     vertexPosition.w = 1.0f;
     float4 worldPosition = mul(vertexPosition, worldMatrix);
 
-    float ddx = 0;
+    float ddx = 0;    
     float ddz = 0;
-
-    float2 D = float2(1, 1);
-    float align = dot(D, worldPosition.xz);
+    float lastDDX = 0;
+    float lastDDZ = 0;
 
     // Debug
     float t = time;
@@ -72,11 +71,20 @@ PixelInputType DS_MAIN(ConstantOutputType input, float3 uvwCoord : SV_DomainLoca
         float amp = ampPhaseFreq[i].x;
         float phase = ampPhaseFreq[i].y;
         float freq = ampPhaseFreq[i].z;
+        float theta = ampPhaseFreq[i].w;
 
-        vertexPosition.y += amp * sin(phase * t + align * freq);
+        float2 D = float2(cos(theta), sin(theta));
+        float2 pos = worldPosition.xz + float2(lastDDX, lastDDZ);
+        float align = dot(D, pos);
 
-        ddx += amp * freq * D.x * cos(phase * t + align * freq);
-        ddz += amp * freq * D.y * cos(phase * t + align * freq);
+        float exponent = sin(phase * t + align * freq) - 1;
+        vertexPosition.y += amp * exp(exponent);
+
+        float cosine = cos(phase * t + align * freq);
+        lastDDX = amp * freq * D.x * cosine * exp(exponent);
+        lastDDZ = amp * freq * D.y * cosine * exp(exponent);
+        ddx += lastDDX;
+        ddz += lastDDZ;
     }       
     
     output.normal = float3(-ddx, 1, -ddz);
