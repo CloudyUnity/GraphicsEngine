@@ -304,7 +304,7 @@ bool SceneTestClass::InitializeScene(HWND hwnd)
 
 	DisplayPlaneClass* displayPP3 = 0;	
 	result = 
-		CreateDisplayPlane(&m_DisplayPlane, device, displayWidth, displayHeight, rendMainDisplay, shader2D, "MainDisplay", m_Camera) &&
+		CreateDisplayPlane(&m_DisplayPlane, device, displayWidth, displayHeight, rendMainDisplay, shader2D, "MainDisplay", !postProcess, m_Camera) &&
 		CreateDisplayPlane(&m_DisplayPPBlur1, device, SCREEN_X, SCREEN_Y, rendPP1, shaderBlur, "Display PP1", postProcess) &&
 		CreateDisplayPlane(&m_DisplayPPBlur2, device, SCREEN_X, SCREEN_Y, rendPP2, shaderBlur, "Display PP2", postProcess) &&
 		CreateDisplayPlane(&displayPP3, device, SCREEN_X, SCREEN_Y, rendPP3, shaderFilter, "Display PP3", postProcess) &&
@@ -341,21 +341,18 @@ bool SceneTestClass::InitializeScene(HWND hwnd)
 	m_DisplayPPBlur2->m_shaderUniformData.blur.weights[2] = XMFLOAT4(0.55f, 0, 0, 0);
 	m_DisplayPPBlur2->m_shaderUniformData.blur.weights[3] = XMFLOAT4(0.18f, 0, 0, 0);
 
-	if (m_settings->m_CurrentData.FiltersEnabled)
-	{
-		displayPP3->m_shaderUniformData.filter.grainEnabled = true;
-		displayPP3->m_shaderUniformData.filter.monochromeEnabled = true;
-		displayPP3->m_shaderUniformData.filter.sharpnessEnabled = false;
-		displayPP3->m_shaderUniformData.filter.vignetteEnabled = true;
+	displayPP3->m_shaderUniformData.filter.grainEnabled = true;
+	displayPP3->m_shaderUniformData.filter.monochromeEnabled = true;
+	displayPP3->m_shaderUniformData.filter.sharpnessEnabled = false;
+	displayPP3->m_shaderUniformData.filter.vignetteEnabled = true;
 
-		displayPP3->m_shaderUniformData.filter.grainIntensity = 0.1f;
-		displayPP3->m_shaderUniformData.filter.vignetteStrength = 2;
-		displayPP3->m_shaderUniformData.filter.vignetteSmoothness = 0.6f;
+	displayPP3->m_shaderUniformData.filter.grainIntensity = 0.1f;
+	displayPP3->m_shaderUniformData.filter.vignetteStrength = 2;
+	displayPP3->m_shaderUniformData.filter.vignetteSmoothness = 0.6f;
 
-		displayPP3->m_shaderUniformData.filter.sharpnessKernalN = -0.5f;
-		displayPP3->m_shaderUniformData.filter.sharpnessKernalP = 0.5f;
-		displayPP3->m_shaderUniformData.filter.sharpnessStrength = 0.2f;
-	}
+	displayPP3->m_shaderUniformData.filter.sharpnessKernalN = -0.5f;
+	displayPP3->m_shaderUniformData.filter.sharpnessKernalP = 0.5f;
+	displayPP3->m_shaderUniformData.filter.sharpnessStrength = 0.2f;
 
 	// PARTICLE SYSTEMS
 
