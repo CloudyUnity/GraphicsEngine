@@ -250,6 +250,9 @@ bool RenderClass::RenderGameObjects(RenderInfoType* renderInfo, bool transparent
 		if (go->m_NameIdentifier == "LineGreen")
 			renderInfo->Params->pixel.pixelColor = XMFLOAT4(0, 1, 0, 1);
 
+		if (go->ModelIsLineList() && !renderInfo->Settings->m_CurrentData.DebugLinesEnabled)
+			continue;
+
 		renderInfo->Params->reflection.reflectionMatrix = go->GetReflectionMatrix();
 		renderInfo->Params->shadow.usingShadows = renderInfo->Settings->m_CurrentData.ShadowsEnabled && go->IsSubscribedToShadows();
 

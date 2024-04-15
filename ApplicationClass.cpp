@@ -217,7 +217,7 @@ void ApplicationClass::UpdateParameters()
 
 	m_Parameters->tesselation.tessellationAmount = 64;
 	
-	float a = 0.9f;
+	float a = 0.4f;
 	float p = 0.8f;
 	float w = 1.0f;
 	float theta = 104;
@@ -227,7 +227,7 @@ void ApplicationClass::UpdateParameters()
 		a *= 0.8f;
 		p *= -1.1f;
 		w *= -1.12f;
-		theta += 30;
+		theta += 30.0f;
 	}	
 }
 

@@ -42,6 +42,7 @@ public:
 	void SetBackCulling(bool);
 
 	float GetBoundingRadius();
+	bool ModelIsLineList();
 
 public:
 	float m_PosX, m_PosY, m_PosZ;

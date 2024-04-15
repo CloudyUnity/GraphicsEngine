@@ -1,7 +1,7 @@
 #define NUM_LIGHTS 4
 #define NUM_POISSON_SAMPLES 4
 
-Texture2D shaderTexture1 : register(t0);
+TextureCube cubemap : register(t0);
 SamplerState SampleType : register(s0);
 
 cbuffer UtilBuffer: register(b0)
@@ -30,12 +30,18 @@ struct PixelInputType
 };
 
 float4 PS_MAIN(PixelInputType input) : SV_TARGET
-{
+{   
     float4 colorSum = ambientColor;
     float3 reflection;
     float4 specular;
+    float4 cubemapColor;
 
-    float4 texCol1 = shaderTexture1.Sample(SampleType, input.tex);
+    float3 reflect = 2 * input.normal * dot(input.normal, input.viewDirection) - input.viewDirection;
+    reflect = normalize(reflect);
+    cubemapColor = cubemap.Sample(SampleType, reflect);
+    cubemapColor.a = 1;
+
+    float fresnel = pow(1 - dot(input.viewDirection, input.normal), 5);
 
     float intensity = saturate(dot(input.normal, -lightDirection));
 
@@ -44,9 +50,9 @@ float4 PS_MAIN(PixelInputType input) : SV_TARGET
         colorSum += diffuseDirColor * intensity;
         float3 reflection = normalize(2.0f * intensity * input.normal + lightDirection); 
         float4 specular = pow(saturate(dot(reflection, input.viewDirection)), specularPower);
-        colorSum += specular * specularColor;
+        colorSum += specular * specularColor * fresnel;
     }
-
-    float4 finalColor = saturate(saturate(colorSum));
-    return float4(finalColor.rgb, 1);
+    
+    float4 finalColor = lerp(saturate(colorSum), cubemapColor, fresnel);
+    return float4(saturate(finalColor.rgb), 1);
 }

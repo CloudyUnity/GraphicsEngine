@@ -136,6 +136,11 @@ float GameObjectClass::GetBoundingRadius()
 	return m_boundingRadius;
 }
 
+bool GameObjectClass::ModelIsLineList()
+{
+	return m_Model != nullptr && m_Model->m_isModelLineList;
+}
+
 void GameObjectClass::SubscribeToReflection(ID3D11Device* device, int texSetNum, int format)
 {
 	m_RendTexReflection = new RenderTextureClass;
