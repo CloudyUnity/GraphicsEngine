@@ -97,9 +97,9 @@ void ShaderClass::Shutdown()
 	}
 }
 
-bool ShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, TextureSetClass* textures, ShaderParameters* parameters)
+bool ShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, TextureSetClass* textures, ShaderParamsGlobalType* globalParams, ShaderParamsObjectType* objectParams)
 {
-	bool result = SetShaderParameters(deviceContext, textures, parameters);
+	bool result = SetShaderParameters(deviceContext, textures, globalParams, objectParams);
 	if (!result)
 		return false;
 
@@ -118,7 +118,7 @@ bool ShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFil
 	D3D11_BUFFER_DESC bufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
 
-	if (sizeof(ShaderParameters) % 16 != 0)
+	if (sizeof(ShaderParamsGlobalType) % 16 != 0)
 	{
 		MessageBox(hwnd, vsFilename, L"Constant Buffers are wrong size", MB_OK);
 		return false;
@@ -350,7 +350,7 @@ void ShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, 
 	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shaderFilename, MB_OK);
 }
 
-bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, TextureSetClass* textures, ShaderParameters* params)
+bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, TextureSetClass* textures, ShaderParamsGlobalType* globalParams, ShaderParamsObjectType* objectParams)
 {
 	bool setVS = true;
 	bool setPS = false;
@@ -372,9 +372,9 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		if (!TryMapBuffer(deviceContext, &m_matrixBuffer, &ptr))
 			return false;
 
-		ptr->world = XMMatrixTranspose(params->matrix.world);
-		ptr->view = XMMatrixTranspose(params->matrix.view);
-		ptr->projection = XMMatrixTranspose(params->matrix.projection);
+		ptr->world = XMMatrixTranspose(objectParams->matrix.world);
+		ptr->view = XMMatrixTranspose(objectParams->matrix.view);
+		ptr->projection = XMMatrixTranspose(objectParams->matrix.projection);
 
 		UnmapVertexBuffer(deviceContext, 0, &m_matrixBuffer);		
 	}
@@ -385,7 +385,7 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		if (!TryMapBuffer(deviceContext, &m_cameraBuffer, &ptr))
 			return false;
 
-		ptr->cameraPosition = params->camera.cameraPosition;
+		ptr->cameraPosition = globalParams->camera.cameraPosition;
 
 		UnmapVertexBuffer(deviceContext, 2, &m_cameraBuffer);
 	}
@@ -396,8 +396,8 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		if (!TryMapBuffer(deviceContext, &m_fogBuffer, &ptr))
 			return false;
 
-		ptr->fogStart = params->fog.fogStart;
-		ptr->fogEnd = params->fog.fogEnd;
+		ptr->fogStart = globalParams->fog.fogStart;
+		ptr->fogEnd = globalParams->fog.fogEnd;
 
 		UnmapVertexBuffer(deviceContext, 3, &m_fogBuffer);
 	}
@@ -408,18 +408,18 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		if (!TryMapBuffer(deviceContext, &m_clipBuffer, &ptr))
 			return false;
 
-		ptr->clipPlane = params->clip.clipPlane;
+		ptr->clipPlane = objectParams->clip.clipPlane;
 
 		UnmapVertexBuffer(deviceContext, 4, &m_clipBuffer);
 	}
 
-	if (ShaderUsesBuffer(m_vertexName, "Reflection") && params->reflectionEnabled)
+	if (ShaderUsesBuffer(m_vertexName, "Reflection") && globalParams->reflectionEnabled)
 	{
 		ReflectionBufferType* ptr;
 		if (!TryMapBuffer(deviceContext, &m_reflectionBuffer, &ptr))
 			return false;
 
-		XMMATRIX matrix = params->reflection.reflectionMatrix;
+		XMMATRIX matrix = globalParams->reflection.reflectionMatrix;
 		ptr->reflectionMatrix = XMMatrixTranspose(matrix);
 
 		UnmapVertexBuffer(deviceContext, 5, &m_reflectionBuffer);
@@ -431,9 +431,9 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		if (!TryMapBuffer(deviceContext, &m_utilBuffer, &ptr))
 			return false;
 
-		ptr->time = params->utils.time;
-		ptr->texelSizeX = params->utils.texelSizeX;
-		ptr->texelSizeY = params->utils.texelSizeY;
+		ptr->time = globalParams->utils.time;
+		ptr->texelSizeX = globalParams->utils.texelSizeX;
+		ptr->texelSizeY = globalParams->utils.texelSizeY;
 
 		UnmapFragmentBuffer(deviceContext, 0, &m_utilBuffer);
 	}
@@ -444,7 +444,7 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		if (!TryMapBuffer(deviceContext, &m_lightPositionBuffer, &ptr))
 			return false;
 
-		XMFLOAT4* lightPosition = params->lightPos.lightPosition;
+		XMFLOAT4* lightPosition = globalParams->lightPos.lightPosition;
 
 		for (int i = 0; i < NUM_POINT_LIGHTS; i++)
 			ptr->lightPosition[i] = lightPosition[i];
@@ -458,7 +458,7 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		if (!TryMapBuffer(deviceContext, &m_lightColorBuffer, &ptr))
 			return false;
 
-		XMFLOAT4* diffuseColor = params->lightColor.diffuseColor;
+		XMFLOAT4* diffuseColor = globalParams->lightColor.diffuseColor;
 
 		for (int i = 0; i < NUM_POINT_LIGHTS; i++)
 			ptr->diffuseColor[i] = diffuseColor[i];
@@ -472,11 +472,11 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		if (!TryMapBuffer(deviceContext, &m_lightBuffer, &ptr))
 			return false;
 
-		ptr->ambientColor = params->light.ambientColor;
-		ptr->diffuseColor = params->light.diffuseColor;
-		ptr->lightDirection = params->light.lightDirection;
-		ptr->specularColor = params->light.specularColor;
-		ptr->specularPower = params->light.specularPower;
+		ptr->ambientColor = globalParams->light.ambientColor;
+		ptr->diffuseColor = globalParams->light.diffuseColor;
+		ptr->lightDirection = globalParams->light.lightDirection;
+		ptr->specularColor = globalParams->light.specularColor;
+		ptr->specularPower = globalParams->light.specularPower;
 
 		UnmapFragmentBuffer(deviceContext, 2, &m_lightBuffer);
 	}
@@ -487,7 +487,7 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		if (!TryMapBuffer(deviceContext, &m_pixelBuffer, &ptr))
 			return false;
 
-		ptr->pixelColor = params->pixel.pixelColor;
+		ptr->pixelColor = objectParams->pixel.pixelColor;
 
 		UnmapFragmentBuffer(deviceContext, 0, &m_pixelBuffer);
 	}
@@ -498,8 +498,8 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		if (!TryMapBuffer(deviceContext, &m_texTransBuffer, &ptr))
 			return false;
 
-		ptr->translation = params->textureTranslation.translation;
-		ptr->timeMultiplier = params->textureTranslation.timeMultiplier;
+		ptr->translation = objectParams->textureTranslation.translation;
+		ptr->timeMultiplier = objectParams->textureTranslation.timeMultiplier;
 
 		UnmapFragmentBuffer(deviceContext, 3, &m_texTransBuffer);
 	}
@@ -510,7 +510,7 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		if (!TryMapBuffer(deviceContext, &m_alphaBuffer, &ptr))
 			return false;
 
-		ptr->alphaBlend = params->alpha.alphaBlend;
+		ptr->alphaBlend = objectParams->alpha.alphaBlend;
 
 		UnmapFragmentBuffer(deviceContext, 4, &m_alphaBuffer);
 	}
@@ -521,7 +521,7 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		if (!TryMapBuffer(deviceContext, &m_waterBuffer, &ptr))
 			return false;
 
-		ptr->reflectRefractScale = params->water.reflectRefractScale;
+		ptr->reflectRefractScale = objectParams->water.reflectRefractScale;
 
 		UnmapFragmentBuffer(deviceContext, 5, &m_waterBuffer);
 	}
@@ -532,11 +532,11 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		if (!TryMapBuffer(deviceContext, &m_fireBuffer, &ptr))
 			return false;
 
-		ptr->distortion1 = params->fire.distortion1;
-		ptr->distortion2 = params->fire.distortion2;
-		ptr->distortion3 = params->fire.distortion3;
-		ptr->distortionScale = params->fire.distortionScale;
-		ptr->distortionBias = params->fire.distortionBias;
+		ptr->distortion1 = objectParams->fire.distortion1;
+		ptr->distortion2 = objectParams->fire.distortion2;
+		ptr->distortion3 = objectParams->fire.distortion3;
+		ptr->distortionScale = objectParams->fire.distortionScale;
+		ptr->distortionBias = objectParams->fire.distortionBias;
 
 		UnmapFragmentBuffer(deviceContext, 1, &m_fireBuffer);
 	}
@@ -547,16 +547,16 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		if (!TryMapBuffer(deviceContext, &m_shadowBuffer, &ptr))
 			return false;
 
-		ptr->shadowView = XMMatrixTranspose(params->shadow.shadowView);
-		ptr->shadowProj = XMMatrixTranspose(params->shadow.shadowProj);
+		ptr->shadowView = XMMatrixTranspose(globalParams->shadow.shadowView);
+		ptr->shadowProj = XMMatrixTranspose(globalParams->shadow.shadowProj);
 
 		for (int i = 0; i < NUM_POISSON_SAMPLES; i++)
-			ptr->poissonDisk[i] = params->shadow.poissonDisk[i];
+			ptr->poissonDisk[i] = globalParams->shadow.poissonDisk[i];
 
-		ptr->usingShadows = params->shadow.usingShadows;
-		ptr->poissonSpread = params->shadow.poissonSpread;
-		ptr->shadowBias = params->shadow.shadowBias;
-		ptr->shadowCutOff = params->shadow.shadowCutOff;
+		ptr->usingShadows = globalParams->shadow.usingShadows;
+		ptr->poissonSpread = globalParams->shadow.poissonSpread;
+		ptr->shadowBias = globalParams->shadow.shadowBias;
+		ptr->shadowCutOff = globalParams->shadow.shadowCutOff;
 
 		UnmapFragmentBuffer(deviceContext, 5, &m_shadowBuffer);
 	}
@@ -567,10 +567,10 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		if (!TryMapBuffer(deviceContext, &m_blurBuffer, &ptr))
 			return false;
 
-		ptr->blurMode = params->blur.blurMode;
+		ptr->blurMode = objectParams->blur.blurMode;
 
 		for (int i = 0; i < BLUR_SAMPLE_SPREAD; i++)
-			ptr->weights[i] = params->blur.weights[i];
+			ptr->weights[i] = objectParams->blur.weights[i];
 
 		UnmapFragmentBuffer(deviceContext, 1, &m_blurBuffer);
 	}
@@ -581,19 +581,19 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		if (!TryMapBuffer(deviceContext, &m_filterBuffer, &ptr))
 			return false;
 
-		ptr->grainEnabled = params->filter.grainEnabled;
-		ptr->monochromeEnabled = params->filter.monochromeEnabled;
-		ptr->sharpnessEnabled = params->filter.sharpnessEnabled;
-		ptr->chromaticEnabled = params->filter.chromaticEnabled;
+		ptr->grainEnabled = objectParams->filter.grainEnabled;
+		ptr->monochromeEnabled = objectParams->filter.monochromeEnabled;
+		ptr->sharpnessEnabled = objectParams->filter.sharpnessEnabled;
+		ptr->chromaticEnabled = objectParams->filter.chromaticEnabled;
 
-		ptr->sharpnessKernalN = params->filter.sharpnessKernalN;
-		ptr->sharpnessKernalP = params->filter.sharpnessKernalP;
-		ptr->sharpnessStrength = params->filter.sharpnessStrength;
+		ptr->sharpnessKernalN = objectParams->filter.sharpnessKernalN;
+		ptr->sharpnessKernalP = objectParams->filter.sharpnessKernalP;
+		ptr->sharpnessStrength = objectParams->filter.sharpnessStrength;
 
-		ptr->vignetteEnabled = params->filter.vignetteEnabled;
-		ptr->vignetteSmoothness = params->filter.vignetteSmoothness;
-		ptr->vignetteStrength = params->filter.vignetteStrength;
-		ptr->grainIntensity = params->filter.grainIntensity;
+		ptr->vignetteEnabled = objectParams->filter.vignetteEnabled;
+		ptr->vignetteSmoothness = objectParams->filter.vignetteSmoothness;
+		ptr->vignetteStrength = objectParams->filter.vignetteStrength;
+		ptr->grainIntensity = objectParams->filter.grainIntensity;
 
 		UnmapFragmentBuffer(deviceContext, 1, &m_filterBuffer);
 	}	

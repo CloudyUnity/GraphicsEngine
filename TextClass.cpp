@@ -17,7 +17,6 @@ TextClass::TextClass()
     m_font = 0;
     m_indexCount = 0;
     m_maxLength = 0;
-    m_pixelColor = XMFLOAT4(0, 0, 0, 1);
     m_screenHeight = 0;
     m_screenWidth = 0;
     m_vertexCount = 0;
@@ -33,7 +32,6 @@ bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCont
     m_screenHeight = screenHeight;
     m_maxLength = maxLength;
     m_deviceContext = deviceContext;
-    m_pixelColor = XMFLOAT4(1, 1, 1, 1);
     m_ScaleX = 1;
     m_ScaleY = 1;
     m_Shader = shader;
@@ -55,18 +53,16 @@ void TextClass::Shutdown()
     }
 }
 
-bool TextClass::Render(ID3D11DeviceContext* deviceContext, ShaderClass::ShaderParameters* params)
+bool TextClass::Render(ID3D11DeviceContext* deviceContext, ShaderClass::ShaderParamsGlobalType* params)
 {    
     XMMATRIX scaleMatrix = XMMatrixScaling(m_ScaleX, m_ScaleY, 1.0f);
     XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYaw(0, 0, m_RotZ * 0.0174532925f);
-    params->matrix.world = XMMatrixMultiply(rotateMatrix, scaleMatrix);
-
-    params->pixel.pixelColor = GetPixelColor();
+    m_shaderUniformData.matrix.world = XMMatrixMultiply(rotateMatrix, scaleMatrix);
 
     RenderBuffers(deviceContext);
     m_TexSet->Add(m_font->GetTexture()->GetSRV(), 0);
 
-    return m_Shader->Render(deviceContext, GetIndexCount(), m_TexSet, params);
+    return m_Shader->Render(deviceContext, GetIndexCount(), m_TexSet, params, &m_shaderUniformData);
 }
 
 int TextClass::GetIndexCount()
@@ -185,11 +181,6 @@ void TextClass::SetPosition(int x, int y)
     m_PosY = y;
 }
 
-void TextClass::SetColor(float r, float g, float b)
-{
-    m_pixelColor = XMFLOAT4(r, g, b, 1);
-}
-
 void TextClass::SetFont(FontClass* font)
 {
     m_font = font;
@@ -220,9 +211,4 @@ void TextClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
 
     // Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
     deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-}
-
-XMFLOAT4 TextClass::GetPixelColor()
-{
-    return m_pixelColor;
 }

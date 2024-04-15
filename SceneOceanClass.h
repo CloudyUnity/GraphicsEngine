@@ -14,7 +14,7 @@ public:
 
 	bool Frame(InputClass*, float frameTime) override;
 	bool LateFrame(InputClass* input, float frameTime) override;
-	void SetParameters(ShaderClass::ShaderParameters*) override;
+	void SetParameters(ShaderClass::ShaderParamsGlobalType*) override;
 	void OnSwitchTo() override;
 	void Shutdown();
 

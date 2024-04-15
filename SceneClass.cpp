@@ -43,7 +43,7 @@ bool SceneClass::LateFrame(InputClass* input, float frameTime)
 	return true;
 }
 
-void SceneClass::SetParameters(ShaderClass::ShaderParameters*)
+void SceneClass::SetParameters(ShaderClass::ShaderParamsGlobalType*)
 {
 }
 

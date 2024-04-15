@@ -57,7 +57,7 @@ public:
 
 	bool Initialize(ID3D11Device*, ParticleSystemData, ShaderClass*, TextureSetClass*, std::string);
 	bool InitializeBuffers(ID3D11Device*);
-	bool Render(ID3D11DeviceContext*, ShaderClass::ShaderParameters* params, ShaderClass* overwriteShader = nullptr);
+	bool Render(ID3D11DeviceContext*, ShaderClass::ShaderParamsGlobalType* params, ShaderClass* overwriteShader = nullptr);
 	void RenderBuffers(ID3D11DeviceContext*);
 	void Shutdown() override;
 
@@ -86,6 +86,8 @@ public:
 
 	bool m_backCullingDisabled;
 	bool m_disabled;
+
+	ShaderClass::ShaderParamsObjectType m_shaderUniformData;
 
 private:
 	VertexParticleType* m_vertices;

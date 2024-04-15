@@ -25,7 +25,7 @@ public:
 	struct RenderInfoType
 	{
 		SceneClass::SceneDataType* SceneData;
-		ShaderClass::ShaderParameters* Params;
+		ShaderClass::ShaderParamsGlobalType* Params;
 		Settings* Settings;
 	};
 
@@ -35,7 +35,7 @@ public:
 	bool Initialize(D3DClass*, FrustumClass*, Settings* settings, ShaderClass* shader2D);
 	void Shutdown() override;
 
-	bool Render(Settings*, ShaderClass::ShaderParameters*, SceneClass::SceneDataType* sceneData);
+	bool Render(Settings*, ShaderClass::ShaderParamsGlobalType*, SceneClass::SceneDataType* sceneData);
 	void RenderReflectionNextAvailableFrame();
 
 	void SetDepthShader(ShaderClass*);
@@ -45,12 +45,14 @@ public:
 
 private:
 	bool RenderScene(RenderInfoType*, XMMATRIX, XMMATRIX, vector<string> skippedNames);
-	bool RenderGameObjects(RenderInfoType*, bool transparents, vector<string> skippedNames);
-	bool RenderDisplayPlanes(RenderInfoType*, vector<string> skippedNames);
+	bool RenderGameObjects(RenderInfoType*, XMMATRIX, XMMATRIX, bool transparents, vector<string> skippedNames);
+
+	bool RenderDisplayPlanes(RenderInfoType*, XMMATRIX, XMMATRIX, vector<string> skippedNames);
 	bool SetupDisplayPlanes(RenderInfoType*);
-	bool RenderParticleSystems(RenderInfoType*, vector<string> skippedNames);
-	bool RenderToRefractionTexture(RenderInfoType*);
 	bool SetUpDisplayPlanes(RenderInfoType*, vector<string> skippedNames);
+
+	bool RenderParticleSystems(RenderInfoType*, XMMATRIX, XMMATRIX, vector<string> skippedNames);
+	bool RenderToRefractionTexture(RenderInfoType*);
 	bool Render2D(RenderInfoType*);
 
 	bool RenderSceneDepth(RenderInfoType*);

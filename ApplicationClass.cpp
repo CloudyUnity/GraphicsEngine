@@ -64,7 +64,7 @@ bool ApplicationClass::Initialize(HWND hwnd)
 
 	m_startTime = std::chrono::high_resolution_clock::now();
 
-	m_Parameters = new ShaderClass::ShaderParameters;
+	m_Parameters = new ShaderClass::ShaderParamsGlobalType;
 	UpdateParameters();
 
 	// SHADERS
@@ -97,8 +97,11 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	m_FpsString->SetPosition(10, 60);
 
 	m_TextStringMouseX->SetPosition(10, 80);
+	m_TextStringMouseX->m_shaderUniformData.pixel.pixelColor = XMFLOAT4(1, 1, 1, 1);
 	m_TextStringMouseY->SetPosition(10, 100);
+	m_TextStringMouseY->m_shaderUniformData.pixel.pixelColor = XMFLOAT4(1, 1, 1, 1);
 	m_TextStringMouseBttn->SetPosition(10, 120);
+	m_TextStringMouseBttn->m_shaderUniformData.pixel.pixelColor = XMFLOAT4(1, 1, 1, 1);
 
 	// SCENES
 
@@ -167,18 +170,7 @@ void ApplicationClass::UpdateParameters()
 		m_Parameters->fog.fogEnd = 20.0f;
 	}
 
-	m_Parameters->clip.clipPlane = XMFLOAT4(0.0f, -1.0f, 0.0f, 999999.0f);
-	m_Parameters->textureTranslation.translation = XMFLOAT2(0, 0);
-	m_Parameters->textureTranslation.timeMultiplier = 0.0f;
-	m_Parameters->alpha.alphaBlend = 1.0f;
-	m_Parameters->water.reflectRefractScale = 0.01f;
 	m_Parameters->reflectionEnabled = m_Settings->m_CurrentData.ReflectionEnabled;
-
-	m_Parameters->fire.distortion1 = XMFLOAT2(0.1f, 0.2f);
-	m_Parameters->fire.distortion2 = XMFLOAT2(0.1f, 0.3f);
-	m_Parameters->fire.distortion3 = XMFLOAT2(0.1f, 0.1f);
-	m_Parameters->fire.distortionScale = 0.8f;
-	m_Parameters->fire.distortionBias = 0.5f;
 
 	XMMATRIX lightProjection = XMMatrixOrthographicLH(m_Settings->m_CurrentData.ShadowMapSceneSize, m_Settings->m_CurrentData.ShadowMapSceneSize,
 		m_Settings->m_CurrentData.ShadowMapNear, m_Settings->m_CurrentData.ShadowMapDepth);
@@ -190,32 +182,7 @@ void ApplicationClass::UpdateParameters()
 	m_Parameters->shadow.poissonDisk[3] = XMFLOAT4(0.34495938f, 0.29387760f, 0, 0);
 	m_Parameters->shadow.poissonSpread = 4096;
 	m_Parameters->shadow.shadowBias = 0.005f;
-	m_Parameters->shadow.shadowCutOff = 0.01f;
-
-	m_Parameters->blur.blurMode = 0;
-
-	m_Parameters->blur.weights[0] = XMFLOAT4(1.0f, 0, 0, 0);
-	m_Parameters->blur.weights[1] = XMFLOAT4(0.9f, 0, 0, 0);
-	m_Parameters->blur.weights[2] = XMFLOAT4(0.55f, 0, 0, 0);
-	m_Parameters->blur.weights[3] = XMFLOAT4(0.18f, 0, 0, 0);
-
-	if (m_Settings->m_CurrentData.FiltersEnabled)
-	{
-		m_Parameters->filter.grainEnabled = true;
-		m_Parameters->filter.monochromeEnabled = true;
-		m_Parameters->filter.sharpnessEnabled = false;
-		m_Parameters->filter.vignetteEnabled = true;
-
-		m_Parameters->filter.grainIntensity = 0.1f;
-		m_Parameters->filter.vignetteStrength = 2;
-		m_Parameters->filter.vignetteSmoothness = 0.6f;
-
-		m_Parameters->filter.sharpnessKernalN = -0.5f;
-		m_Parameters->filter.sharpnessKernalP = 0.5f;
-		m_Parameters->filter.sharpnessStrength = 0.2f;
-	}
-
-	m_Parameters->tesselation.tessellationAmount = 64;
+	m_Parameters->shadow.shadowCutOff = 0.01f;	
 	
 	float a = 0.4f;
 	float p = 0.8f;

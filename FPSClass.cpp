@@ -79,7 +79,7 @@ bool FpsClass::UpdateFPS(TextClass* text)
 		blue = 0.0f;
 	}
 
-	text->SetColor(red, green, blue);
+	text->m_shaderUniformData.pixel.pixelColor = XMFLOAT4(red, green, blue, 1);
 	text->SetText(finalString);
 
 	return text->UpdateText();

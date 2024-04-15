@@ -152,13 +152,16 @@ bool SceneTestClass::InitializeScene(HWND hwnd)
 
 	m_MadelineGO2->SetPosition(3, 0, 3);
 	m_MadelineGO2->SetScale(0.5f, 0.5f, 0.5f);
+	m_MadelineGO2->m_shaderUniformData.textureTranslation.timeMultiplier = 0.2f;
 
 	m_IcosphereGO->SetScale(5, 5, 5);
 	m_IcosphereGO->SetPosition(0, 0, 15);
 	m_IcosphereGO->SetBackCulling(false);
+	m_IcosphereGO->m_shaderUniformData.clip.clipPlane = XMFLOAT4(0.0f, -1.0f, 0.0f, 2.5f);
 
 	m_transIcoGO->SetPosition(3, 0.5f, 3);
 	m_transIcoGO->SetScale(1.0f, 1.0f, 1.0f);
+	m_transIcoGO->m_shaderUniformData.alpha.alphaBlend = 0.2f;
 
 	m_mountainGO->SetScale(0.3f, 0.3f, 0.3f);
 	m_mountainGO->SetPosition(1, -13, 15);
@@ -168,6 +171,8 @@ bool SceneTestClass::InitializeScene(HWND hwnd)
 
 	waterGO->SetPosition(6, 0.5f, -0.5f);
 	waterGO->SetScale(waterSize, 0.000000000001f, waterSize);
+	waterGO->m_shaderUniformData.textureTranslation.timeMultiplier = (0.1f / waterSize) / waterSize;
+	waterGO->m_shaderUniformData.water.reflectRefractScale = 0.01f;
 
 	waterCubeGO->SetScale(0.5f, 0.5f, 0.5f);
 	waterCubeGO->SetPosition(6, 0.5f, -0.5f);
@@ -178,6 +183,11 @@ bool SceneTestClass::InitializeScene(HWND hwnd)
 	fireGO->SetPosition(-5, 0, 0);
 	fireGO->SetRotation(-90, 0, 0);
 	fireGO->SetBillBoarding(true);
+	fireGO->m_shaderUniformData.fire.distortion1 = XMFLOAT2(0.1f, 0.2f);
+	fireGO->m_shaderUniformData.fire.distortion2 = XMFLOAT2(0.1f, 0.3f);
+	fireGO->m_shaderUniformData.fire.distortion3 = XMFLOAT2(0.1f, 0.1f);
+	fireGO->m_shaderUniformData.fire.distortionScale = 0.8f;
+	fireGO->m_shaderUniformData.fire.distortionBias = 0.5f;
 
 	floorGO->SetPosition(0, -10, 0);
 	floorGO->SetScale(25, 1, 25);
@@ -256,12 +266,12 @@ bool SceneTestClass::InitializeScene(HWND hwnd)
 	if (!result)
 		return false;
 
-	m_TextString1->SetColor(1, 0, 0);
+	m_TextString1->m_shaderUniformData.pixel.pixelColor = XMFLOAT4(1, 0, 0, 1);
 	m_TextString1->SetPosition(10, 10);
 	m_TextString1->SetText("Example Text");
 	m_TextString1->UpdateText();
 
-	m_TextString2->SetColor(0, 1, 0);
+	m_TextString2->m_shaderUniformData.pixel.pixelColor = XMFLOAT4(0, 1, 0, 1);
 	m_TextString2->SetPosition(15, 30);
 	m_TextString2->SetText("More Text");
 	m_TextString2->UpdateText();
@@ -292,11 +302,11 @@ bool SceneTestClass::InitializeScene(HWND hwnd)
 	float displayHeight = 1.0f;
 	bool postProcess = true;
 
-	DisplayPlaneClass* displayPP1 = 0, * displayPP2 = 0, * displayPP3 = 0;	
+	DisplayPlaneClass* displayPP3 = 0;	
 	result = 
 		CreateDisplayPlane(&m_DisplayPlane, device, displayWidth, displayHeight, rendMainDisplay, shader2D, "MainDisplay", m_Camera) &&
-		CreateDisplayPlane(&displayPP1, device, SCREEN_X, SCREEN_Y, rendPP1, shaderBlur, "Display PP1", postProcess) &&
-		CreateDisplayPlane(&displayPP2, device, SCREEN_X, SCREEN_Y, rendPP2, shaderBlur, "Display PP2", postProcess) &&
+		CreateDisplayPlane(&m_DisplayPPBlur1, device, SCREEN_X, SCREEN_Y, rendPP1, shaderBlur, "Display PP1", postProcess) &&
+		CreateDisplayPlane(&m_DisplayPPBlur2, device, SCREEN_X, SCREEN_Y, rendPP2, shaderBlur, "Display PP2", postProcess) &&
 		CreateDisplayPlane(&displayPP3, device, SCREEN_X, SCREEN_Y, rendPP3, shaderFilter, "Display PP3", postProcess) &&
 		CreateDisplayPlane(&m_DisplayPortal1, device, displayWidth, displayHeight, rendPortal1, shaderPortal, "Display Portal1") &&
 		CreateDisplayPlane(&m_DisplayPortal2, device, displayWidth, displayHeight, rendPortal2, shaderPortal, "Display Portal2");
@@ -305,8 +315,8 @@ bool SceneTestClass::InitializeScene(HWND hwnd)
 	m_DisplayPlane->SetPosition(0, 0, 5);
 
 	float displaySize = 0.5f;
-	displayPP1->SetScale(displaySize, displaySize, displaySize);
-	displayPP2->SetScale(displaySize, displaySize, displaySize);
+	m_DisplayPPBlur1->SetScale(displaySize, displaySize, displaySize);
+	m_DisplayPPBlur2->SetScale(displaySize, displaySize, displaySize);
 	displayPP3->SetScale(displaySize, displaySize, displaySize);
 
 	m_DisplayPortal1->SetPosition(8, 0.0f, 0);
@@ -316,6 +326,36 @@ bool SceneTestClass::InitializeScene(HWND hwnd)
 	m_DisplayPortal2->SetPosition(-8, 0, 0);
 	m_DisplayPortal2->SetRotation(0, 0, 0);
 	m_DisplayPortal2->SetScale(2);
+
+	// PP
+
+	m_DisplayPPBlur1->m_shaderUniformData.blur.blurMode = 0;
+	m_DisplayPPBlur1->m_shaderUniformData.blur.weights[0] = XMFLOAT4(1.0f, 0, 0, 0);
+	m_DisplayPPBlur1->m_shaderUniformData.blur.weights[1] = XMFLOAT4(0.9f, 0, 0, 0);
+	m_DisplayPPBlur1->m_shaderUniformData.blur.weights[2] = XMFLOAT4(0.55f, 0, 0, 0);
+	m_DisplayPPBlur1->m_shaderUniformData.blur.weights[3] = XMFLOAT4(0.18f, 0, 0, 0);
+
+	m_DisplayPPBlur2->m_shaderUniformData.blur.blurMode = 0;
+	m_DisplayPPBlur2->m_shaderUniformData.blur.weights[0] = XMFLOAT4(1.0f, 0, 0, 0);
+	m_DisplayPPBlur2->m_shaderUniformData.blur.weights[1] = XMFLOAT4(0.9f, 0, 0, 0);
+	m_DisplayPPBlur2->m_shaderUniformData.blur.weights[2] = XMFLOAT4(0.55f, 0, 0, 0);
+	m_DisplayPPBlur2->m_shaderUniformData.blur.weights[3] = XMFLOAT4(0.18f, 0, 0, 0);
+
+	if (m_settings->m_CurrentData.FiltersEnabled)
+	{
+		displayPP3->m_shaderUniformData.filter.grainEnabled = true;
+		displayPP3->m_shaderUniformData.filter.monochromeEnabled = true;
+		displayPP3->m_shaderUniformData.filter.sharpnessEnabled = false;
+		displayPP3->m_shaderUniformData.filter.vignetteEnabled = true;
+
+		displayPP3->m_shaderUniformData.filter.grainIntensity = 0.1f;
+		displayPP3->m_shaderUniformData.filter.vignetteStrength = 2;
+		displayPP3->m_shaderUniformData.filter.vignetteSmoothness = 0.6f;
+
+		displayPP3->m_shaderUniformData.filter.sharpnessKernalN = -0.5f;
+		displayPP3->m_shaderUniformData.filter.sharpnessKernalP = 0.5f;
+		displayPP3->m_shaderUniformData.filter.sharpnessStrength = 0.2f;
+	}
 
 	// PARTICLE SYSTEMS
 
@@ -388,6 +428,10 @@ bool SceneTestClass::Frame(InputClass* input, float frameTime)
 
 	UpdatePortals(camPos);
 
+	m_skyboxGO->SetRendered(m_settings->m_CurrentData.SkyboxEnabled);
+	m_DisplayPPBlur1->m_shaderUniformData.blur.blurMode = m_settings->m_CurrentData.BlurEnabled ? 0 : -1;
+	m_DisplayPPBlur2->m_shaderUniformData.blur.blurMode = m_settings->m_CurrentData.BlurEnabled ? 1 : -1;
+
 	return true;
 }
 
@@ -407,7 +451,7 @@ void SceneTestClass::SetDirLight(float x, float y, float z)
 	m_lightViewMatrix = XMMatrixLookAtLH(lightPos, XMVectorSet(0, 0, 0, 0), XMVectorSet(0, 1, 0, 0));	
 }
 
-void SceneTestClass::SetParameters(ShaderClass::ShaderParameters* params)
+void SceneTestClass::SetParameters(ShaderClass::ShaderParamsGlobalType* params)
 {
 	for (int i = 0; i < NUM_POINT_LIGHTS; i++)
 	{
