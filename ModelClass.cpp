@@ -7,6 +7,7 @@ ModelClass::ModelClass()
 	m_model = 0;
 	m_boundingRadius = 0;
 	m_primitiveControlPointPatchList = 0;
+	m_isModelLineList = false;
 }
 
 

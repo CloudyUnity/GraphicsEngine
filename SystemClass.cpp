@@ -158,15 +158,16 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 
 	// Create the window with the screen settings and get the handle to it.
 	m_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_applicationName, m_applicationName,
-		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
+		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP | WS_BORDER | WS_CAPTION | WS_SYSMENU | WS_SIZEBOX | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_EX_COMPOSITED,
 		posX, posY, screenWidth, screenHeight, NULL, NULL, m_hinstance, NULL);
 
 	// Bring the window up on the screen and set it as main focus.
 	ShowWindow(m_hwnd, SW_SHOW);
 	SetForegroundWindow(m_hwnd);
 	SetFocus(m_hwnd);
+	SetWindowText(m_hwnd, L"Finn Wright's Graphics Engine made with DirectX11 in C++");
 
-	ShowCursor(false);
+	ShowCursor(DISPLAY_CURSOR);
 }
 
 void SystemClass::ShutdownWindows()
@@ -204,6 +205,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 		{
 			PostQuitMessage(0);
 			return 0;
+		}
+
+		case WM_NCHITTEST: 
+		{
+			return DefWindowProc(hwnd, umessage, wparam, lparam);
+		}
+
+		case WM_SIZE:
+		{
+			return DefWindowProc(hwnd, umessage, wparam, lparam);
 		}
 
 		// All other messages pass to the message handler in the system class.

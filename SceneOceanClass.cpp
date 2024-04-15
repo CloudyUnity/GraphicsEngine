@@ -29,22 +29,26 @@ bool SceneOceanClass::InitializeScene(HWND hwnd)
 	// SHADERS
 
 	bool clampSamplerMode = true;
-	ShaderClass* shaderFractal = 0, * shaderLine = 0, * shaderSkybox = 0;
+	ShaderClass* shaderFractal = 0, * shaderLine = 0, * shaderSkybox = 0, * shaderFog = 0;
 	ShaderTessClass* shaderOcean = 0, * shaderOceanTri = 0;
 	result = 
 		CreateShader(hwnd, &shaderOcean, "../GraphicsEngine/Ocean.vs", "../GraphicsEngine/Ocean.hs", "../GraphicsEngine/Ocean.ds", "../GraphicsEngine/Ocean.ps") &&
 		CreateShader(hwnd, &shaderOceanTri, "../GraphicsEngine/Ocean.vs", "../GraphicsEngine/OceanTri.hs", "../GraphicsEngine/OceanTri.ds", "../GraphicsEngine/Ocean.ps") &&
 		CreateShader(hwnd, &shaderLine, "../GraphicsEngine/Line.vs", "../GraphicsEngine/Line.ps") &&
 		CreateShader(hwnd, &shaderSkybox, "../GraphicsEngine/Skybox.vs", "../GraphicsEngine/Skybox.ps", clampSamplerMode) &&
+		CreateShader(hwnd, &shaderFog, "../GraphicsEngine/Fog.vs", "../GraphicsEngine/Fog.ps") &&
 		CreateShader(hwnd, &shaderFractal, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/Fractal.ps");
 	if (!result)
 		return false;
 
 	// TEXSETS
 
-	TextureSetClass* texSetOcean, * texSetSkybox;
-	CreateTexSet(&texSetOcean);
-	texSetOcean->Add(device, context, "../GraphicsEngine/Data/Celeste.tga");
+	TextureSetClass* texSetSnow, * texSetSkybox;
+	CreateTexSet(&texSetSnow);
+	texSetSnow->Add(device, context, "../GraphicsEngine/Data/White.tga");
+	texSetSnow->Add(device, context, "../GraphicsEngine/Data/White.tga");
+	texSetSnow->Add(device, context, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
+	texSetSnow->Add(device, context, "../GraphicsEngine/Data/DefaultNormal.tga");
 
 	CreateTexSet(&texSetSkybox);
 	result = texSetSkybox->AddCubemap(device, context, "../GraphicsEngine/Data/Skybox/Skybox.tga");
@@ -75,8 +79,7 @@ bool SceneOceanClass::InitializeScene(HWND hwnd)
 
 	// GOS
 
-	GameObjectClass* goTest;
-	// CreateGameObject(modelCube, shaderOceanTri, texSetOcean, false, "Test", &goTest);
+	GameObjectClass* goWall1, * goWall2, * goWall3, * goWall4;
 
 	CreateGameObject(m_debugLineLight, shaderLine, nullptr, false, "LineYellow");
 	CreateGameObject(m_debugLineNormal, shaderLine, nullptr, false, "LineBlue");
@@ -85,24 +88,46 @@ bool SceneOceanClass::InitializeScene(HWND hwnd)
 
 	bool detailMode = true;
 
-	float size = detailMode ? 1.5f : 10;
-	float gridSize = detailMode ? 20 : 40;
-	XMFLOAT2 startPos = XMFLOAT2(-gridSize * size * 0.5f + size * 0.5f, -gridSize * size * 0.5f + size * 0.5f);
+	float size = detailMode ? 2.0f : 10;
+	float halfSize = size * 0.5f;
+	float gridSize = detailMode ? 10 : 20;
+	XMFLOAT2 startPos = XMFLOAT2(-gridSize * halfSize + halfSize, -gridSize * halfSize + halfSize);
 	for (int i = 0; i < gridSize; i++)
 	{
 		for (int j = 0; j < gridSize; j++)
 		{
 			GameObjectClass* ptr;
-			CreateGameObject(modelPlane, (usingTri ? shaderOceanTri : shaderOcean), texSetOcean, false, "Ocean" + i, ptr);
+			CreateGameObject(modelPlane, (usingTri ? shaderOceanTri : shaderOcean), texSetSkybox, false, "Ocean" + i, ptr);
 			ptr->SetScale(size, 1, size);
 			ptr->SetPosition(startPos.x + i * size, 0, startPos.y + j * size);
-			ptr->SetBackCulling(false);
 		}
 	}	
 
 	CreateGameObject(modelCube, shaderSkybox, texSetSkybox, false, "Skybox", m_skyboxGO);
 	m_skyboxGO->SetScale(500);
 	m_skyboxGO->SetBackCulling(false);
+
+	float wallSize = 1;
+	float wallHeight = 0.5f;
+	float halfWallSize = wallSize * 0.5f;
+	float waterSize = gridSize * size;
+	float scalingFactorLong = 0.5f * (waterSize + wallSize * 6) / wallSize;
+	float scalingFactorShort = 0.5f * (waterSize + wallSize * 2) / wallSize;
+	CreateGameObject(modelCube, shaderFog, texSetSnow, false, "Wall1", goWall1);
+	goWall1->SetPosition(startPos.x - size - wallSize, wallHeight, startPos.y - halfSize + waterSize * 0.5f);
+	goWall1->SetScale(wallSize, wallSize, scalingFactorLong);
+
+	CreateGameObject(modelCube, shaderFog, texSetSnow, false, "Wall2", goWall2);
+	goWall2->SetPosition(startPos.x + waterSize + wallSize, wallHeight, startPos.y - halfSize + waterSize * 0.5f);
+	goWall2->SetScale(wallSize, wallSize, scalingFactorLong);
+
+	CreateGameObject(modelCube, shaderFog, texSetSnow, false, "Wall3", goWall3);
+	goWall3->SetPosition(startPos.x - halfSize + waterSize * 0.5f, wallHeight, startPos.y - size - wallSize);
+	goWall3->SetScale(scalingFactorShort, wallSize, wallSize);
+
+	CreateGameObject(modelCube, shaderFog, texSetSnow, false, "Wall4", goWall4);
+	goWall4->SetPosition(startPos.x - halfSize + waterSize * 0.5f, wallHeight, startPos.y + waterSize + wallSize);
+	goWall4->SetScale(scalingFactorShort, wallSize, wallSize);
 
 	return true;
 }

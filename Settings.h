@@ -8,6 +8,7 @@ inline constexpr float SCREEN_DEPTH = 1000.0f;
 inline constexpr float SCREEN_NEAR = 0.3f;
 inline constexpr bool V_SYNC = true;
 inline constexpr bool FULL_SCREEN = false;
+inline constexpr bool DISPLAY_CURSOR = true;
 
 // MATH
 inline constexpr double DEG_TO_RAD = 0.01745329252;
@@ -37,6 +38,7 @@ private:
         int ShadowMapFramesDelay = 2;
         bool WireframeMode = false;
         bool ParticlesEnabled = false;
+        bool DebugLinesEnabled = false;
 
         // SHADOWS
         bool ShadowsEnabled = true;

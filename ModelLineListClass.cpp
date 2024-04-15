@@ -2,6 +2,8 @@
 
 bool ModelLineListClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, vector<XMFLOAT3> points)
 {
+	m_isModelLineList = true;
+
 	m_points = points;
 
 	m_boundingRadius = 0;

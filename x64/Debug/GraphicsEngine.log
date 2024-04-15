@@ -1,5 +1,2 @@
-﻿  SceneOceanClass.cpp
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\SceneOceanClass.cpp(90,17): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\SceneOceanClass.cpp(79,19): warning C4101: 'goTest': unreferenced local variable
-C:\Users\finnw\source\repos\GraphicsEngine\GraphicsEngine\SceneOceanClass.cpp(118,49): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+﻿  SystemClass.cpp
   GraphicsEngine.vcxproj -> C:\Users\finnw\source\repos\GraphicsEngine\x64\Debug\GraphicsEngine.exe

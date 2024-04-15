@@ -55,6 +55,8 @@ public:
 
 	void SetPrimitiveControlPointPatchList(int);
 
+	bool m_isModelLineList;
+
 private:
 	virtual bool InitializeBuffers(ID3D11Device*);
 	void ShutdownBuffers();		
@@ -70,7 +72,7 @@ protected:
 	ModelType* m_model;
 	float m_boundingRadius;
 
-	int m_primitiveControlPointPatchList;
+	int m_primitiveControlPointPatchList;	
 };
 
 #endif

@@ -12,6 +12,8 @@ Settings::Settings(int index)
 	m_debugData2.ShowShadowMap = true;
 	m_debugData2.ParticlesEnabled = true;
 	m_debugData2.ShadowMapFramesDelay = 0;
+	m_debugData2.DebugLinesEnabled = true;
+	m_debugData2.SkyboxEnabled = false;
 
 	m_postProcessingExhibitData3.PostProcessingEnabled = true;
 	m_postProcessingExhibitData3.FiltersEnabled = true;
