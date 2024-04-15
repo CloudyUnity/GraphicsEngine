@@ -65,49 +65,49 @@ bool SceneTestClass::InitializeScene(HWND hwnd)
 	// TEXSETS
 
 	TextureSetClass* texSetMoss, * texSetStars, * texSetSnow, * texSetReflection, * texSetWater, * texSetNone, * texSetFire, * texSetSkybox, * texSetPS;
-	CreateTexSet(&texSetMoss);
-	CreateTexSet(&texSetStars);
-	CreateTexSet(&texSetSnow);
-	CreateTexSet(&texSetReflection);
-	CreateTexSet(&texSetWater);
 	CreateTexSet(&texSetNone);
-	CreateTexSet(&texSetFire);
-	CreateTexSet(&texSetSkybox);
-	CreateTexSet(&texSetPS);
 
+	CreateTexSet(&texSetMoss);		
 	texSetMoss->Add(device, context, "../GraphicsEngine/Data/Celeste.tga");
 	texSetMoss->Add(device, context, "../GraphicsEngine/Data/Moss.tga");
 	texSetMoss->Add(device, context, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
 	texSetMoss->Add(device, context, "../GraphicsEngine/Data/MossNormal.tga");
 
+	CreateTexSet(&texSetStars);
 	texSetStars->Add(device, context, "../GraphicsEngine/Data/Celeste.tga");
 	texSetStars->Add(device, context, "../GraphicsEngine/Data/Celeste.tga");
 	texSetStars->Add(device, context, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
 	texSetStars->Add(device, context, "../GraphicsEngine/Data/RockNormal.tga");
 
+	CreateTexSet(&texSetSnow);
 	texSetSnow->Add(device, context, "../GraphicsEngine/Data/Snow.tga");
 	texSetSnow->Add(device, context, "../GraphicsEngine/Data/Snow.tga");
 	texSetSnow->Add(device, context, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
 	texSetSnow->Add(device, context, "../GraphicsEngine/Data/DefaultNormal.tga");
 
+	CreateTexSet(&texSetReflection);
 	texSetReflection->Add(device, context, "../GraphicsEngine/Data/Glass.tga");
 	texSetReflection->Add(device, context, "../GraphicsEngine/Data/Glass.tga");
 	texSetReflection->Add(device, context, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
 	texSetReflection->Add(device, context, "../GraphicsEngine/Data/GlassNormal.tga");
 
+	CreateTexSet(&texSetWater);
 	texSetWater->Add(device, context, "../GraphicsEngine/Data/WaterBlue.tga");
 	texSetWater->Add(device, context, "../GraphicsEngine/Data/WaterBlue.tga");
 	texSetWater->Add(device, context, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
 	texSetWater->Add(device, context, "../GraphicsEngine/Data/WaterNormal.tga");
 
+	CreateTexSet(&texSetFire);
 	texSetFire->Add(device, context, "../GraphicsEngine/Data/NoiseAlt.tga");
 	texSetFire->Add(device, context, "../GraphicsEngine/Data/fireColor.tga");
 	texSetFire->Add(device, context, "../GraphicsEngine/Data/flameAlpha.tga");
 
+	CreateTexSet(&texSetSkybox);
 	result = texSetSkybox->AddCubemap(device, context, "../GraphicsEngine/Data/Skybox/Skybox.tga");
 	if (!result)
 		return false;
 
+	CreateTexSet(&texSetPS);
 	texSetPS->Add(device, context, "../GraphicsEngine/Data/Sparkle.tga");
 
 	// MODELS

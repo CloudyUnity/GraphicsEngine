@@ -29,21 +29,27 @@ bool SceneOceanClass::InitializeScene(HWND hwnd)
 	// SHADERS
 
 	bool clampSamplerMode = true;
-	ShaderClass* shaderFractal = 0, * shaderLine = 0;
+	ShaderClass* shaderFractal = 0, * shaderLine = 0, * shaderSkybox = 0;
 	ShaderTessClass* shaderOcean = 0, * shaderOceanTri = 0;
 	result = 
 		CreateShader(hwnd, &shaderOcean, "../GraphicsEngine/Ocean.vs", "../GraphicsEngine/Ocean.hs", "../GraphicsEngine/Ocean.ds", "../GraphicsEngine/Ocean.ps") &&
 		CreateShader(hwnd, &shaderOceanTri, "../GraphicsEngine/Ocean.vs", "../GraphicsEngine/OceanTri.hs", "../GraphicsEngine/OceanTri.ds", "../GraphicsEngine/Ocean.ps") &&
 		CreateShader(hwnd, &shaderLine, "../GraphicsEngine/Line.vs", "../GraphicsEngine/Line.ps") &&
+		CreateShader(hwnd, &shaderSkybox, "../GraphicsEngine/Skybox.vs", "../GraphicsEngine/Skybox.ps", clampSamplerMode) &&
 		CreateShader(hwnd, &shaderFractal, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/Fractal.ps");
 	if (!result)
 		return false;
 
 	// TEXSETS
 
-	TextureSetClass* texSetOcean;
+	TextureSetClass* texSetOcean, * texSetSkybox;
 	CreateTexSet(&texSetOcean);
 	texSetOcean->Add(device, context, "../GraphicsEngine/Data/Celeste.tga");
+
+	CreateTexSet(&texSetSkybox);
+	result = texSetSkybox->AddCubemap(device, context, "../GraphicsEngine/Data/Skybox/Skybox.tga");
+	if (!result)
+		return false;
 
 	// MODELS
 
@@ -66,7 +72,6 @@ bool SceneOceanClass::InitializeScene(HWND hwnd)
 
 	modelPlane->SetPrimitiveControlPointPatchList(usingTri ? 3 : 4);
 	modelPlane->SetCustomBoundingRadius(modelPlane->GetBoundingRadius() * 2.0f);
-	modelCube->SetPrimitiveControlPointPatchList(3);
 
 	// GOS
 
@@ -95,12 +100,24 @@ bool SceneOceanClass::InitializeScene(HWND hwnd)
 		}
 	}	
 
+	CreateGameObject(modelCube, shaderSkybox, texSetSkybox, false, "Skybox", m_skyboxGO);
+	m_skyboxGO->SetScale(500);
+	m_skyboxGO->SetBackCulling(false);
+
 	return true;
 }
 
 bool SceneOceanClass::Frame(InputClass* input, float frameTime)
 {
+	XMFLOAT3 camPos = m_Camera->GetPosition();
+
+	if (m_skyboxGO && !m_settings->m_CurrentData.FreezeSkybox)
+		m_skyboxGO->SetPosition(camPos.x, camPos.y, camPos.z);
+	if (m_skyboxGO)
+		m_skyboxGO->SetScale(m_settings->m_CurrentData.ShadowsEnabled ? 500 : 0);
+
 	float ddx = 0, ddz = 0;
+	float lastDDX = 0, lastDDZ = 0;
 	float posY = 0;
 
 	for (int i = 0; i < SIN_COUNT; i++)
@@ -110,13 +127,16 @@ bool SceneOceanClass::Frame(InputClass* input, float frameTime)
 		float freq = m_oceanSines[i].z;		
 		float theta = m_oceanSines[i].w;
 		XMFLOAT2 D = XMFLOAT2(cos(theta), sin(theta));
+		float align = D.x * lastDDX + D.y * lastDDZ;
 
-		float exponent = sin(p * m_time) - 1;
+		float exponent = sin(p * m_time + align * freq) - 1;
 		posY += a * exp(exponent);
 
-		float cosine = cos(p * m_time);
-		ddx += a * freq * D.x * cosine * exp(exponent);
-		ddz += a * freq * D.y * cosine * exp(exponent);
+		float cosine = cos(p * m_time + align * freq);
+		lastDDX = a * freq * D.x * cosine * exp(exponent);
+		lastDDZ = a * freq * D.y * cosine * exp(exponent);
+		ddx += lastDDX;
+		ddz += lastDDZ;
 	}
 
 	// XMFLOAT3 tangent = XMFLOAT3(1, 0, ddz);

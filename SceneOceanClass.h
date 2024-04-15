@@ -23,7 +23,7 @@ private:
 
 	LightClass* m_DirLight;
 
-	GameObjectClass* m_GoOcean;
+	GameObjectClass* m_GoOcean, * m_skyboxGO;
 	ModelLineListClass* m_debugLineLight, *m_debugLineTangent, *m_debugLineBinormal, *m_debugLineNormal;
 	XMFLOAT4 m_oceanSines[SIN_COUNT];
 	float m_time;
