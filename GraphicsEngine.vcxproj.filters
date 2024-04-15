@@ -42,9 +42,6 @@
     <Filter Include="Source Files\Interfaces">
       <UniqueIdentifier>{1051f6ab-d9e6-4289-9251-cda07524f2ea}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Shaders">
-      <UniqueIdentifier>{4d5eaaa8-45e9-43b8-b072-49013f17f934}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="GraphicsEngine.rc">
