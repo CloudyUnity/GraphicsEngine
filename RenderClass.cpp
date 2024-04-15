@@ -299,8 +299,6 @@ bool RenderClass::RenderDisplayPlanes(RenderInfoType* renderInfo, XMMATRIX view,
 {
 	bool result;
 
-	auto savedParams = *(renderInfo->Params);
-
 	m_Direct3D->SetBackCulling(renderInfo->Settings->m_CurrentData.WireframeMode, false);
 
 	for (auto go : renderInfo->SceneData->DisplayPlaneList)
@@ -314,8 +312,6 @@ bool RenderClass::RenderDisplayPlanes(RenderInfoType* renderInfo, XMMATRIX view,
 		result = go->Render(m_Direct3D->GetDeviceContext(), renderInfo->Params);
 		if (!result)
 			return false;
-
-		*(renderInfo->Params) = savedParams;
 	}
 
 	m_Direct3D->SetBackCulling(renderInfo->Settings->m_CurrentData.WireframeMode, true);
@@ -533,36 +529,31 @@ bool RenderClass::RenderPostProcessing(RenderInfoType* renderInfo)
 	m_Camera->Get2DViewMatrix(viewMatrix2D);
 	m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
-	//renderInfo->Params->matrix.view = viewMatrix2D;
-	//renderInfo->Params->matrix.projection = orthoMatrix;
-	//
-	//ClearShaderResources();
-	//m_ppSecondPassBlurDisplay->m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
-	//m_ppSecondPassBlurDisplay->m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 1, 1, 0, 1);
+	int count = renderInfo->SceneData->PostProcessingLayers.size();
+	for (int i = 0; i < count; i++)
+	{
+		ClearShaderResources();
+		if (i == count - 1)
+		{			
+			m_Direct3D->SetBackBufferRenderTarget();
+			m_Direct3D->ResetViewport();
+		}
+		else
+		{
+			DisplayPlaneClass* dpNext = renderInfo->SceneData->PostProcessingLayers.at(i+1);
+			dpNext->m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+			dpNext->m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 1, 1, 0, 1);
+		}
 
-	//result = m_ppFirstPassBlurDisplay->Render(m_Direct3D->GetDeviceContext(), renderInfo->Params);
-	//if (!result)
-	//	return false;	
+		DisplayPlaneClass* dp = renderInfo->SceneData->PostProcessingLayers.at(i);
 
-	////
+		dp->m_shaderUniformData.matrix.view = viewMatrix2D;
+		dp->m_shaderUniformData.matrix.projection = orthoMatrix;
 
-	//ClearShaderResources();
-	//m_ppThirdPassFilterDisplay->m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
-	//m_ppThirdPassFilterDisplay->m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 1, 1, 0, 1);
-
-	//result = m_ppSecondPassBlurDisplay->Render(m_Direct3D->GetDeviceContext(), renderInfo->Params);
-	//if (!result)
-	//	return false;
-
-	////
-
-	//ClearShaderResources();
-	//m_Direct3D->SetBackBufferRenderTarget();
-	//m_Direct3D->ResetViewport();
-
-	//result = m_ppThirdPassFilterDisplay->Render(m_Direct3D->GetDeviceContext(), renderInfo->Params);
-	//if (!result)
-	//	return false;
+		result = dp->Render(m_Direct3D->GetDeviceContext(), renderInfo->Params);
+		if (!result)
+			return false;
+	}
 
 	return true;
 }
