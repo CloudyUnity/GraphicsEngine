@@ -48,17 +48,17 @@ void DisplayPlaneClass::Shutdown()
     ShutdownBuffers();
 }
 
-bool DisplayPlaneClass::Render(ID3D11DeviceContext* deviceContext, ShaderClass::ShaderParameters* params)
+bool DisplayPlaneClass::Render(ID3D11DeviceContext* deviceContext, ShaderClass::ShaderParamsGlobalType* params)
 {
     bool result;
 
-    params->matrix.world = GetWorldMatrix();
+    m_shaderUniformData.matrix.world = GetWorldMatrix();
 
     m_TexSet->Add(m_RenderTexture->GetShaderResourceView(), 0);
 
     RenderBuffers(deviceContext);
 
-    result = m_Shader->Render(deviceContext, GetIndexCount(), m_TexSet, params);
+    result = m_Shader->Render(deviceContext, GetIndexCount(), m_TexSet, params, &m_shaderUniformData);
     if (!result)
         return false;
 

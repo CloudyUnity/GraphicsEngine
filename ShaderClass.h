@@ -26,7 +26,7 @@ using std::unique_ptr;
 
 class ShaderClass : public IShutdown
 {
-protected:
+public:
 	// XMMATRIX = 4x4 floats = 64 bytes
 	struct MatrixBufferType // 192 bytes
 	{
@@ -137,29 +137,34 @@ protected:
 	};
 
 public:
-	struct ShaderParameters
-	{
-		MatrixBufferType matrix;
+	struct ShaderParamsGlobalType
+	{		
 		UtilBufferType utils;
 		LightColorBufferType lightColor;
 		LightPositionBufferType lightPos;
 		LightBufferType light;
 		CameraBufferType camera;
-		PixelBufferType pixel;
-		FogBufferType fog;
-		ClipPlaneBufferType clip;
-		TexTranslationBufferType textureTranslation;
-		AlphaBufferType alpha;
-		ReflectionBufferType reflection;
-		WaterBufferType water;
-		FireBufferType fire;
-		ShadowBufferType shadow;
-		BlurBufferType blur;
-		FilterBufferType filter;
-		TessellationBufferType tesselation;
+		FogBufferType fog;		
+		ReflectionBufferType reflection;		
+		ShadowBufferType shadow;		
 		OceanSineBufferType oceanSine;
 
 		bool reflectionEnabled;
+	};
+	struct ShaderParamsObjectType
+	{
+		MatrixBufferType matrix;
+		PixelBufferType pixel;
+		ClipPlaneBufferType clip;
+		TexTranslationBufferType textureTranslation;
+		AlphaBufferType alpha;
+		WaterBufferType water;
+		FireBufferType fire;
+		TessellationBufferType tesselation;		
+
+		// PP
+		BlurBufferType blur;
+		FilterBufferType filter;
 	};
 
 public:
@@ -168,14 +173,14 @@ public:
 
 	bool Initialize(ID3D11Device*, HWND, char*, char*, bool clampSamplerMode = false);
 	void Shutdown() override;
-	bool Render(ID3D11DeviceContext*, int, TextureSetClass*, ShaderParameters*);
+	bool Render(ID3D11DeviceContext*, int, TextureSetClass*, ShaderParamsGlobalType*, ShaderParamsObjectType*);
 
 protected:
 	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*, bool);
 	bool TryCreateBuffer(ID3D11Device* device, D3D11_BUFFER_DESC bufferDesc, ID3D11Buffer*& ptr, size_t structSize, string, string);
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
-	virtual bool SetShaderParameters(ID3D11DeviceContext*, TextureSetClass*, ShaderParameters*);	
+	virtual bool SetShaderParameters(ID3D11DeviceContext*, TextureSetClass*, ShaderParamsGlobalType*, ShaderParamsObjectType*);
 
     bool ShaderUsesBuffer(std::string, std::string);
 	void UnmapVertexBuffer(ID3D11DeviceContext* deviceContext, int bufferNumber, ID3D11Buffer** buffer);

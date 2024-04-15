@@ -108,23 +108,23 @@ bool ParticleSystemClass::InitializeBuffers(ID3D11Device* device)
     return true;
 }
 
-bool ParticleSystemClass::Render(ID3D11DeviceContext* deviceContext, ShaderClass::ShaderParameters* params, ShaderClass* overwriteShader)
+bool ParticleSystemClass::Render(ID3D11DeviceContext* deviceContext, ShaderClass::ShaderParamsGlobalType* params, ShaderClass* overwriteShader)
 {
 	XMMATRIX scaleMatrix = XMMatrixScaling(m_ScaleX, m_ScaleY, m_ScaleZ);
 	XMMATRIX translateMatrix = XMMatrixTranslation(m_PosX, m_PosY, m_PosZ);
 	XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYaw(m_RotX * (float)DEG_TO_RAD, m_RotY * (float)DEG_TO_RAD, m_RotZ * (float)DEG_TO_RAD);
 
 	XMMATRIX srMatrix = XMMatrixMultiply(scaleMatrix, rotateMatrix);
-	params->matrix.world = XMMatrixMultiply(srMatrix, translateMatrix);
+    m_shaderUniformData.matrix.world = XMMatrixMultiply(srMatrix, translateMatrix);
 
     RenderBuffers(deviceContext);
 
 	if (overwriteShader)
 	{
-		return overwriteShader->Render(deviceContext, m_indexCount, nullptr, params);
+		return overwriteShader->Render(deviceContext, m_indexCount, nullptr, params, &m_shaderUniformData);
 	}
 
-	return m_Shader->Render(deviceContext, m_indexCount, m_Textures, params);
+	return m_Shader->Render(deviceContext, m_indexCount, m_Textures, params, &m_shaderUniformData);
 }
 
 void ParticleSystemClass::RenderBuffers(ID3D11DeviceContext* deviceContext)

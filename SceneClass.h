@@ -48,7 +48,7 @@ public:
     bool ParticlesFrame(float frameTime);
 	virtual bool Frame(InputClass*, float frameTime);
 	virtual bool LateFrame(InputClass* input, float frameTime);
-	virtual void SetParameters(ShaderClass::ShaderParameters*);
+	virtual void SetParameters(ShaderClass::ShaderParamsGlobalType*);
 	virtual void OnSwitchTo();
 	void Shutdown() override;
 

@@ -24,7 +24,7 @@ void GameObjectClass2D::Initialize(BitmapClass* bitmap, ShaderClass* shaders)
 	m_TexSet = new TextureSetClass;
 }
 
-bool GameObjectClass2D::Render(ID3D11DeviceContext* deviceContext, ShaderClass::ShaderParameters* params)
+bool GameObjectClass2D::Render(ID3D11DeviceContext* deviceContext, ShaderClass::ShaderParamsGlobalType* params)
 {
 	/*float posX = fmodf(m_PosX, SCREEN_X / m_ScaleX);
 	float posY = fmodf(m_PosY, SCREEN_Y / m_ScaleY);
@@ -35,10 +35,10 @@ bool GameObjectClass2D::Render(ID3D11DeviceContext* deviceContext, ShaderClass::
 
 	XMMATRIX translateMatrix = XMMatrixTranslation(m_PosX, m_PosY, 0); // TO FIX (Look at BitMapClass.cpp to see how to properly calculate position. Then place into translation matrix)
 	XMMATRIX scaleMatrix = XMMatrixScaling(m_ScaleX, m_ScaleY, 1.0f);
-	XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYaw(0, 0, m_RotZ * 0.0174532925f);
+	XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYaw(0, 0, m_RotZ * (float)DEG_TO_RAD);
 
 	XMMATRIX srMatrix = XMMatrixMultiply(rotateMatrix, scaleMatrix);
-	params->matrix.world = XMMatrixMultiply(srMatrix, translateMatrix);
+	m_shaderUniformData.matrix.world = XMMatrixMultiply(srMatrix, translateMatrix);
 
 	// Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	m_BitMap->SetRenderLocation(0, 0);
@@ -46,7 +46,7 @@ bool GameObjectClass2D::Render(ID3D11DeviceContext* deviceContext, ShaderClass::
 
 	m_TexSet->Add(m_BitMap->GetTexture(), 0);
 
-	return m_Shader->Render(deviceContext, m_BitMap->GetIndexCount(), m_TexSet, params);
+	return m_Shader->Render(deviceContext, m_BitMap->GetIndexCount(), m_TexSet, params, &m_shaderUniformData);
 }
 
 void GameObjectClass2D::Shutdown()

@@ -22,7 +22,7 @@ public:
 
     bool Initialize(ID3D11Device*, float, float, RenderTextureClass*, ShaderClass*, const char*, CameraClass* cam = nullptr);
     void Shutdown() override;
-    bool Render(ID3D11DeviceContext*, ShaderClass::ShaderParameters*);
+    bool Render(ID3D11DeviceContext*, ShaderClass::ShaderParamsGlobalType*);
 
     XMMATRIX GetWorldMatrix();
 
@@ -50,6 +50,9 @@ private:
     bool InitializeBuffers(ID3D11Device*, float, float);
     void ShutdownBuffers();
     void RenderBuffers(ID3D11DeviceContext*);
+
+public:
+    ShaderClass::ShaderParamsObjectType m_shaderUniformData;
 
 private:
     ID3D11Buffer* m_vertexBuffer, * m_indexBuffer;

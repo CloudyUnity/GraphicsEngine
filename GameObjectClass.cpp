@@ -8,6 +8,7 @@ GameObjectClass::GameObjectClass()
 	m_texSetReflectionNum = -1;
 	m_texSetRefractionNum = -1;
 	m_texSetShadowNum = -1;
+	m_rendered = true;
 
 	m_BillboardingEnabled = false;
 	m_PosX = 0;
@@ -25,6 +26,9 @@ GameObjectClass::GameObjectClass()
 	m_Textures = 0;
 	
 	m_reflectMatrix = XMMatrixIdentity();
+
+	m_shaderUniformData.clip.clipPlane = XMFLOAT4(0.0f, -1.0f, 0.0f, 999999.0f);
+	m_shaderUniformData.alpha.alphaBlend = 1.0f;
 }
 
 GameObjectClass::~GameObjectClass()
@@ -40,7 +44,7 @@ void GameObjectClass::Initialize(ModelClass* model, ShaderClass* shaders, Textur
 	SetScale(1, 1, 1);
 }
 
-bool GameObjectClass::Render(ID3D11DeviceContext* deviceContext, ShaderClass::ShaderParameters* params, ShaderClass* overwriteShader)
+bool GameObjectClass::Render(ID3D11DeviceContext* deviceContext, ShaderClass::ShaderParamsGlobalType* params, ShaderClass* overwriteShader)
 {
 	XMMATRIX scaleMatrix = XMMatrixScaling(m_ScaleX, m_ScaleY, m_ScaleZ);
 	XMMATRIX translateMatrix = XMMatrixTranslation(m_PosX, m_PosY, m_PosZ);	
@@ -53,17 +57,17 @@ bool GameObjectClass::Render(ID3D11DeviceContext* deviceContext, ShaderClass::Sh
 	}
 
 	XMMATRIX srMatrix = XMMatrixMultiply(scaleMatrix, rotateMatrix);
-	params->matrix.world = XMMatrixMultiply(srMatrix, translateMatrix);
+	m_shaderUniformData.matrix.world = XMMatrixMultiply(srMatrix, translateMatrix);
 
 	// Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	m_Model->RenderBuffers(deviceContext);
 
 	if (overwriteShader)
 	{
-		return overwriteShader->Render(deviceContext, m_Model->GetIndexCount(), nullptr, params);
+		return overwriteShader->Render(deviceContext, m_Model->GetIndexCount(), nullptr, params, &m_shaderUniformData);
 	}
 
-	bool result = m_Shader->Render(deviceContext, m_Model->GetIndexCount(), m_Textures, params);
+	bool result = m_Shader->Render(deviceContext, m_Model->GetIndexCount(), m_Textures, params, &m_shaderUniformData);
 	if (!result)
 		return false;
 
@@ -136,6 +140,11 @@ float GameObjectClass::GetBoundingRadius()
 	return m_boundingRadius;
 }
 
+bool GameObjectClass::GetRendered()
+{
+	return m_rendered;
+}
+
 bool GameObjectClass::ModelIsLineList()
 {
 	return m_Model != nullptr && m_Model->m_isModelLineList;
@@ -200,4 +209,9 @@ void GameObjectClass::SetBillBoarding(bool billboarding)
 void GameObjectClass::SetBackCulling(bool enabled)
 {
 	m_BackCullingDisabled = !enabled;
+}
+
+void GameObjectClass::SetRendered(bool enabled)
+{
+	m_rendered = enabled;
 }

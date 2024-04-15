@@ -17,7 +17,7 @@ public:
 	~GameObjectClass2D();
 
 	void Initialize(BitmapClass*, ShaderClass*);
-	bool Render(ID3D11DeviceContext*, ShaderClass::ShaderParameters*);
+	bool Render(ID3D11DeviceContext*, ShaderClass::ShaderParamsGlobalType*);
 	void Shutdown() override;
 
 	void SetPosition(float, float);
@@ -32,6 +32,8 @@ public:
 	BitmapClass* m_BitMap;
 	ShaderClass* m_Shader;
 	TextureSetClass* m_TexSet;
+
+	ShaderClass::ShaderParamsObjectType m_shaderUniformData;
 };
 
 #endif

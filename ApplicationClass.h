@@ -61,7 +61,7 @@ private:
 	TimerClass* m_Timer;
 	FpsClass* m_Fps;
 	FrustumClass* m_Frustum;
-	ShaderClass::ShaderParameters* m_Parameters;
+	ShaderClass::ShaderParamsGlobalType* m_Parameters;
 	Settings* m_Settings;
 	FontClass* m_Font; // Shutdown
 

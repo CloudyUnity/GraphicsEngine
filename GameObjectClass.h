@@ -10,6 +10,7 @@
 #include "RenderTextureClass.h"
 #include "settings.h"
 #include "IShutdown.h"
+#include "ShaderClass.h"
 using namespace DirectX;
 
 class GameObjectClass : public IShutdown
@@ -19,7 +20,7 @@ public:
 	~GameObjectClass();
 
 	void Initialize(ModelClass*, ShaderClass*, TextureSetClass*, std::string);
-	bool Render(ID3D11DeviceContext*, ShaderClass::ShaderParameters* params, ShaderClass* overwriteShader = nullptr);
+	bool Render(ID3D11DeviceContext*, ShaderClass::ShaderParamsGlobalType* params, ShaderClass* overwriteShader = nullptr);
 	void Shutdown() override;
 
 	void SetPosition(float, float, float);
@@ -40,8 +41,10 @@ public:
 
 	void SetBillBoarding(bool);
 	void SetBackCulling(bool);
+	void SetRendered(bool);
 
 	float GetBoundingRadius();
+	bool GetRendered();
 	bool ModelIsLineList();
 
 public:
@@ -55,6 +58,8 @@ public:
 	bool m_BillboardingEnabled;
 	bool m_BackCullingDisabled;
 
+	ShaderClass::ShaderParamsObjectType m_shaderUniformData;
+
 private:
 	float m_boundingRadius;
 
@@ -66,6 +71,8 @@ private:
 	int m_texSetRefractionNum;
 	int m_texSetShadowNum;
 	XMMATRIX m_reflectMatrix;	
+
+	bool m_rendered;
 };
 
 #endif

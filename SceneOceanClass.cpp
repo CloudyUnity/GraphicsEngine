@@ -79,12 +79,12 @@ bool SceneOceanClass::InitializeScene(HWND hwnd)
 
 	// GOS
 
-	GameObjectClass* goWall1, * goWall2, * goWall3, * goWall4;
+	GameObjectClass* goWall1, * goWall2, * goWall3, * goWall4, *goLineYellow, *goLineBlue;
 
-	CreateGameObject(m_debugLineLight, shaderLine, nullptr, false, "LineYellow");
-	CreateGameObject(m_debugLineNormal, shaderLine, nullptr, false, "LineBlue");
-	//CreateGameObject(m_debugLineTangent, shaderLine, nullptr, false, "LineRed");
-	//CreateGameObject(m_debugLineBinormal, shaderLine, nullptr, false, "LineGreen");
+	CreateGameObject(m_debugLineLight, shaderLine, nullptr, false, "LineYellow", goLineYellow);
+	goLineYellow->m_shaderUniformData.pixel.pixelColor = XMFLOAT4(1, 1, 0, 1);
+	CreateGameObject(m_debugLineNormal, shaderLine, nullptr, false, "LineBlue", goLineBlue);
+	goLineBlue->m_shaderUniformData.pixel.pixelColor = XMFLOAT4(0, 0, 1, 1);
 
 	bool detailMode = true;
 
@@ -100,6 +100,7 @@ bool SceneOceanClass::InitializeScene(HWND hwnd)
 			CreateGameObject(modelPlane, (usingTri ? shaderOceanTri : shaderOcean), texSetSkybox, false, "Ocean" + i, ptr);
 			ptr->SetScale(size, 1, size);
 			ptr->SetPosition(startPos.x + i * size, 0, startPos.y + j * size);
+			ptr->m_shaderUniformData.tesselation.tessellationAmount = 64;
 		}
 	}	
 
@@ -164,8 +165,6 @@ bool SceneOceanClass::Frame(InputClass* input, float frameTime)
 		ddz += lastDDZ;
 	}
 
-	// XMFLOAT3 tangent = XMFLOAT3(1, 0, ddz);
-	// XMFLOAT3 binormal = XMFLOAT3(0, 1, ddx);
 	XMFLOAT3 normal = XMFLOAT3(-ddx, 1, -ddz);
 	float mag = sqrt(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
 	normal.x /= mag;
@@ -173,16 +172,6 @@ bool SceneOceanClass::Frame(InputClass* input, float frameTime)
 	normal.z /= mag;
 
 	vector<XMFLOAT3> points;
-
-	//points.push_back(XMFLOAT3(tangent.x * 1000, tangent.y * 1000 + posY, tangent.z * 1000));
-	//points.push_back(XMFLOAT3(0, posY, 0));
-	//m_debugLineTangent->UpdateBuffers(m_Direct3D->GetDeviceContext(), points);
-	//points.clear();
-
-	//points.push_back(XMFLOAT3(binormal.x * 1000, binormal.y * 1000 + posY, binormal.z * 1000));
-	//points.push_back(XMFLOAT3(0, posY, 0));
-	//m_debugLineBinormal->UpdateBuffers(m_Direct3D->GetDeviceContext(), points);
-	//points.clear();
 
 	points.push_back(XMFLOAT3(normal.x * 1000, normal.y * 1000 + posY, normal.z * 1000));
 	points.push_back(XMFLOAT3(0, posY, 0));
@@ -198,7 +187,7 @@ bool SceneOceanClass::LateFrame(InputClass* input, float frameTime)
 	return true;
 }
 
-void SceneOceanClass::SetParameters(ShaderClass::ShaderParameters* params)
+void SceneOceanClass::SetParameters(ShaderClass::ShaderParamsGlobalType* params)
 {
 	params->light.ambientColor = m_DirLight->GetAmbientColor();
 	params->light.diffuseColor = m_DirLight->GetDiffuseColor();

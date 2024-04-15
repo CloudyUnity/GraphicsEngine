@@ -153,11 +153,11 @@ void ShaderTessClass::RenderShader(ID3D11DeviceContext* deviceContext, int index
 	deviceContext->DSSetShader(NULL, NULL, 0);
 }
 
-bool ShaderTessClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, TextureSetClass* texSet, ShaderParameters* params)
+bool ShaderTessClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, TextureSetClass* texSet, ShaderParamsGlobalType* globalParams, ShaderParamsObjectType* objectParams)
 {
 	bool result;
 
-	result = ShaderClass::SetShaderParameters(deviceContext, texSet, params);
+	result = ShaderClass::SetShaderParameters(deviceContext, texSet, globalParams, objectParams);
 	if (!result)
 		return false;
 
@@ -167,9 +167,9 @@ bool ShaderTessClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Te
 		if (!TryMapBuffer(deviceContext, &m_matrixBuffer, &ptr))
 			return false;
 
-		ptr->world = XMMatrixTranspose(params->matrix.world);
-		ptr->view = XMMatrixTranspose(params->matrix.view);
-		ptr->projection = XMMatrixTranspose(params->matrix.projection);
+		ptr->world = XMMatrixTranspose(objectParams->matrix.world);
+		ptr->view = XMMatrixTranspose(objectParams->matrix.view);
+		ptr->projection = XMMatrixTranspose(objectParams->matrix.projection);
 
 		UnmapDomainBuffer(deviceContext, 0, &m_matrixBuffer);
 	}
@@ -180,7 +180,7 @@ bool ShaderTessClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Te
 		if (!TryMapBuffer(deviceContext, &m_tesselationBuffer, &ptr))
 			return false;
 
-		ptr->tessellationAmount = params->tesselation.tessellationAmount;
+		ptr->tessellationAmount = objectParams->tesselation.tessellationAmount;
 
 		UnmapHullBuffer(deviceContext, 0, &m_tesselationBuffer);
 	}
@@ -191,9 +191,9 @@ bool ShaderTessClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Te
 		if (!TryMapBuffer(deviceContext, &m_utilBuffer, &ptr))
 			return false;
 
-		ptr->time = params->utils.time;
-		ptr->texelSizeX = params->utils.texelSizeX;
-		ptr->texelSizeY = params->utils.texelSizeY;
+		ptr->time = globalParams->utils.time;
+		ptr->texelSizeX = globalParams->utils.texelSizeX;
+		ptr->texelSizeY = globalParams->utils.texelSizeY;
 
 		UnmapDomainBuffer(deviceContext, 2, &m_utilBuffer);
 	}
@@ -204,7 +204,7 @@ bool ShaderTessClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Te
 		if (!TryMapBuffer(deviceContext, &m_oceanSineBuffer, &ptr))
 			return false;
 
-		XMFLOAT4 *amps = params->oceanSine.ampPhaseFreq;
+		XMFLOAT4 *amps = globalParams->oceanSine.ampPhaseFreq;
 
 		for (int i = 0; i < SIN_COUNT; i++)
 		{
@@ -220,7 +220,7 @@ bool ShaderTessClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Te
 		if (!TryMapBuffer(deviceContext, &m_cameraBuffer, &ptr))
 			return false;
 
-		ptr->cameraPosition = params->camera.cameraPosition;
+		ptr->cameraPosition = globalParams->camera.cameraPosition;
 
 		UnmapDomainBuffer(deviceContext, 3, &m_cameraBuffer);
 	}

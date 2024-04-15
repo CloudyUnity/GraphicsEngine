@@ -14,7 +14,7 @@ private:
 
 	void RenderShader(ID3D11DeviceContext*, int) override;
 
-	bool SetShaderParameters(ID3D11DeviceContext*, TextureSetClass*, ShaderParameters*) override;
+	bool SetShaderParameters(ID3D11DeviceContext*, TextureSetClass*, ShaderParamsGlobalType*, ShaderParamsObjectType*) override;
 
 	void UnmapHullBuffer(ID3D11DeviceContext* deviceContext, int bufferNumber, ID3D11Buffer** buffer);
 	void UnmapDomainBuffer(ID3D11DeviceContext* deviceContext, int bufferNumber, ID3D11Buffer** buffer);
