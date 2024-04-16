@@ -134,29 +134,19 @@ bool ShaderTessClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* v
 	bufferDesc.MiscFlags = 0;
 	bufferDesc.StructureByteStride = 0;
 
-	result = 
-		TryCreateBuffer(device, bufferDesc, m_matrixBuffer, sizeof(MatrixBufferType), "MatrixBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_fogBuffer, sizeof(FogBufferType), "FogBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_clipBuffer, sizeof(ClipPlaneBufferType), "ClipBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_cameraBuffer, sizeof(CameraBufferType), "CameraBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_reflectionBuffer, sizeof(ReflectionBufferType), "ReflectionBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_utilBuffer, sizeof(UtilBufferType), "UtilBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_lightColorBuffer, sizeof(LightColorBufferType), "LightColorBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_lightBuffer, sizeof(LightBufferType), "LightBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_pixelBuffer, sizeof(PixelBufferType), "PixelBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_texTransBuffer, sizeof(TexTranslationBufferType), "TextureTranslationBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_alphaBuffer, sizeof(AlphaBufferType), "AlphaBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_waterBuffer, sizeof(WaterBufferType), "WaterBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_fireBuffer, sizeof(FireBufferType), "FireBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_shadowBuffer, sizeof(ShadowBufferType), "ShadowBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_blurBuffer, sizeof(BlurBufferType), "BlurBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_filterBuffer, sizeof(FilterBufferType), "FilterBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_lightPositionBuffer, sizeof(LightPositionBufferType), "LightPositionBuffer") &&
+	for (auto hBuffer : m_cbufferListHull)
+	{
+		result = TryCreateBufferHull(device, bufferDesc, hBuffer);
+		if (!result)
+			return false;
+	}
 
-		TryCreateBuffer(device, bufferDesc, m_oceanSineBuffer, sizeof(OceanSineBufferType), "OceanSineBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_tesselationBuffer, sizeof(TessellationBufferType), "TessellationBuffer");
-	if (!result)
-		return false;
+	for (auto dBuffer : m_cbufferListDomain)
+	{
+		result = TryCreateBufferDomain(device, bufferDesc, dBuffer);
+		if (!result)
+			return false;
+	}
 
 	return true;
 }
@@ -185,6 +175,7 @@ bool ShaderTessClass::SaveCBufferInfo(ID3D10Blob* hullBlob, ID3D10Blob* domainBl
 		D3D11_SHADER_BUFFER_DESC bufferDesc;
 		vBuffer->GetDesc(&bufferDesc);
 		m_cbufferListHull.push_back(bufferDesc.Name);
+		m_cbufferSizeListHull.push_back(bufferDesc.Size);
 	}
 
 	for (UINT i = 0; i < dDesc.ConstantBuffers; ++i)
@@ -193,6 +184,7 @@ bool ShaderTessClass::SaveCBufferInfo(ID3D10Blob* hullBlob, ID3D10Blob* domainBl
 		D3D11_SHADER_BUFFER_DESC bufferDesc;
 		pBuffer->GetDesc(&bufferDesc);
 		m_cbufferListDomain.push_back(bufferDesc.Name);
+		m_cbufferSizeListDomain.push_back(bufferDesc.Size);
 	}
 
 	if (dReflection)
@@ -202,11 +194,6 @@ bool ShaderTessClass::SaveCBufferInfo(ID3D10Blob* hullBlob, ID3D10Blob* domainBl
 		hReflection->Release();
 
 	return true;
-}
-
-bool ShaderTessClass::UsesCBuffer(string cbufferName)
-{
-	return ShaderClass::UsesCBuffer(cbufferName) || UsesCBufferHull(cbufferName) != -1 || UsesCBufferDomain(cbufferName) != -1;
 }
 
 int ShaderTessClass::UsesCBufferHull(string cbufferName)
@@ -252,70 +239,68 @@ bool ShaderTessClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Te
 	if (!result)
 		return false;
 
-	int bufferIndex;
+	result =
+		SetShaderCBuffer(deviceContext, globalParams->camera, "CameraBuffer") &&
+		SetShaderCBuffer(deviceContext, globalParams->fog, "FogBuffer") &&
+		SetShaderCBuffer(deviceContext, globalParams->utils, "UtilBuffer") &&
+		SetShaderCBuffer(deviceContext, globalParams->lightPos, "LightPositionBuffer") &&
+		SetShaderCBuffer(deviceContext, globalParams->lightColor, "LightColorBuffer") &&
+		SetShaderCBuffer(deviceContext, globalParams->light, "LightBuffer") &&
+		SetShaderCBuffer(deviceContext, globalParams->shadow, "ShadowBuffer") &&
 
-	bufferIndex = UsesCBufferDomain("MatrixBuffer");
-	if (bufferIndex != -1)
-	{
-		MatrixBufferType* ptr;
-		if (!TryMapBuffer(deviceContext, &m_matrixBuffer, &ptr))
-			return false;
-		*ptr = objectParams->matrix;
-		UnmapDomainBuffer(deviceContext, bufferIndex, &m_matrixBuffer);
-	}
+		SetShaderCBuffer(deviceContext, objectParams->matrix, "MatrixBuffer") &&
+		SetShaderCBuffer(deviceContext, objectParams->clip, "ClipPlaneBuffer") &&
+		SetShaderCBuffer(deviceContext, objectParams->pixel, "PixelBuffer") &&
+		SetShaderCBuffer(deviceContext, objectParams->textureTranslation, "TextureTranslationBuffer") &&
+		SetShaderCBuffer(deviceContext, objectParams->alpha, "AlphaBuffer") &&
+		SetShaderCBuffer(deviceContext, objectParams->water, "WaterBuffer") &&
+		SetShaderCBuffer(deviceContext, objectParams->fire, "FireBuffer") &&
+		SetShaderCBuffer(deviceContext, objectParams->blur, "BlurBuffer") &&
+		SetShaderCBuffer(deviceContext, objectParams->filter, "FilterBuffer") &&
 
-	bufferIndex = UsesCBufferHull("TessellationBuffer");
-	if (bufferIndex != -1)
-	{
-		TessellationBufferType* ptr;
-		if (!TryMapBuffer(deviceContext, &m_tesselationBuffer, &ptr))
-			return false;
-		*ptr = objectParams->tesselation;
-		UnmapHullBuffer(deviceContext, bufferIndex, &m_tesselationBuffer);
-	}
+		// HS and DS specific Cbuffers
+		SetShaderCBuffer(deviceContext, globalParams->oceanSine, "OceanSineBuffer") &&
+		SetShaderCBuffer(deviceContext, objectParams->tesselation, "TessellationBuffer");
+	if (!result)
+		return false;
 
-	bufferIndex = UsesCBufferDomain("UtilBuffer");
-	if (bufferIndex != -1)
-	{
-		UtilBufferType* ptr;
-		if (!TryMapBuffer(deviceContext, &m_utilBuffer, &ptr))
-			return false;
-		*ptr = globalParams->utils;
-		UnmapDomainBuffer(deviceContext, bufferIndex, &m_utilBuffer);
-	}
 
-	bufferIndex = UsesCBufferDomain("OceanSineBuffer");
-	if (bufferIndex != -1)
+	if (globalParams->reflectionEnabled)
 	{
-		OceanSineBufferType* ptr;
-		if (!TryMapBuffer(deviceContext, &m_oceanSineBuffer, &ptr))
+		result = SetShaderCBuffer(deviceContext, globalParams->reflection, "ReflectionBuffer");
+		if (!result)
 			return false;
-		*ptr = globalParams->oceanSine;
-		UnmapDomainBuffer(deviceContext, bufferIndex, &m_oceanSineBuffer);
-	}
-
-	bufferIndex = UsesCBufferDomain("CameraBuffer");
-	if (bufferIndex != -1)
-	{
-		CameraBufferType* ptr;
-		if (!TryMapBuffer(deviceContext, &m_cameraBuffer, &ptr))
-			return false;
-		*ptr = globalParams->camera;
-		UnmapDomainBuffer(deviceContext, bufferIndex, &m_cameraBuffer);
 	}
 
 	return true;
 }
 
-bool ShaderTessClass::TryCreateBuffer(ID3D11Device* device, D3D11_BUFFER_DESC bufferDesc, ID3D11Buffer*& ptr, size_t structSize, string bufferName)
+bool ShaderTessClass::TryCreateBufferHull(ID3D11Device* device, D3D11_BUFFER_DESC bufferDesc, string bufferName)
 {
-	if (!UsesCBuffer(bufferName) || ptr != nullptr)
-		return true;
+	int bufferIndex = UsesCBufferHull(bufferName);
+	if (bufferIndex == -1)
+		return false;
 
-	bufferDesc.ByteWidth = (UINT)structSize;
+	ID3D11Buffer* ptr;
+	bufferDesc.ByteWidth = (UINT)m_cbufferSizeListHull.at(bufferIndex);
 	HRESULT result = device->CreateBuffer(&bufferDesc, NULL, &ptr);
 
-	m_bufferList.push_back(ptr);
+	m_bufferPtrListHull.push_back(ptr);
+
+	return !FAILED(result);
+}
+
+bool ShaderTessClass::TryCreateBufferDomain(ID3D11Device* device, D3D11_BUFFER_DESC bufferDesc, string bufferName)
+{
+	int bufferIndex = UsesCBufferDomain(bufferName);
+	if (bufferIndex == -1)
+		return false;
+
+	ID3D11Buffer* ptr;
+	bufferDesc.ByteWidth = (UINT)m_cbufferSizeListDomain.at(bufferIndex);
+	HRESULT result = device->CreateBuffer(&bufferDesc, NULL, &ptr);
+
+	m_bufferPtrListDomain.push_back(ptr);
 
 	return !FAILED(result);
 }

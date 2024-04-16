@@ -13,7 +13,6 @@ private:
 	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*, WCHAR*, WCHAR*, bool);
 
 	bool SaveCBufferInfo(ID3D10Blob*, ID3D10Blob*);
-	bool UsesCBuffer(string) override;
 	int UsesCBufferHull(string);
 	int UsesCBufferDomain(string);
 
@@ -21,7 +20,8 @@ private:
 
 	bool SetShaderParameters(ID3D11DeviceContext*, TextureSetClass*, ShaderParamsGlobalType*, ShaderParamsObjectType*) override;
 
-	bool TryCreateBuffer(ID3D11Device* device, D3D11_BUFFER_DESC bufferDesc, ID3D11Buffer*& ptr, size_t structSize, string);
+	bool TryCreateBufferHull(ID3D11Device* device, D3D11_BUFFER_DESC bufferDesc, string);
+	bool TryCreateBufferDomain(ID3D11Device* device, D3D11_BUFFER_DESC bufferDesc, string);
 	void UnmapHullBuffer(ID3D11DeviceContext* deviceContext, int bufferNumber, ID3D11Buffer** buffer);
 	void UnmapDomainBuffer(ID3D11DeviceContext* deviceContext, int bufferNumber, ID3D11Buffer** buffer);
 
@@ -33,8 +33,14 @@ private:
 	vector<string> m_cbufferListHull;
 	vector<string> m_cbufferListDomain;
 
+	vector<ID3D11Buffer*> m_bufferPtrListHull;
+	vector<ID3D11Buffer*> m_bufferPtrListDomain;
+
+	vector<size_t> m_cbufferSizeListHull;
+	vector<size_t> m_cbufferSizeListDomain;
+
 	template<typename T>
-	bool SetShaderCBuffer(ID3D11DeviceContext* deviceContext, ID3D11Buffer* buffer, T values, string name)
+	bool SetShaderCBuffer(ID3D11DeviceContext* deviceContext, T values, string name)
 	{
 		int bufferIndex;
 
@@ -42,6 +48,7 @@ private:
 		if (bufferIndex != -1)
 		{
 			T* ptr;
+			ID3D11Buffer* buffer = m_bufferPtrListHull.at(bufferIndex);
 			if (!TryMapBuffer(deviceContext, &buffer, &ptr))
 				return false;
 			*ptr = values;
@@ -52,6 +59,7 @@ private:
 		if (bufferIndex != -1)
 		{
 			T* ptr;
+			ID3D11Buffer* buffer = m_bufferPtrListDomain.at(bufferIndex);
 			if (!TryMapBuffer(deviceContext, &buffer, &ptr))
 				return false;
 			*ptr = values;

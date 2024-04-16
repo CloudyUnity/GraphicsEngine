@@ -5,26 +5,6 @@ ShaderClass::ShaderClass()
 	m_vertexShader = 0;
 	m_pixelShader = 0;
 	m_layout = 0;
-
-	m_matrixBuffer = 0;
-	m_utilBuffer = 0;
-	m_sampleState = 0;
-	m_lightColorBuffer = 0;
-	m_lightPositionBuffer = 0;
-	m_lightBuffer = 0;
-	m_cameraBuffer = 0;
-	m_pixelBuffer = 0;
-	m_fogBuffer = 0;
-	m_clipBuffer = 0;
-	m_texTransBuffer = 0;
-	m_reflectionBuffer = 0;
-	m_waterBuffer = 0;
-	m_alphaBuffer = 0;
-	m_fireBuffer = 0;
-	m_shadowBuffer = 0;
-	m_blurBuffer = 0;
-	m_filterBuffer = 0;
-	m_tesselationBuffer = 0;
 }
 
 ShaderClass::~ShaderClass()
@@ -70,7 +50,15 @@ void ShaderClass::Shutdown()
 		m_sampleState = 0;
 	}
 
-	for (auto b : m_bufferList)
+	for (auto b : m_bufferPtrListVertex)
+	{
+		if (b)
+		{
+			b->Release();
+		}
+	}
+
+	for (auto b : m_bufferPtrListFragment)
 	{
 		if (b)
 		{
@@ -260,27 +248,19 @@ bool ShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFil
 	bufferDesc.MiscFlags = 0;
 	bufferDesc.StructureByteStride = 0;
 
-	bool bufferCreationResult =
-		TryCreateBuffer(device, bufferDesc, m_matrixBuffer, sizeof(MatrixBufferType), "MatrixBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_fogBuffer, sizeof(FogBufferType), "FogBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_clipBuffer, sizeof(ClipPlaneBufferType), "ClipPlaneBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_cameraBuffer, sizeof(CameraBufferType), "CameraBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_reflectionBuffer, sizeof(ReflectionBufferType), "ReflectionBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_utilBuffer, sizeof(UtilBufferType), "UtilBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_lightColorBuffer, sizeof(LightColorBufferType), "LightColorBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_lightBuffer, sizeof(LightBufferType), "LightBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_pixelBuffer, sizeof(PixelBufferType), "PixelBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_texTransBuffer, sizeof(TexTranslationBufferType), "TextureTranslationBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_alphaBuffer, sizeof(AlphaBufferType), "AlphaBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_waterBuffer, sizeof(WaterBufferType), "WaterBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_fireBuffer, sizeof(FireBufferType), "FireBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_shadowBuffer, sizeof(ShadowBufferType), "ShadowBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_blurBuffer, sizeof(BlurBufferType), "BlurBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_filterBuffer, sizeof(FilterBufferType), "FilterBuffer") &&
-		TryCreateBuffer(device, bufferDesc, m_lightPositionBuffer, sizeof(LightPositionBufferType), "LightPositionBuffer");
+	for (auto vBuffer : m_cbufferListVertex)
+	{
+		result = TryCreateBufferVertex(device, bufferDesc, vBuffer);
+		if (!result)
+			return false;
+	}
 
-	if (!bufferCreationResult)
-		return false;
+	for (auto pBuffer : m_cbufferListFragment)
+	{
+		result = TryCreateBufferFragment(device, bufferDesc, pBuffer);
+		if (!result)
+			return false;
+	}
 
 	// Create a texture sampler state description.
 	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -314,15 +294,32 @@ bool ShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFil
 	return true;
 }
 
-bool ShaderClass::TryCreateBuffer(ID3D11Device* device, D3D11_BUFFER_DESC bufferDesc, ID3D11Buffer*& ptr, size_t structSize, string bufferName)
+bool ShaderClass::TryCreateBufferVertex(ID3D11Device* device, D3D11_BUFFER_DESC bufferDesc, string bufferName)
 {
-	if (!UsesCBuffer(bufferName) || ptr != nullptr)
-		return true;
+	int bufferIndex = UsesCBufferVertex(bufferName);
+	if (bufferIndex == -1)
+		return false;
 
-	bufferDesc.ByteWidth = (UINT)structSize;
+	ID3D11Buffer* ptr;
+	bufferDesc.ByteWidth = (UINT)m_cbufferSizeListVertex.at(bufferIndex);
 	HRESULT result = device->CreateBuffer(&bufferDesc, NULL, &ptr);
 
-	m_bufferList.push_back(ptr);
+	m_bufferPtrListVertex.push_back(ptr);
+
+	return !FAILED(result);
+}
+
+bool ShaderClass::TryCreateBufferFragment(ID3D11Device* device, D3D11_BUFFER_DESC bufferDesc, string bufferName)
+{
+	int bufferIndex = UsesCBufferFragment(bufferName);
+	if (bufferIndex == -1)
+		return false;
+
+	ID3D11Buffer* ptr;
+	bufferDesc.ByteWidth = (UINT)m_cbufferSizeListFragment.at(bufferIndex);
+	HRESULT result = device->CreateBuffer(&bufferDesc, NULL, &ptr);
+
+	m_bufferPtrListFragment.push_back(ptr);
 
 	return !FAILED(result);
 }
@@ -357,6 +354,8 @@ void ShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, 
 
 bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, TextureSetClass* textures, ShaderParamsGlobalType* globalParams, ShaderParamsObjectType* objectParams)
 {
+	bool result;
+
 	if (textures)
 	{
 		int textureCount = textures->GetCount();
@@ -372,192 +371,39 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 	objectParams->matrix.view = XMMatrixTranspose(objectParams->matrix.view);
 	objectParams->matrix.projection = XMMatrixTranspose(objectParams->matrix.projection);
 	globalParams->reflection.reflectionMatrix = XMMatrixTranspose(globalParams->reflection.reflectionMatrix);
+	globalParams->shadow.shadowView = XMMatrixTranspose(globalParams->shadow.shadowView);
+	globalParams->shadow.shadowProj = XMMatrixTranspose(globalParams->shadow.shadowProj);
+	
+	result = 
+		SetShaderCBuffer(deviceContext, globalParams->camera, "CameraBuffer") &&
+		SetShaderCBuffer(deviceContext, globalParams->fog, "FogBuffer") &&		
+		SetShaderCBuffer(deviceContext, globalParams->utils, "UtilBuffer") &&
+		SetShaderCBuffer(deviceContext, globalParams->lightPos, "LightPositionBuffer") &&
+		SetShaderCBuffer(deviceContext, globalParams->lightColor, "LightColorBuffer") &&
+		SetShaderCBuffer(deviceContext, globalParams->light, "LightBuffer") &&
+		SetShaderCBuffer(deviceContext, globalParams->shadow, "ShadowBuffer") &&
 
-	// SetShaderCBuffer(deviceContext, m_matrixBuffer, objectParams->matrix, "MatrixBuffer");
+		SetShaderCBuffer(deviceContext, objectParams->matrix, "MatrixBuffer") &&
+		SetShaderCBuffer(deviceContext, objectParams->clip, "ClipPlaneBuffer") &&
+		SetShaderCBuffer(deviceContext, objectParams->pixel, "PixelBuffer") &&
+		SetShaderCBuffer(deviceContext, objectParams->textureTranslation, "TextureTranslationBuffer") &&
+		SetShaderCBuffer(deviceContext, objectParams->alpha, "AlphaBuffer") &&
+		SetShaderCBuffer(deviceContext, objectParams->water, "WaterBuffer") &&
+		SetShaderCBuffer(deviceContext, objectParams->fire, "FireBuffer") &&
+		SetShaderCBuffer(deviceContext, objectParams->blur, "BlurBuffer") &&
+		SetShaderCBuffer(deviceContext, objectParams->filter, "FilterBuffer");
+	if (!result)
+		return false;
 
-	m_vertexName;
-	m_fragName;
-
-	int bufferIndex;
-
-	bufferIndex = UsesCBufferVertex("MatrixBuffer");
-	if (bufferIndex != -1)
+	if (globalParams->reflectionEnabled)
 	{
-		MatrixBufferType* ptr;
-		if (!TryMapBuffer(deviceContext, &m_matrixBuffer, &ptr))
+		result = SetShaderCBuffer(deviceContext, globalParams->reflection, "ReflectionBuffer");
+		if (!result)
 			return false;
-		*ptr = objectParams->matrix;
-		UnmapVertexBuffer(deviceContext, bufferIndex, &m_matrixBuffer);
 	}
 
-	bufferIndex = UsesCBufferVertex("CameraBuffer");
-	if (bufferIndex != -1)
-	{
-		CameraBufferType* ptr;
-		if (!TryMapBuffer(deviceContext, &m_cameraBuffer, &ptr))
-			return false;
-		*ptr = globalParams->camera;
-		UnmapVertexBuffer(deviceContext, bufferIndex, &m_cameraBuffer);
-	}
-
-	bufferIndex = UsesCBufferVertex("FogBuffer");
-	if (bufferIndex != -1)
-	{
-		FogBufferType* ptr;
-		if (!TryMapBuffer(deviceContext, &m_fogBuffer, &ptr))
-			return false;
-		*ptr = globalParams->fog;
-		UnmapVertexBuffer(deviceContext, bufferIndex, &m_fogBuffer);
-	}
-
-	bufferIndex = UsesCBufferVertex("ClipPlaneBuffer");
-	if (bufferIndex != -1)
-	{
-		ClipPlaneBufferType* ptr;
-		if (!TryMapBuffer(deviceContext, &m_clipBuffer, &ptr))
-			return false;
-		*ptr = objectParams->clip;
-		UnmapVertexBuffer(deviceContext, bufferIndex, &m_clipBuffer);
-	}
-
-	bufferIndex = UsesCBufferVertex("ReflectionBuffer");
-	if (bufferIndex != -1 && globalParams->reflectionEnabled)
-	{
-		ReflectionBufferType* ptr;
-		if (!TryMapBuffer(deviceContext, &m_reflectionBuffer, &ptr))
-			return false;
-		*ptr = globalParams->reflection;
-		UnmapVertexBuffer(deviceContext, bufferIndex, &m_reflectionBuffer);
-	}
-
-	bufferIndex = UsesCBufferFragment("UtilBuffer");
-	if (bufferIndex != -1)
-	{
-		UtilBufferType* ptr;
-		if (!TryMapBuffer(deviceContext, &m_utilBuffer, &ptr))
-			return false;
-		*ptr = globalParams->utils;
-		UnmapFragmentBuffer(deviceContext, bufferIndex, &m_utilBuffer);
-	}
-
-	bufferIndex = UsesCBufferVertex("LightPositionBuffer");
-	if (bufferIndex != -1)
-	{
-		LightPositionBufferType* ptr;
-		if (!TryMapBuffer(deviceContext, &m_lightPositionBuffer, &ptr))
-			return false;
-		*ptr = globalParams->lightPos;
-		UnmapVertexBuffer(deviceContext, bufferIndex, &m_lightPositionBuffer);
-	}
-
-	bufferIndex = UsesCBufferFragment("LightColorBuffer");
-	if (bufferIndex != -1)
-	{
-		LightColorBufferType* ptr;
-		if (!TryMapBuffer(deviceContext, &m_lightColorBuffer, &ptr))
-			return false;
-		*ptr = globalParams->lightColor;
-		UnmapFragmentBuffer(deviceContext, bufferIndex, &m_lightColorBuffer);
-	}
-
-	bufferIndex = UsesCBufferFragment("LightBuffer");
-	if (bufferIndex != -1)
-	{
-		LightBufferType* ptr;
-		if (!TryMapBuffer(deviceContext, &m_lightBuffer, &ptr))
-			return false;
-		*ptr = globalParams->light;
-		UnmapFragmentBuffer(deviceContext, bufferIndex, &m_lightBuffer);
-	}
-
-	bufferIndex = UsesCBufferFragment("PixelBuffer");
-	if (bufferIndex != -1)
-	{
-		PixelBufferType* ptr;
-		if (!TryMapBuffer(deviceContext, &m_pixelBuffer, &ptr))
-			return false;
-		*ptr = objectParams->pixel;
-		UnmapFragmentBuffer(deviceContext, bufferIndex, &m_pixelBuffer);
-	}
-
-	bufferIndex = UsesCBufferFragment("TextureTranslationBuffer");
-	if (bufferIndex != -1)
-	{
-		TexTranslationBufferType* ptr;
-		if (!TryMapBuffer(deviceContext, &m_texTransBuffer, &ptr))
-			return false;
-		*ptr = objectParams->textureTranslation;
-		UnmapFragmentBuffer(deviceContext, bufferIndex, &m_texTransBuffer);
-	}
-
-	bufferIndex = UsesCBufferFragment("AlphaBuffer");
-	if (bufferIndex != -1)
-	{
-		AlphaBufferType* ptr;
-		if (!TryMapBuffer(deviceContext, &m_alphaBuffer, &ptr))
-			return false;
-		*ptr = objectParams->alpha;
-		UnmapFragmentBuffer(deviceContext, bufferIndex, &m_alphaBuffer);
-	}
-
-	bufferIndex = UsesCBufferFragment("WaterBuffer");
-	if (bufferIndex != -1)
-	{
-		WaterBufferType* ptr;
-		if (!TryMapBuffer(deviceContext, &m_waterBuffer, &ptr))
-			return false;
-		*ptr = objectParams->water;
-		UnmapFragmentBuffer(deviceContext, bufferIndex, &m_waterBuffer);
-	}
-
-	bufferIndex = UsesCBufferFragment("FireBuffer");
-	if (bufferIndex != -1)
-	{
-		FireBufferType* ptr;
-		if (!TryMapBuffer(deviceContext, &m_fireBuffer, &ptr))
-			return false;
-		*ptr = objectParams->fire;
-		UnmapFragmentBuffer(deviceContext, bufferIndex, &m_fireBuffer);
-	}
-
-	bufferIndex = UsesCBufferFragment("ShadowBuffer");
-	if (bufferIndex != -1)
-	{
-		ShadowBufferType* ptr;
-		if (!TryMapBuffer(deviceContext, &m_shadowBuffer, &ptr))
-			return false;
-		ptr->shadowView = XMMatrixTranspose(globalParams->shadow.shadowView);
-		ptr->shadowProj = XMMatrixTranspose(globalParams->shadow.shadowProj);
-
-		for (int i = 0; i < NUM_POISSON_SAMPLES; i++)
-			ptr->poissonDisk[i] = globalParams->shadow.poissonDisk[i];
-
-		ptr->usingShadows = globalParams->shadow.usingShadows;
-		ptr->poissonSpread = globalParams->shadow.poissonSpread;
-		ptr->shadowBias = globalParams->shadow.shadowBias;
-		ptr->shadowCutOff = globalParams->shadow.shadowCutOff;
-		UnmapFragmentBuffer(deviceContext, bufferIndex, &m_shadowBuffer);
-	}
-
-	bufferIndex = UsesCBufferFragment("BlurBuffer");
-	if (bufferIndex != -1)
-	{
-		BlurBufferType* ptr;
-		if (!TryMapBuffer(deviceContext, &m_blurBuffer, &ptr))
-			return false;
-		*ptr = objectParams->blur;
-		UnmapFragmentBuffer(deviceContext, bufferIndex, &m_blurBuffer);
-	}
-
-	bufferIndex = UsesCBufferFragment("FilterBuffer");
-	if (bufferIndex != -1)
-	{
-		FilterBufferType* ptr;
-		if (!TryMapBuffer(deviceContext, &m_filterBuffer, &ptr))
-			return false;
-		*ptr = objectParams->filter;
-		UnmapFragmentBuffer(deviceContext, bufferIndex, &m_filterBuffer);
-	}
+	globalParams->shadow.shadowView = XMMatrixTranspose(globalParams->shadow.shadowView);
+	globalParams->shadow.shadowProj = XMMatrixTranspose(globalParams->shadow.shadowProj);
 
 	return true;
 }
@@ -602,6 +448,7 @@ bool ShaderClass::SaveCBufferInfo(ID3D10Blob* vertexBlob, ID3D10Blob* pixelBlob)
 		D3D11_SHADER_BUFFER_DESC bufferDesc;
 		vBuffer->GetDesc(&bufferDesc);
 		m_cbufferListVertex.push_back(bufferDesc.Name);
+		m_cbufferSizeListVertex.push_back(bufferDesc.Size);
 	}
 
 	for (UINT i = 0; i < pDesc.ConstantBuffers; ++i)
@@ -610,6 +457,7 @@ bool ShaderClass::SaveCBufferInfo(ID3D10Blob* vertexBlob, ID3D10Blob* pixelBlob)
 		D3D11_SHADER_BUFFER_DESC bufferDesc;
 		pBuffer->GetDesc(&bufferDesc);
 		m_cbufferListFragment.push_back(bufferDesc.Name);
+		m_cbufferSizeListFragment.push_back(bufferDesc.Size);
 	}
 
 	if (pReflection)
@@ -619,11 +467,6 @@ bool ShaderClass::SaveCBufferInfo(ID3D10Blob* vertexBlob, ID3D10Blob* pixelBlob)
 		vReflection->Release();
 
 	return true;
-}
-
-bool ShaderClass::UsesCBuffer(string cbufferName)
-{
-	return UsesCBufferVertex(cbufferName) != -1 || UsesCBufferFragment(cbufferName) != -1;
 }
 
 int ShaderClass::UsesCBufferVertex(string cbufferName)
