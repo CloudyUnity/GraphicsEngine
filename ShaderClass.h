@@ -24,32 +24,34 @@ using std::any;
 using std::any_cast;
 using std::unique_ptr;
 
+// XMMATRIX = 4x4 floats = 64 bytes
+
 class ShaderClass : public IShutdown
 {
 public:
-	// XMMATRIX = 4x4 floats = 64 bytes
-	struct MatrixBufferType // 192 bytes
+	struct CBufferType{};
+	struct MatrixBufferType : CBufferType // 192 bytes
 	{
 		XMMATRIX world; 
 		XMMATRIX view;
 		XMMATRIX projection;
 	};
-	struct UtilBufferType // 16 bytes
+	struct UtilBufferType : CBufferType // 16 bytes
 	{
 		float time;
 		float texelSizeX;
 		float texelSizeY;
 		float padding;
 	};
-	struct LightColorBufferType // 16n bytes
+	struct LightColorBufferType : CBufferType  // 16n bytes
 	{
 		XMFLOAT4 diffuseColor[NUM_LIGHTS];
 	};
-	struct LightPositionBufferType // 16n bytes
+	struct LightPositionBufferType : CBufferType // 16n bytes
 	{
 		XMFLOAT4 lightPosition[NUM_LIGHTS];
 	};
-	struct LightBufferType // 64 bytes
+	struct LightBufferType : CBufferType  // 64 bytes
 	{
 		XMFLOAT4 ambientColor;
 		XMFLOAT4 diffuseColor;
@@ -59,58 +61,58 @@ public:
 
 		XMFLOAT4 specularColor;
 	};
-	struct CameraBufferType // 16 bytes
+	struct CameraBufferType : CBufferType  // 16 bytes
 	{
 		XMFLOAT3 cameraPosition;
 		float padding;
 	};
-	struct PixelBufferType // 16 bytes
+	struct PixelBufferType : CBufferType // 16 bytes
 	{
 		XMFLOAT4 pixelColor;
 	};
-	struct FogBufferType // 16 bytes
+	struct FogBufferType : CBufferType // 16 bytes
 	{
 		float fogStart;
 		float fogEnd;
 
 		float pad1, pad2;
 	};
-	struct ClipPlaneBufferType // 16 bytes
+	struct ClipPlaneBufferType : CBufferType  // 16 bytes
 	{
 		XMFLOAT4 clipPlane;
 	};
-	struct TexTranslationBufferType // 16 bytes
+	struct TexTranslationBufferType : CBufferType  // 16 bytes
 	{
 		XMFLOAT2 translation;
 		float timeMultiplier;
 		float pad;
 	};
-	struct AlphaBufferType // 16 bytes
+	struct AlphaBufferType : CBufferType  // 16 bytes
 	{
 		float alphaBlend;
 		float pad1, pad2, pad3;
 	};
-	struct ReflectionBufferType // 64 bytes
+	struct ReflectionBufferType : CBufferType  // 64 bytes
 	{
 		XMMATRIX reflectionMatrix;
 	};
-	struct WaterBufferType // 16 bytes
+	struct WaterBufferType : CBufferType  // 16 bytes
 	{
 		float reflectRefractScale;
 		XMFLOAT3 padding;
 	};
-	struct FireBufferType // 32 bytes
+	struct FireBufferType : CBufferType // 32 bytes
 	{
 		XMFLOAT2 distortion1, distortion2, distortion3;
 		float distortionScale, distortionBias;
 	};
-	struct ShadowBufferType
+	struct ShadowBufferType : CBufferType
 	{
 		XMMATRIX shadowView, shadowProj; 
 		float usingShadows, poissonSpread, shadowBias, shadowCutOff;
 		XMFLOAT4 poissonDisk[NUM_POISSON_SAMPLES];		
 	};
-	struct BlurBufferType // 16 + 16n bytes 
+	struct BlurBufferType : CBufferType // 16 + 16n bytes 
 	{
 		float blurMode;
 
@@ -118,7 +120,7 @@ public:
 
 		XMFLOAT4 weights[BLUR_SAMPLE_SPREAD];
 	};
-	struct FilterBufferType
+	struct FilterBufferType : CBufferType
 	{
 		BOOL grainEnabled, monochromeEnabled, sharpnessEnabled, chromaticEnabled, vignetteEnabled;
 
@@ -126,12 +128,12 @@ public:
 
 		float sharpnessKernalN, sharpnessKernalP, sharpnessStrength, grainIntensity;
 	};
-	struct TessellationBufferType
+	struct TessellationBufferType : CBufferType
 	{
 		float tessellationAmount;
 		XMFLOAT3 padding;
 	};
-	struct OceanSineBufferType
+	struct OceanSineBufferType : CBufferType
 	{
 		XMFLOAT4 ampPhaseFreq[SIN_COUNT];
 	};
@@ -176,19 +178,21 @@ public:
 	bool Render(ID3D11DeviceContext*, int, TextureSetClass*, ShaderParamsGlobalType*, ShaderParamsObjectType*);
 
 protected:
-	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*, bool);
-	bool TryCreateBuffer(ID3D11Device* device, D3D11_BUFFER_DESC bufferDesc, ID3D11Buffer*& ptr, size_t structSize, string, string);
+	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*, bool);	
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
-
-	virtual bool SetShaderParameters(ID3D11DeviceContext*, TextureSetClass*, ShaderParamsGlobalType*, ShaderParamsObjectType*);
+	
+	virtual bool SetShaderParameters(ID3D11DeviceContext*, TextureSetClass*, ShaderParamsGlobalType*, ShaderParamsObjectType*);	
 	virtual void RenderShader(ID3D11DeviceContext*, int);
 
-    bool ShaderUsesBuffer(std::string, std::string);
+	bool SaveCBufferInfo(ID3D10Blob*, ID3D10Blob*);
+	virtual bool UsesCBuffer(string);
+	int UsesCBufferVertex(string);
+	int UsesCBufferFragment(string);
 
-private:
+private:	
+	bool TryCreateBuffer(ID3D11Device* device, D3D11_BUFFER_DESC bufferDesc, ID3D11Buffer*& ptr, size_t structSize, string);
 	void UnmapVertexBuffer(ID3D11DeviceContext* deviceContext, int bufferNumber, ID3D11Buffer** buffer);
 	void UnmapFragmentBuffer(ID3D11DeviceContext* deviceContext, int bufferNumber, ID3D11Buffer** buffer);
-	
 
 protected:
 	ID3D11VertexShader* m_vertexShader;
@@ -199,7 +203,9 @@ protected:
 	ID3D11Buffer* m_blurBuffer, * m_filterBuffer, * m_tesselationBuffer, * m_oceanSineBuffer;
 	ID3D11SamplerState* m_sampleState;
 
-	std::string m_vertexName, m_fragName;
+	string m_vertexName, m_fragName; // TO BE REMOVED
+	vector<string> m_cbufferListVertex;
+	vector<string> m_cbufferListFragment;
 
 	vector<ID3D11Buffer*> m_bufferList;
 
@@ -216,6 +222,34 @@ protected:
 
 		return true;
 	}	
+
+private:
+
+	template<typename T>
+	bool SetShaderCBuffer(ID3D11DeviceContext* deviceContext, ID3D11Buffer* buffer, T values, string name)
+	{
+		int bufferIndex;
+
+		bufferIndex = UsesCBufferVertex(name);
+		if (bufferIndex != -1)
+		{
+			T* ptr;
+			if (!TryMapBuffer(deviceContext, &buffer, &ptr))
+				return false;
+			*ptr = values;
+			UnmapVertexBuffer(deviceContext, bufferIndex, &buffer);
+		}
+
+		bufferIndex = UsesCBufferFragment(name);
+		if (bufferIndex != -1)
+		{
+			T* ptr;
+			if (!TryMapBuffer(deviceContext, &buffer, &ptr))
+				return false;
+			*ptr = values;
+			UnmapFragmentBuffer(deviceContext, bufferIndex, &buffer);
+		}
+	}
 };
 
 #endif
