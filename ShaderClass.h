@@ -185,29 +185,31 @@ protected:
 	virtual void RenderShader(ID3D11DeviceContext*, int);
 
 	bool SaveCBufferInfo(ID3D10Blob*, ID3D10Blob*);
-	virtual bool UsesCBuffer(string);
 	int UsesCBufferVertex(string);
 	int UsesCBufferFragment(string);
 
 private:	
-	bool TryCreateBuffer(ID3D11Device* device, D3D11_BUFFER_DESC bufferDesc, ID3D11Buffer*& ptr, size_t structSize, string);
+	bool TryCreateBufferVertex(ID3D11Device* device, D3D11_BUFFER_DESC bufferDesc, string);
+	bool TryCreateBufferFragment(ID3D11Device* device, D3D11_BUFFER_DESC bufferDesc, string);
 	void UnmapVertexBuffer(ID3D11DeviceContext* deviceContext, int bufferNumber, ID3D11Buffer** buffer);
-	void UnmapFragmentBuffer(ID3D11DeviceContext* deviceContext, int bufferNumber, ID3D11Buffer** buffer);
+	void UnmapFragmentBuffer(ID3D11DeviceContext* deviceContext, int bufferNumber, ID3D11Buffer** buffer);	
+
+	vector<string> m_cbufferListVertex;	
+	vector<string> m_cbufferListFragment;
+
+	vector<ID3D11Buffer*> m_bufferPtrListVertex;
+	vector<ID3D11Buffer*> m_bufferPtrListFragment;
+
+	vector<size_t> m_cbufferSizeListVertex;
+	vector<size_t> m_cbufferSizeListFragment;
 
 protected:
+	string m_vertexName, m_fragName; // TO BE REMOVED
+
 	ID3D11VertexShader* m_vertexShader;
 	ID3D11PixelShader* m_pixelShader;
 	ID3D11InputLayout* m_layout;
-	ID3D11Buffer* m_matrixBuffer, * m_utilBuffer, * m_lightColorBuffer, * m_lightPositionBuffer, * m_lightBuffer, * m_cameraBuffer, * m_pixelBuffer, * m_fogBuffer;
-	ID3D11Buffer* m_clipBuffer, * m_texTransBuffer, * m_alphaBuffer, * m_reflectionBuffer, * m_waterBuffer, * m_fireBuffer, * m_shadowBuffer;
-	ID3D11Buffer* m_blurBuffer, * m_filterBuffer, * m_tesselationBuffer, * m_oceanSineBuffer;
 	ID3D11SamplerState* m_sampleState;
-
-	string m_vertexName, m_fragName; // TO BE REMOVED
-	vector<string> m_cbufferListVertex;
-	vector<string> m_cbufferListFragment;
-
-	vector<ID3D11Buffer*> m_bufferList;
 
 	template <typename T>
 	bool TryMapBuffer(ID3D11DeviceContext* deviceContext, ID3D11Buffer** buffer, T** outPtr)
@@ -226,7 +228,7 @@ protected:
 private:
 
 	template<typename T>
-	bool SetShaderCBuffer(ID3D11DeviceContext* deviceContext, ID3D11Buffer* buffer, T values, string name)
+	bool SetShaderCBuffer(ID3D11DeviceContext* deviceContext, T values, string name)
 	{
 		int bufferIndex;
 
@@ -234,6 +236,7 @@ private:
 		if (bufferIndex != -1)
 		{
 			T* ptr;
+			ID3D11Buffer* buffer = m_bufferPtrListVertex.at(bufferIndex);
 			if (!TryMapBuffer(deviceContext, &buffer, &ptr))
 				return false;
 			*ptr = values;
@@ -244,6 +247,7 @@ private:
 		if (bufferIndex != -1)
 		{
 			T* ptr;
+			ID3D11Buffer* buffer = m_bufferPtrListFragment.at(bufferIndex);
 			if (!TryMapBuffer(deviceContext, &buffer, &ptr))
 				return false;
 			*ptr = values;
