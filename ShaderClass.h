@@ -181,12 +181,14 @@ protected:
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
 	virtual bool SetShaderParameters(ID3D11DeviceContext*, TextureSetClass*, ShaderParamsGlobalType*, ShaderParamsObjectType*);
+	virtual void RenderShader(ID3D11DeviceContext*, int);
 
     bool ShaderUsesBuffer(std::string, std::string);
+
+private:
 	void UnmapVertexBuffer(ID3D11DeviceContext* deviceContext, int bufferNumber, ID3D11Buffer** buffer);
 	void UnmapFragmentBuffer(ID3D11DeviceContext* deviceContext, int bufferNumber, ID3D11Buffer** buffer);
-
-	virtual void RenderShader(ID3D11DeviceContext*, int);
+	
 
 protected:
 	ID3D11VertexShader* m_vertexShader;

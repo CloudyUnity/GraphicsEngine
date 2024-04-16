@@ -166,11 +166,7 @@ bool ShaderTessClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Te
 		MatrixBufferType* ptr;
 		if (!TryMapBuffer(deviceContext, &m_matrixBuffer, &ptr))
 			return false;
-
-		ptr->world = XMMatrixTranspose(objectParams->matrix.world);
-		ptr->view = XMMatrixTranspose(objectParams->matrix.view);
-		ptr->projection = XMMatrixTranspose(objectParams->matrix.projection);
-
+		*ptr = objectParams->matrix;
 		UnmapDomainBuffer(deviceContext, 0, &m_matrixBuffer);
 	}
 
@@ -179,9 +175,7 @@ bool ShaderTessClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Te
 		TessellationBufferType* ptr;
 		if (!TryMapBuffer(deviceContext, &m_tesselationBuffer, &ptr))
 			return false;
-
-		ptr->tessellationAmount = objectParams->tesselation.tessellationAmount;
-
+		*ptr = objectParams->tesselation;
 		UnmapHullBuffer(deviceContext, 0, &m_tesselationBuffer);
 	}
 
@@ -190,11 +184,7 @@ bool ShaderTessClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Te
 		UtilBufferType* ptr;
 		if (!TryMapBuffer(deviceContext, &m_utilBuffer, &ptr))
 			return false;
-
-		ptr->time = globalParams->utils.time;
-		ptr->texelSizeX = globalParams->utils.texelSizeX;
-		ptr->texelSizeY = globalParams->utils.texelSizeY;
-
+		*ptr = globalParams->utils;
 		UnmapDomainBuffer(deviceContext, 2, &m_utilBuffer);
 	}
 
@@ -203,14 +193,7 @@ bool ShaderTessClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Te
 		OceanSineBufferType* ptr;
 		if (!TryMapBuffer(deviceContext, &m_oceanSineBuffer, &ptr))
 			return false;
-
-		XMFLOAT4 *amps = globalParams->oceanSine.ampPhaseFreq;
-
-		for (int i = 0; i < SIN_COUNT; i++)
-		{
-			ptr->ampPhaseFreq[i] = amps[i];
-		}
-
+		*ptr = globalParams->oceanSine;
 		UnmapDomainBuffer(deviceContext, 1, &m_oceanSineBuffer);
 	}
 
@@ -219,9 +202,7 @@ bool ShaderTessClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Te
 		CameraBufferType* ptr;
 		if (!TryMapBuffer(deviceContext, &m_cameraBuffer, &ptr))
 			return false;
-
-		ptr->cameraPosition = globalParams->camera.cameraPosition;
-
+		*ptr = globalParams->camera;
 		UnmapDomainBuffer(deviceContext, 3, &m_cameraBuffer);
 	}
 
