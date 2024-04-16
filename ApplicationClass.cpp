@@ -113,7 +113,7 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	sceneOcean->InitializeMembers(m_Settings, m_Direct3D, m_RenderClass);
 	m_sceneList.push_back(sceneOcean);
 
-	m_currentScene = sceneOcean;
+	m_currentScene = sceneTest;
 	m_currentScene->InitializeScene(hwnd);
 	m_currentScene->OnSwitchTo();
 	m_currentScene->m_InitializedScene = true;
