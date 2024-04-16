@@ -16,12 +16,8 @@ SceneTestClass::SceneTestClass()
 
 	m_DisplayPlane = 0;
 
-	m_mountainGO = 0;
 	m_IcosphereGO = 0;
-	m_transIcoGO = 0;
 	m_MadelineGO1 = 0;
-	m_MadelineGO2 = 0;
-	m_cubeGO = 0;
 	m_fractalGO = 0;
 	m_skyboxGO = 0;
 
@@ -134,52 +130,59 @@ bool SceneTestClass::InitializeScene(HWND hwnd)
 
 	float waterSize = 2;
 	bool opaque = false, transparent = true;
+	int format = 1;
 
-	GameObjectClass* waterGO = 0, * waterCubeGO = 0, * fireGO, * floorGO;	
+	GameObjectClass* waterGO = 0, * waterCubeGO = 0, * fireGO, * floorGO, * madelineGO2, * transIcoGO, * mountainGO, * glassGO;
+	
 	CreateGameObject(modelMadeline, shaderMain, texSetMoss, opaque, "Madeline1", m_MadelineGO1);
-	CreateGameObject(modelMadeline, shaderMain, texSetStars, opaque, "Madeline2", m_MadelineGO2);
+	SubscribeToShadow(m_MadelineGO1, 4);		
+
+	CreateGameObject(modelMadeline, shaderMain, texSetStars, opaque, "Madeline2", madelineGO2);
+	madelineGO2->SetPosition(3, 0, 3);
+	madelineGO2->SetScale(0.5f, 0.5f, 0.5f);
+	madelineGO2->m_shaderUniformData.textureTranslation.timeMultiplier = 0.2f;
+
 	CreateGameObject(modelIcosphere, shaderMain, texSetMoss, opaque, "IcosphereBig", m_IcosphereGO);
-	CreateGameObject(modelIcosphere, shaderMain, texSetSnow, transparent, "IcosphereTrans", m_transIcoGO);
-	CreateGameObject(modelMountain, shaderMain, texSetSnow, opaque, "Mountain", m_mountainGO);
-	CreateGameObject(modelPlane, shaderWater, texSetWater, transparent, "Water", waterGO);
-	CreateGameObject(modelCube, shaderReflect, texSetReflection, opaque, "GlassCube", m_cubeGO);
-	CreateGameObject(modelCube, shaderMain, texSetMoss, opaque, "WaterCube", waterCubeGO);
-	CreateGameObject(modelCube, shaderFractal, texSetNone, opaque, "Fractal", m_fractalGO);
-	CreateGameObject(modelPlane, shaderFire, texSetFire, transparent, "Fire", fireGO);
-	CreateGameObject(modelPlane, shaderMain, texSetSnow, opaque, "Floor", floorGO);
-	CreateGameObject(modelCube, shaderSkybox, texSetSkybox, opaque, "Skybox", m_skyboxGO);
-	CreateGameObject(modelIcosphere, shaderMain, texSetSnow, opaque, "Test", m_testIcoGO);
-
-	m_MadelineGO2->SetPosition(3, 0, 3);
-	m_MadelineGO2->SetScale(0.5f, 0.5f, 0.5f);
-	m_MadelineGO2->m_shaderUniformData.textureTranslation.timeMultiplier = 0.2f;
-
 	m_IcosphereGO->SetScale(5, 5, 5);
 	m_IcosphereGO->SetPosition(0, 0, 15);
 	m_IcosphereGO->SetBackCulling(false);
 	m_IcosphereGO->m_shaderUniformData.clip.clipPlane = XMFLOAT4(0.0f, -1.0f, 0.0f, 2.5f);
+	SubscribeToShadow(m_IcosphereGO, 4);
 
-	m_transIcoGO->SetPosition(3, 0.5f, 3);
-	m_transIcoGO->SetScale(1.0f, 1.0f, 1.0f);
-	m_transIcoGO->m_shaderUniformData.alpha.alphaBlend = 0.2f;
+	CreateGameObject(modelIcosphere, shaderMain, texSetSnow, transparent, "IcosphereTrans", transIcoGO);
+	transIcoGO->SetPosition(3, 0.5f, 3);
+	transIcoGO->SetScale(1.0f, 1.0f, 1.0f);
+	transIcoGO->m_shaderUniformData.alpha.alphaBlend = 0.2f;
+	SubscribeToShadow(transIcoGO, 4);
 
-	m_mountainGO->SetScale(0.3f, 0.3f, 0.3f);
-	m_mountainGO->SetPosition(1, -13, 15);
+	CreateGameObject(modelMountain, shaderMain, texSetSnow, opaque, "Mountain", mountainGO);
+	mountainGO->SetScale(0.3f, 0.3f, 0.3f);
+	mountainGO->SetPosition(1, -13, 15);
+	SubscribeToShadow(mountainGO, 4);
 
-	m_cubeGO->SetScale(1.5f, 0.01f, 1.5f);
-	m_cubeGO->SetPosition(0, -0.5f, 0);
+	CreateGameObject(modelCube, shaderReflect, texSetReflection, opaque, "GlassCube", glassGO);
+	glassGO->SetScale(1.5f, 0.01f, 1.5f);
+	glassGO->SetPosition(0, -0.5f, 0);
+	SubscribeToReflection(glassGO, 4, format);
 
+	CreateGameObject(modelPlane, shaderWater, texSetWater, transparent, "Water", waterGO);
 	waterGO->SetPosition(6, 0.5f, -0.5f);
 	waterGO->SetScale(waterSize, 0.000000000001f, waterSize);
 	waterGO->m_shaderUniformData.textureTranslation.timeMultiplier = (0.1f / waterSize) / waterSize;
 	waterGO->m_shaderUniformData.water.reflectRefractScale = 0.01f;
+	SubscribeToReflection(waterGO, 4, format);
+	SubscribeToRefraction(waterGO, 5, format);
 
+	CreateGameObject(modelCube, shaderMain, texSetMoss, opaque, "WaterCube", waterCubeGO);
 	waterCubeGO->SetScale(0.5f, 0.5f, 0.5f);
 	waterCubeGO->SetPosition(6, 0.5f, -0.5f);
+	SubscribeToShadow(waterCubeGO, 4);
 
+	CreateGameObject(modelCube, shaderFractal, texSetNone, opaque, "Fractal", m_fractalGO);
 	m_fractalGO->SetPosition(25, 0, 0);
 	m_fractalGO->SetScale(8);
 
+	CreateGameObject(modelPlane, shaderFire, texSetFire, transparent, "Fire", fireGO);
 	fireGO->SetPosition(-5, 0, 0);
 	fireGO->SetRotation(-90, 0, 0);
 	fireGO->SetBillBoarding(true);
@@ -189,32 +192,18 @@ bool SceneTestClass::InitializeScene(HWND hwnd)
 	fireGO->m_shaderUniformData.fire.distortionScale = 0.8f;
 	fireGO->m_shaderUniformData.fire.distortionBias = 0.5f;
 
+	CreateGameObject(modelPlane, shaderMain, texSetSnow, opaque, "Floor", floorGO);
 	floorGO->SetPosition(0, -10, 0);
 	floorGO->SetScale(25, 1, 25);
+	SubscribeToShadow(floorGO, 4);
 
+	CreateGameObject(modelCube, shaderSkybox, texSetSkybox, opaque, "Skybox", m_skyboxGO);
 	m_skyboxGO->SetScale(500);
 	m_skyboxGO->SetBackCulling(false);
 
+	CreateGameObject(modelIcosphere, shaderMain, texSetSnow, opaque, "Test", m_testIcoGO);
 	m_testIcoGO->SetScale(0.3f);
 	m_testIcoGO->SetPosition(999, 999, 999);
-
-	// SUBSCRIPTIONS
-
-	int texSetIndex = 4;
-	int format = 1;
-	SubscribeToReflection(m_cubeGO, texSetIndex, format);
-	SubscribeToReflection(waterGO, texSetIndex, format);
-
-	texSetIndex = 5;
-	SubscribeToRefraction(waterGO, texSetIndex, format);
-
-	texSetIndex = 4;
-	SubscribeToShadow(m_MadelineGO1, texSetIndex);
-	SubscribeToShadow(floorGO, texSetIndex);
-	SubscribeToShadow(m_IcosphereGO, texSetIndex);
-	SubscribeToShadow(m_transIcoGO, texSetIndex);
-	SubscribeToShadow(m_mountainGO, texSetIndex);
-	SubscribeToShadow(waterCubeGO, texSetIndex);
 
 	// 2D GAMEOBJECTS
 
@@ -230,18 +219,6 @@ bool SceneTestClass::InitializeScene(HWND hwnd)
 	// LIGHTS
 
 	m_Lights = new LightClass[NUM_POINT_LIGHTS];
-
-	m_Lights[0].SetDiffuseColor(0.0f, 0.0f, 0.0f, 0.0f);
-	m_Lights[0].SetPosition(100.0f, 0.0f, 0.0f);
-
-	m_Lights[1].SetDiffuseColor(0.0f, 0.0f, 0.0f, 0.0f);
-	m_Lights[1].SetPosition(100.0f, 0.0f, 0.0f);
-
-	m_Lights[2].SetDiffuseColor(0.0f, 0.0f, 0.0f, 0.0f);
-	m_Lights[2].SetPosition(100.0f, 0.0f, 0.0f);
-
-	m_Lights[3].SetDiffuseColor(0.0f, 0.0f, 0.0f, 0.0f);
-	m_Lights[3].SetPosition(100.0f, 0.0f, 0.0f);
 
 	m_DirLight = new LightClass();
 	m_DirLight->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
@@ -319,7 +296,7 @@ bool SceneTestClass::InitializeScene(HWND hwnd)
 	m_DisplayPPBlur2->SetScale(displaySize, displaySize, displaySize);
 	displayPP3->SetScale(displaySize, displaySize, displaySize);
 
-	m_DisplayPortal1->SetPosition(8, 0.0f, 0);
+	m_DisplayPortal1->SetPosition(8, 10.0f, 0);
 	m_DisplayPortal1->SetRotation(0, 0, 0);
 	m_DisplayPortal1->SetScale(2);
 
@@ -456,9 +433,15 @@ void SceneTestClass::SetParameters(ShaderClass::ShaderParamsGlobalType* params)
 		params->lightPos.lightPosition[i] = m_Lights[i].GetPosition();
 	}
 
+	XMFLOAT3 dir = m_DirLight->GetDirection();
+	float mag = sqrt(dir.x * dir.x + dir.y * dir.y + dir.z * dir.z);
+	dir.x /= mag;
+	dir.y /= mag;
+	dir.z /= mag;
+
 	params->light.ambientColor = m_DirLight->GetAmbientColor();
 	params->light.diffuseColor = m_DirLight->GetDiffuseColor();
-	params->light.lightDirection = m_DirLight->GetDirection();
+	params->light.lightDirection = dir;
 	params->light.specularColor = m_DirLight->GetSpecularColor();
 	params->light.specularPower = m_DirLight->GetSpecularPower();
 

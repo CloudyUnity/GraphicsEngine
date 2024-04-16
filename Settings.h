@@ -16,7 +16,7 @@ inline constexpr double RAD_TO_DEG = 57.295779513;
 inline constexpr double PI = 3.14159265359;
 
 // CBUFFER CONSTANTS
-inline constexpr int NUM_POINT_LIGHTS = 4;
+inline constexpr int NUM_POINT_LIGHTS = 0;
 inline constexpr int NUM_POISSON_SAMPLES = 4;
 inline constexpr int BLUR_SAMPLE_SPREAD = 4;
 

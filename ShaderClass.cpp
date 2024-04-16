@@ -370,6 +370,7 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 	objectParams->matrix.world = XMMatrixTranspose(objectParams->matrix.world);
 	objectParams->matrix.view = XMMatrixTranspose(objectParams->matrix.view);
 	objectParams->matrix.projection = XMMatrixTranspose(objectParams->matrix.projection);
+
 	globalParams->reflection.reflectionMatrix = XMMatrixTranspose(globalParams->reflection.reflectionMatrix);
 	globalParams->shadow.shadowView = XMMatrixTranspose(globalParams->shadow.shadowView);
 	globalParams->shadow.shadowProj = XMMatrixTranspose(globalParams->shadow.shadowProj);
@@ -402,6 +403,7 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 			return false;
 	}
 
+	globalParams->reflection.reflectionMatrix = XMMatrixTranspose(globalParams->reflection.reflectionMatrix);
 	globalParams->shadow.shadowView = XMMatrixTranspose(globalParams->shadow.shadowView);
 	globalParams->shadow.shadowProj = XMMatrixTranspose(globalParams->shadow.shadowProj);
 

@@ -1,15 +1,8 @@
-#define NUM_LIGHTS 4
-
 Texture2D shaderTexture1 : register(t0);
 Texture2D shaderTexture2 : register(t1);
 Texture2D alphaMap : register(t2);
 Texture2D normalMap : register(t3);
 SamplerState SampleType : register(s0);
-
-cbuffer LightColorBuffer : register(b1)
-{
-    float4 diffuseColor[NUM_LIGHTS];
-};
 
 cbuffer UtilBuffer: register(b0)
 {
@@ -17,6 +10,30 @@ cbuffer UtilBuffer: register(b0)
     float pad2;
     float pad3;
     float pad4;
+};
+
+cbuffer LightBuffer : register(b1)
+{
+    float4 ambientColor;
+    float4 diffuseDirColor;
+    float3 lightDirection;
+    float specularPower;
+    float4 specularColor;
+};
+
+cbuffer TextureTranslationBuffer : register(b2)
+{
+    float2 translation;
+    float timeMultiplier;
+    float texPad;
+};
+
+cbuffer AlphaBuffer : register(b3)
+{
+    float alphaBlend;
+    float alphaPad1;
+    float alphaPad2;
+    float alphaPad3;
 };
 
 struct PixelInputType
@@ -31,32 +48,6 @@ struct PixelInputType
     float3 viewDirection : TEXCOORD1;
     float fogFactor : FOG;
     float clip : SV_ClipDistance0;
-
-    float3 lightPos[NUM_LIGHTS] : TEXCOORD2;
-};
-
-cbuffer LightBuffer : register(b2)
-{
-    float4 ambientColor;
-    float4 diffuseDirColor;
-    float3 lightDirection;
-    float specularPower;
-    float4 specularColor;
-};
-
-cbuffer TextureTranslationBuffer : register(b3)
-{
-    float2 translation;
-    float timeMultiplier;
-    float texPad;
-};
-
-cbuffer AlphaBuffer : register(b4)
-{
-    float alphaBlend;
-    float alphaPad1;
-    float alphaPad2;
-    float alphaPad3;
 };
 
 float4 PS_MAIN(PixelInputType input) : SV_TARGET

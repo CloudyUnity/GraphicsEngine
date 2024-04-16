@@ -1,5 +1,3 @@
-#define NUM_LIGHTS 4
-
 Texture2D shaderTexture1 : register(t0);
 Texture2D shaderTexture2 : register(t1);
 Texture2D alphaMap : register(t2);
@@ -9,17 +7,40 @@ Texture2D refractionTexture : register(t5);
 
 SamplerState SampleType : register(s0);
 
-cbuffer LightColorBuffer : register(b1)
-{
-    float4 diffuseColor[NUM_LIGHTS];
-};
-
 cbuffer UtilBuffer: register(b0)
 {
     float time;
     float pad2;
     float pad3;
     float pad4;
+};
+
+cbuffer LightBuffer : register(b1)
+{
+    float4 ambientColor;
+    float4 diffuseDirColor;
+    float3 lightDirection;
+    float specularPower;
+    float4 specularColor;
+};
+
+cbuffer TextureTranslationBuffer : register(b2)
+{
+    float2 translation;
+    float timeMultiplier;
+    float texPad;
+};
+
+cbuffer AlphaBuffer : register(b3)
+{
+    float alphaBlend;
+    float3 alphaPad;
+};
+
+cbuffer WaterBuffer : register(b4)
+{
+    float reflectRefractScale;
+    float3 padding;
 };
 
 struct PixelInputType
@@ -32,7 +53,6 @@ struct PixelInputType
 
     float2 tex : TEXCOORD0;    
     float3 viewDirection : TEXCOORD1;
-    float3 lightPos[NUM_LIGHTS] : TEXCOORD4;    
     float4 reflectionPosition : TEXCOORD2;
     float4 refractionPosition : TEXCOORD3;
 
@@ -40,39 +60,9 @@ struct PixelInputType
     float clip : SV_ClipDistance0;
 };
 
-cbuffer LightBuffer : register(b2)
-{
-    float4 ambientColor;
-    float4 diffuseDirColor;
-    float3 lightDirection;
-    float specularPower;
-    float4 specularColor;
-};
-
-cbuffer TextureTranslationBuffer : register(b3)
-{
-    float2 translation;
-    float timeMultiplier;
-    float texPad;
-};
-
-cbuffer AlphaBuffer : register(b4)
-{
-    float alphaBlend;
-    float3 alphaPad;
-};
-
-cbuffer WaterBuffer : register(b5)
-{
-    float reflectRefractScale;
-    float3 padding;
-};
-
 float4 PS_MAIN(PixelInputType input) : SV_TARGET
 {
     float4 texCol1, texCol2, blendCol, alphaMapCol;
-    float lightIntensity[NUM_LIGHTS];
-    float4 colorArray[NUM_LIGHTS];
     float3 reflection;
     float4 specular;
     float4 bumpMap;
@@ -97,13 +87,6 @@ float4 PS_MAIN(PixelInputType input) : SV_TARGET
     bumpNormal = (bumpMap.x * input.tangent) + (bumpMap.y * input.binormal) + (bumpMap.z * input.normal);
     bumpNormal = normalize(bumpNormal);
 
-    for(int i=0; i<NUM_LIGHTS; i++)
-    {
-        lightIntensity[i] = saturate(dot(bumpNormal, input.lightPos[i]));
-        colorArray[i] = diffuseColor[i] * lightIntensity[i];
-        colorSum.rgb += colorArray[i].rgb * colorArray[i].a;
-    }
-
     float intensity = saturate(dot(bumpNormal, -lightDirection));
     if(intensity > 0.0f)
     {        
@@ -125,12 +108,12 @@ float4 PS_MAIN(PixelInputType input) : SV_TARGET
     reflectTexCoord += (bumpNormal.xy * reflectRefractScale);
     refractTexCoord += (bumpNormal.xy * reflectRefractScale);
 
-    float4 reflectionColor = reflectionTexture.Sample(SampleType, reflectTexCoord);
+    float4 reflectionColor = reflectionTexture.Sample(SampleType, reflectTexCoord);    
     float4 refractionColor = refractionTexture.Sample(SampleType, refractTexCoord);
 
-    // finalColor = lerp(finalColor, refractionColor, 0.8f);
-    // finalColor = lerp(finalColor, reflectionColor, 0.3f);
-    finalColor = lerp(refractionColor, reflectionColor, 0.4f);
+     finalColor = lerp(finalColor, refractionColor, 0.8f);
+     finalColor = lerp(finalColor, reflectionColor, 0.3f);
+    //finalColor = lerp(refractionColor, reflectionColor, 0.4f);
     finalColor.a = alphaBlend;
 
     float4 fogColor = float4(0.5f, 0.5f, 0.5f, 1.0f);    
