@@ -50,8 +50,16 @@ bool SceneOceanClass::InitializeScene(HWND hwnd)
 	texSetSnow->Add(device, context, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
 	texSetSnow->Add(device, context, "../GraphicsEngine/Data/DefaultNormal.tga");
 
+	vector<const char*> skyboxPaths;
+	skyboxPaths.push_back("../GraphicsEngine/Data/Skybox/Mountain/negx.tga"); // Closed sky + rocks	
+	skyboxPaths.push_back("../GraphicsEngine/Data/Skybox/Mountain/posx.tga"); // Open sky + rocks
+	skyboxPaths.push_back("../GraphicsEngine/Data/Skybox/Mountain/posy.tga"); // Ceiling	
+	skyboxPaths.push_back("../GraphicsEngine/Data/Skybox/Mountain/negy.tga"); // Floor
+	skyboxPaths.push_back("../GraphicsEngine/Data/Skybox/Mountain/negz.tga"); // Pipes	
+	skyboxPaths.push_back("../GraphicsEngine/Data/Skybox/Mountain/posz.tga"); // House
+
 	CreateTexSet(&texSetSkybox);
-	result = texSetSkybox->AddCubemap(device, context, "../GraphicsEngine/Data/Skybox/Skybox.tga");
+	result = texSetSkybox->Add(device, context, skyboxPaths);
 	if (!result)
 		return false;
 
