@@ -1,5 +1,3 @@
-#define NUM_LIGHTS 4
-
 cbuffer MatrixBuffer : register(b0)
 {
     matrix worldMatrix;
@@ -7,29 +5,24 @@ cbuffer MatrixBuffer : register(b0)
     matrix projectionMatrix;
 };
 
-cbuffer LightPositionBuffer : register(b1)
-{
-    float4 lightPosition[NUM_LIGHTS];
-};
-
-cbuffer CameraBuffer : register(b2)
+cbuffer CameraBuffer : register(b1)
 {
     float3 cameraPosition;
     float padding;
 };
 
-cbuffer FogBuffer : register(b3)
+cbuffer FogBuffer : register(b2)
 {
     float fogStart;
     float fogEnd;
 };
 
-cbuffer ClipPlaneBuffer : register(b4)
+cbuffer ClipPlaneBuffer : register(b3)
 {
     float4 clipPlane;
 };
 
-cbuffer ReflectionBuffer : register(b5)
+cbuffer ReflectionBuffer : register(b4)
 {
     matrix reflectionMatrix;
 };
@@ -53,7 +46,6 @@ struct PixelInputType
 
     float2 tex : TEXCOORD0;    
     float3 viewDirection : TEXCOORD1;
-    float3 lightPos[NUM_LIGHTS] : TEXCOORD3;    
     float4 reflectionPosition : TEXCOORD2;
 
     float fogFactor : FOG;
@@ -84,12 +76,6 @@ PixelInputType VS_MAIN(VertexInputType input)
     output.binormal = normalize(output.binormal);
 
     worldPosition = mul(input.position, worldMatrix);
-
-    for(int i=0; i<NUM_LIGHTS; i++)
-    {
-        // Determine the light positions based on the position of the lights and the position of the vertex in the world.
-        output.lightPos[i] = normalize(lightPosition[i].xyz - worldPosition.xyz);
-    }
 
     output.viewDirection = normalize(cameraPosition.xyz - worldPosition.xyz);
 

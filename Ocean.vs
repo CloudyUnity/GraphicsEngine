@@ -1,5 +1,3 @@
-#define NUM_LIGHTS 4
-
 struct VertexInputType
 {
     float4 position : POSITION;
