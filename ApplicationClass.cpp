@@ -18,7 +18,7 @@ ApplicationClass::ApplicationClass()
 
 	m_currentScene = 0;
 
-	//ModelParser::ParseFile("C:\\Users\\finnw\\OneDrive\\Documents\\3D objects\\Plane.obj");
+	// ModelParser::ParseFile("C:\\Users\\finnw\\OneDrive\\Documents\\3D objects\\TessellatedPlaneAlt.obj");
 }
 
 ApplicationClass::~ApplicationClass()

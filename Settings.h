@@ -26,7 +26,7 @@ inline constexpr bool BLENDING_ON = true;
 class Settings
 {
 private:
-    struct SettingsData // Set up for exhibit data
+    struct SettingsData
     {       
         // RENDERING
         bool FrustumCulling = true;

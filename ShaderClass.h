@@ -131,7 +131,8 @@ public:
 	struct TessellationBufferType : CBufferType
 	{
 		float tessellationAmount;
-		XMFLOAT3 padding;
+		float lodFactor;
+		XMFLOAT2 pad;
 	};
 	struct OceanSineBufferType : CBufferType
 	{
