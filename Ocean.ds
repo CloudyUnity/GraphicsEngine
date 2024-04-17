@@ -1,4 +1,4 @@
-#define SIN_COUNT 4
+#define SIN_COUNT 32
 
 cbuffer MatrixBuffer : register(b0)
 {
@@ -9,7 +9,7 @@ cbuffer MatrixBuffer : register(b0)
 
 cbuffer OceanSineBuffer : register(b1)
 {
-    float4 ampPhaseFreqXFreqZ[SIN_COUNT];
+    float4 ampPhaseFreq[SIN_COUNT];
 }
 
 cbuffer UtilBuffer: register(b2)
@@ -56,37 +56,46 @@ PixelInputType DS_MAIN(ConstantOutputType input, float2 uvwCoord : SV_DomainLoca
     // Determine the position of the new vertex.
     vertexPosition = lerp(lerp(patch[0].position, patch[1].position, uvwCoord.x), lerp(patch[3].position, patch[2].position, uvwCoord.x), uvwCoord.y);
     vertexPosition.w = 1.0f;
+    float4 worldPosition = mul(vertexPosition, worldMatrix);
 
-    float ddx = 0;
+    float ddx = 0;    
     float ddz = 0;
+    float lastDDX = 0;
+    float lastDDZ = 0;
+
+    // Debug
+    float t = time;
 
     for (int i = 0; i < SIN_COUNT; i++)
     {
-        float amp = ampPhaseFreqXFreqZ[i].x;
-        float phase = ampPhaseFreqXFreqZ[i].y;
-        float freqX = ampPhaseFreqXFreqZ[i].z;
-        float freqZ = ampPhaseFreqXFreqZ[i].w;
+        float amp = ampPhaseFreq[i].x;
+        float phase = ampPhaseFreq[i].y;
+        float freq = ampPhaseFreq[i].z;
+        float theta = ampPhaseFreq[i].w;
 
-        float offset = freqX * vertexPosition.x + freqZ * vertexPosition.z;
+        float2 D = float2(cos(theta), sin(theta));
+        float2 pos = worldPosition.xz + float2(lastDDX, lastDDZ);
+        float align = dot(D, pos);
 
-        vertexPosition.y += amp * sin(phase * time + offset);
+        float exponent = sin(phase * t + align * freq) - 1;
+        vertexPosition.y += amp * exp(exponent);
 
-        ddx += amp * freqX * cos(phase * time + offset);
-        ddz += amp * freqZ * cos(phase * time + offset);
+        float cosine = cos(phase * t + align * freq);
+        lastDDX = amp * freq * D.x * cosine * exp(exponent);
+        lastDDZ = amp * freq * D.y * cosine * exp(exponent);
+        ddx += lastDDX;
+        ddz += lastDDZ;
     }       
     
-    float3 tangent = float3(1, 0, ddx);
-    float3 binormal = float3(0, 1, ddz);
-    output.normal = normalize(cross(binormal, tangent));
+    output.normal = float3(-ddx, 1, -ddz);
+    output.normal = normalize(output.normal);    
     
-    // Calculate the position of the new vertex against the world, view, and projection matrices.
     output.position = mul(vertexPosition, worldMatrix);
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
 
     output.tex = lerp(lerp(patch[0].tex, patch[1].tex, uvwCoord.x), lerp(patch[3].tex, patch[2].tex, uvwCoord.x), uvwCoord.y);
 
-    float4 worldPosition = mul(vertexPosition, worldMatrix);
     output.viewDirection = normalize(cameraPosition.xyz - worldPosition.xyz);
 
     return output;

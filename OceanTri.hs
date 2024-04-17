@@ -1,7 +1,14 @@
 cbuffer TessellationBuffer : register (b0)
 {
     float tessellationAmount;
-    float3 padding;
+    float lodFactor;
+    float2 tessPad;
+};
+
+cbuffer CameraBuffer : register(b1)
+{
+    float3 cameraPosition;
+    float padding;
 };
 
 struct ConstantOutputType
@@ -26,12 +33,13 @@ ConstantOutputType PatchConstantFunction(InputPatch<HullInputType, 3> inputPatch
 {    
     ConstantOutputType output;
 
-    output.edges[0] = tessellationAmount;
-    output.edges[1] = tessellationAmount;
-    output.edges[2] = tessellationAmount;
+    float lod = lodFactor / length(inputPatch[0].position.xyz - cameraPosition.xyz);
 
-    // Set the tessellation factor for tessallating inside the triangle.
-    output.inside = tessellationAmount;
+    output.edges[0] = tessellationAmount * lod;
+    output.edges[1] = tessellationAmount * lod;
+    output.edges[2] = tessellationAmount * lod;
+
+    output.inside = tessellationAmount * lod;
 
     return output;
 }

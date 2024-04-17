@@ -21,7 +21,8 @@ Settings::Settings(int index)
 
 	m_performanceData4.ReflectionEnabled = false;
 	m_performanceData4.ShadowsEnabled = false;
-	m_performanceData4.SkyboxEnabled = false;
+	m_performanceData4.SkyboxEnabled = true;
+	m_performanceData4.ParticlesEnabled = true;
 
 	m_fogExhibitData5.FogEnabled = true;
 	m_fogExhibitData5.SkyboxEnabled = false;
