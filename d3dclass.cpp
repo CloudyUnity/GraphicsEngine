@@ -1,4 +1,5 @@
 #include "d3dclass.h"
+#include <iostream>
 
 D3DClass::D3DClass()
 {
@@ -48,20 +49,32 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 
 	// Create a DirectX graphics interface factory, adapter (video card) and enumerate the adapter output (monitor)
 
+	LogClass::LogStart("Creating DXGI Factory");
+
 	IDXGIFactory* factory;
 	result = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
 	if (FAILED(result))
 		return false;
+
+	LogClass::LogEnd("Complete");
+
+	LogClass::LogStart("Creating Enum Adapters");
 
 	IDXGIAdapter* adapter;
 	result = factory->EnumAdapters(0, &adapter);
 	if (FAILED(result))
 		return false;
 
+	LogClass::LogEnd("Complete");
+
+	LogClass::LogStart("Creating Enum Outputs");
+
 	IDXGIOutput* adapterOutput;
 	result = adapter->EnumOutputs(0, &adapterOutput);
 	if (FAILED(result))
 		return false;
+
+	LogClass::LogEnd("Complete");
 
 	factory->Release();
 	factory = 0;
@@ -132,8 +145,7 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	swapChainDesc.Windowed = !fullscreen;
 	swapChainDesc.Flags = 0;
 
-	// Turn multisampling off.
-	swapChainDesc.SampleDesc.Count = 1;
+	swapChainDesc.SampleDesc.Count = ANTI_ALIASING_ENABLED ? 2 : 1;
 	swapChainDesc.SampleDesc.Quality = 0;	
 
 	// Set the scan line ordering and scaling to unspecified.
@@ -149,19 +161,27 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
+	LogClass::LogStart("Creating Device and Swap Chain");
+
 	// Create the swap chain, Direct3D device, and Direct3D device context.
 	result = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, creationFlags, &featureLevel, 1,
 		D3D11_SDK_VERSION, &swapChainDesc, &m_swapChain, &m_device, NULL, &m_deviceContext);
 	if (FAILED(result))
 		return false;
 
+	LogClass::LogEnd("Complete");
+
 	result = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBufferPtr);
 	if (FAILED(result))
-		return false;
+		return false;	
+
+	LogClass::LogStart("Creating Render Target View");
 
 	result = m_device->CreateRenderTargetView(backBufferPtr, NULL, &m_renderTargetView);
 	if (FAILED(result))
 		return false;
+
+	LogClass::LogEnd("Complete");
 
 	backBufferPtr->Release();
 	backBufferPtr = 0;
@@ -172,16 +192,20 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	depthBufferDesc.MipLevels = 1;
 	depthBufferDesc.ArraySize = 1;
 	depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthBufferDesc.SampleDesc.Count = 1;
+	depthBufferDesc.SampleDesc.Count = ANTI_ALIASING_ENABLED ? 2 : 1;
 	depthBufferDesc.SampleDesc.Quality = 0;
 	depthBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	depthBufferDesc.CPUAccessFlags = 0;
 	depthBufferDesc.MiscFlags = 0;
 
+	LogClass::LogStart("Creating Depth Buffer");
+
 	result = m_device->CreateTexture2D(&depthBufferDesc, NULL, &m_depthStencilBuffer);
 	if (FAILED(result))
 		return false;
+
+	LogClass::LogEnd("Complete");
 
 	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
 	depthStencilDesc.DepthEnable = true;
@@ -207,19 +231,27 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
 	depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
+	LogClass::LogStart("Creating Depth Stencil State");
+
 	result = m_device->CreateDepthStencilState(&depthStencilDesc, &m_depthStencilState);
 	if (FAILED(result))
 		return false;
 	m_deviceContext->OMSetDepthStencilState(m_depthStencilState, 1);
 
+	LogClass::LogEnd("Complete");
+
 	ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
 	depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	depthStencilViewDesc.ViewDimension = ANTI_ALIASING_ENABLED ? D3D11_DSV_DIMENSION_TEXTURE2DMS :D3D11_DSV_DIMENSION_TEXTURE2D;
 	depthStencilViewDesc.Texture2D.MipSlice = 0;
+
+	LogClass::LogStart("Creating Depth Stencil View");
 
 	result = m_device->CreateDepthStencilView(m_depthStencilBuffer, &depthStencilViewDesc, &m_depthStencilView);
 	if (FAILED(result))
 		return false;
+
+	LogClass::LogEnd("Complete");
 
 	// Bind the render target view and depth stencil buffer to the output render pipeline.
 	m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
@@ -230,9 +262,12 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	rasterDesc.DepthBiasClamp = 0.0f;
 	rasterDesc.DepthClipEnable = true;	
 	rasterDesc.FrontCounterClockwise = false;
-	rasterDesc.MultisampleEnable = false;
 	rasterDesc.ScissorEnable = false;
 	rasterDesc.SlopeScaledDepthBias = 0.0f;
+
+	rasterDesc.MultisampleEnable = ANTI_ALIASING_ENABLED;
+
+	LogClass::LogStart("Creating Rasterizer State");
 
 	rasterDesc.CullMode = D3D11_CULL_NONE;
 	rasterDesc.FillMode = D3D11_FILL_SOLID;
@@ -251,6 +286,8 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	result = m_device->CreateRasterizerState(&rasterDesc, &m_rasterStateWireframe);
 	if (FAILED(result))
 		return false;
+
+	LogClass::LogEnd("Complete");
 
 	// Now set the rasterizer state.
 	SetBackCulling(false, true);
@@ -289,9 +326,13 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	depthDisabledStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
 	depthDisabledStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
+	LogClass::LogStart("Creating Depth Disabled Stencil State");
+
 	result = m_device->CreateDepthStencilState(&depthDisabledStencilDesc, &m_depthDisabledStencilState);
 	if (FAILED(result))
 		return false;
+
+	LogClass::LogEnd("Complete");
 
 	// Clear the blend state description.
 	ZeroMemory(&blendStateDescription, sizeof(D3D11_BLEND_DESC));	
@@ -307,6 +348,8 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	blendStateDescription.RenderTarget[0].RenderTargetWriteMask = 0x0f;
 
+	LogClass::LogStart("Creating Blend States");
+
 	blendStateDescription.RenderTarget[0].BlendEnable = TRUE;
 	result = m_device->CreateBlendState(&blendStateDescription, &m_alphaEnableBlendingState);
 	if (FAILED(result))
@@ -317,6 +360,8 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	if (FAILED(result))
 		return false;
 
+	LogClass::LogEnd("Complete");
+
 	EnableAlphaBlending();
 
 	return true;
@@ -324,6 +369,8 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 
 void D3DClass::Shutdown()
 {
+	LogClass::LogStart("Shutting down D3D");
+
 	// Before shutting down set to windowed mode or when you release the swap chain it will throw an exception.
 	if (m_swapChain)
 	{
@@ -418,6 +465,8 @@ void D3DClass::Shutdown()
 		m_device->Release();
 		m_device = 0;
 	}
+
+	LogClass::LogEnd("D3D Shutdown");
 }
 
 void D3DClass::BeginScene(float red, float green, float blue, float alpha)
@@ -544,4 +593,36 @@ void D3DClass::SetBackCulling(bool wireFrameMode, bool enabled)
 	}
 
 	m_deviceContext->RSSetState(m_rasterStateCullNone);
+}
+
+// Unused, remove?
+void D3DClass::ParseHResult(HRESULT hr)
+{
+	if (FAILED(hr))
+	{
+		// Extract the error facility and code
+		DWORD facility = HRESULT_FACILITY(hr);
+		DWORD code = HRESULT_CODE(hr);
+
+		// Output the error information
+		std::cout << "HRESULT " << "0x" << hr << " indicates failure." << std::endl;
+		std::cout << "Facility: " << facility << std::endl;
+		std::cout << "Error code: " << code << std::endl;
+
+		// If it's a DirectX error, get the error string
+		if (facility == FACILITY_DXGI || facility == FACILITY_DIRECT3D11 || facility == FACILITY_DIRECT3D11_DEBUG || facility == FACILITY_DIRECT3D10)
+		{
+			std::cout << "DirectX error description: " << std::endl;
+			std::cout << "DirectX error string: " << std::endl;
+		}
+		LPSTR messageBuffer = nullptr;
+		FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+			nullptr, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<LPSTR>(&messageBuffer), 0, nullptr);
+		std::cout << "Error message: " << messageBuffer << std::endl;
+		LocalFree(messageBuffer);
+	}
+	else
+	{
+		std::cout << "HRESULT " << std::hex << hr << " indicates success." << std::endl;
+	}
 }

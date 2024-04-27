@@ -25,6 +25,7 @@
 #include "IShutdown.h"
 #include "SceneTestClass.h"
 #include "SceneOceanClass.h"
+#include "LogClass.h"
 
 using std::vector;
 using std::string;

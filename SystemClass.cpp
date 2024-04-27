@@ -17,8 +17,14 @@ SystemClass::~SystemClass()
 bool SystemClass::Initialize()
 {
 	int screenWidth = 0, screenHeight = 0;
+
+	LogClass::LogStart("Initialising Windows");
 	
 	InitializeWindows(screenWidth, screenHeight);
+
+	LogClass::LogEnd("Windows Initialised");
+
+	LogClass::LogStart("Initialising Input");
 
 	// Create and initialize the input object.  This object will be used to handle reading the keyboard input from the user.
 	m_Input = new InputClass;
@@ -26,14 +32,26 @@ bool SystemClass::Initialize()
 	if (!result)
 		return false;
 
+	LogClass::LogEnd("Input Initialised");
+
+	LogClass::LogStart("Initialising Application");
+
 	// Create and initialize the application class object.  This object will handle rendering all the graphics for this application.
 	m_Application = new ApplicationClass;
 
-	return m_Application->Initialize(m_hwnd);	
+	result = m_Application->Initialize(m_hwnd);	
+	if (!result)
+		return false;
+
+	LogClass::LogEnd("Application Initialised");
+
+	return true;
 }
 
 void SystemClass::Shutdown()
 {
+	LogClass::LogStart("Shutting down System");
+
 	if (m_Application)
 	{
 		m_Application->Shutdown();
@@ -48,6 +66,8 @@ void SystemClass::Shutdown()
 	}
 
 	ShutdownWindows();
+
+	LogClass::LogEnd("System shutdown");
 }
 
 void SystemClass::Run()
@@ -55,7 +75,7 @@ void SystemClass::Run()
 	MSG msg;
 
 	// Initialize the message structure.
-	ZeroMemory(&msg, sizeof(MSG));
+	ZeroMemory(&msg, sizeof(MSG));	
 
 	// Loop until there is a quit message from the window or the user.
 	while (true)
@@ -68,7 +88,7 @@ void SystemClass::Run()
 		}
 
 		// If windows signals to end the application then exit out.
-		if (msg.message == WM_QUIT)
+		if (msg.message == WM_QUIT || msg.message == WM_DESTROY || msg.message == WM_CLOSE)
 			break;
 		
 		// Otherwise do the frame processing.
@@ -172,6 +192,8 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 
 void SystemClass::ShutdownWindows()
 {
+	LogClass::LogStart("Shutting down Windows");
+
 	ShowCursor(true);
 
 	// Fix the display settings if leaving full screen mode.
@@ -187,6 +209,8 @@ void SystemClass::ShutdownWindows()
 
 	// Release the pointer to this class.
 	ApplicationHandle = NULL;
+
+	LogClass::LogEnd("Windows shutdown");
 }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)

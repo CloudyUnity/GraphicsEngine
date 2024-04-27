@@ -148,6 +148,7 @@
     <ClInclude Include="InputClass.h" />
     <ClInclude Include="IShutdown.h" />
     <ClInclude Include="LightClass.h" />
+    <ClInclude Include="LogClass.h" />
     <ClInclude Include="MathUtilsClass.h" />
     <ClInclude Include="ModelClass.h" />
     <ClInclude Include="ModelLineListClass.h" />
@@ -181,6 +182,7 @@
     <ClCompile Include="InputClass.cpp" />
     <ClCompile Include="IShutdown.cpp" />
     <ClCompile Include="LightClass.cpp" />
+    <ClCompile Include="LogClass.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MathUtilsClass.cpp" />
     <ClCompile Include="ModelClass.cpp" />
@@ -234,6 +236,9 @@
     <None Include="Skybox.vs" />
     <None Include="Water.ps" />
     <None Include="Water.vs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Log.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

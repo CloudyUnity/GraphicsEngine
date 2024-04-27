@@ -150,6 +150,9 @@
     <ClInclude Include="ModelLineListClass.h">
       <Filter>Source Files\Primitives</Filter>
     </ClInclude>
+    <ClInclude Include="LogClass.h">
+      <Filter>Source Files\Managers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ApplicationClass.cpp">
@@ -248,6 +251,9 @@
     <ClCompile Include="ModelLineListClass.cpp">
       <Filter>Source Files\Primitives</Filter>
     </ClCompile>
+    <ClCompile Include="LogClass.cpp">
+      <Filter>Source Files\Managers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Fog.vs">
@@ -344,5 +350,8 @@
     <None Include="Line.ps">
       <Filter>Shaders</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Log.txt" />
   </ItemGroup>
 </Project>

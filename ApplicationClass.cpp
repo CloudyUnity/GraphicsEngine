@@ -18,7 +18,8 @@ ApplicationClass::ApplicationClass()
 
 	m_currentScene = 0;
 
-	// ModelParser::ParseFile("C:\\Users\\finnw\\OneDrive\\Documents\\3D objects\\TessellatedPlaneAlt.obj");
+	// LogClass::Log("(!) Parsing model data");
+	// ModelParser::ParseFile("C:\\Users\\finnw\\OneDrive\\Documents\\3D objects\\TomBoxTriangulated.obj");
 }
 
 ApplicationClass::~ApplicationClass()
@@ -31,6 +32,8 @@ bool ApplicationClass::Initialize(HWND hwnd)
 
 	m_Settings = new Settings(4);
 
+	LogClass::LogStart("Initialising D3D");
+
 	m_Direct3D = new D3DClass;	
 	bool result = m_Direct3D->Initialize(SCREEN_X, SCREEN_Y, V_SYNC, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 	if (!result)
@@ -38,6 +41,8 @@ bool ApplicationClass::Initialize(HWND hwnd)
 		MessageBox(hwnd, L"Could not initialize Direct3D", L"Error", MB_OK);
 		return false;
 	}
+
+	LogClass::LogEnd("D3D Initialised");
 
 	ID3D11Device* device = m_Direct3D->GetDevice();
 	ID3D11DeviceContext* deviceContext = m_Direct3D->GetDeviceContext();
@@ -50,33 +55,34 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	m_Frustum = new FrustumClass;
 
 	m_Fps = new FpsClass();
-	m_Fps->Initialize();
+	m_Fps->Initialize();	
 
-	ShaderClass* shader2D = 0;
-	result = InitializeShader(hwnd, &shader2D, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/2D.ps");
+	LogClass::LogStart("Initialising Application Shaders");
+
+	ShaderClass* shaderDepth = 0, * shaderFont = 0, * shader2D = 0;
+	result =
+		InitializeShader(hwnd, &shaderFont, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/Font.ps") &&
+		InitializeShader(hwnd, &shaderDepth, "../GraphicsEngine/Depth.vs", "../GraphicsEngine/Depth.ps") &&
+		InitializeShader(hwnd, &shader2D, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/2D.ps");
 	if (!result)
 		return false;
+
+	LogClass::LogEnd("Application Shaders Initialised");
+
+	LogClass::LogStart("Initialising RenderClass");
 
 	m_RenderClass = new RenderClass;
 	result = m_RenderClass->Initialize(m_Direct3D, m_Frustum, m_Settings, shader2D);
 	if (!result)
 		return false;		
+	m_RenderClass->SetDepthShader(shaderDepth);
+
+	LogClass::LogEnd("RenderClass Initialised");
 
 	m_startTime = std::chrono::high_resolution_clock::now();
 
 	m_Parameters = new ShaderClass::ShaderParamsGlobalType;
-	UpdateParameters();
-
-	// SHADERS
-
-	ShaderClass* shaderDepth = 0, * shaderFont = 0;
-	result = 
-		InitializeShader(hwnd, &shaderFont, "../GraphicsEngine/Simple.vs", "../GraphicsEngine/Font.ps") &&
-		InitializeShader(hwnd, &shaderDepth, "../GraphicsEngine/Depth.vs", "../GraphicsEngine/Depth.ps");
-	if (!result)
-		return false;
-
-	m_RenderClass->SetDepthShader(shaderDepth);
+	UpdateParameters();	
 
 	// TEXT
 
@@ -103,20 +109,25 @@ bool ApplicationClass::Initialize(HWND hwnd)
 	m_TextStringMouseBttn->SetPosition(10, 120);
 	m_TextStringMouseBttn->m_shaderUniformData.pixel.pixelColor = XMFLOAT4(1, 1, 1, 1);
 
-	// SCENES
+	// SCENES	
 
-	SceneTestClass* sceneTest = new SceneTestClass();
+	SceneTestClass* sceneTest = new SceneTestClass("Test");
 	sceneTest->InitializeMembers(m_Settings, m_Direct3D, m_RenderClass);
 	m_sceneList.push_back(sceneTest);
 
-	SceneOceanClass* sceneOcean = new SceneOceanClass();
+	SceneOceanClass* sceneOcean = new SceneOceanClass("Ocean");
 	sceneOcean->InitializeMembers(m_Settings, m_Direct3D, m_RenderClass);
 	m_sceneList.push_back(sceneOcean);
 
 	m_currentScene = sceneOcean;
+
+	LogClass::LogStart("Initialising Scene: " + m_currentScene->m_Name);
+
 	m_currentScene->InitializeScene(hwnd);
 	m_currentScene->OnSwitchTo();
 	m_currentScene->m_InitializedScene = true;
+
+	LogClass::LogEnd("Scene Initialised: " + m_currentScene->m_Name);
 }
 
 bool ApplicationClass::InitializeShader(HWND hwnd, ShaderClass** ptr, const char* vertexName, const char* fragName, bool clamp)
@@ -200,6 +211,8 @@ void ApplicationClass::UpdateParameters()
 
 void ApplicationClass::Shutdown()
 {
+	LogClass::LogStart("Shutting down Application");
+
 	if (m_RenderClass)
 	{
 		m_RenderClass->Shutdown();
@@ -244,6 +257,8 @@ void ApplicationClass::Shutdown()
 		delete m_Direct3D;
 		m_Direct3D = 0;
 	}
+
+	LogClass::LogEnd("Application shutdown");
 }
 
 bool ApplicationClass::Frame(HWND hwnd, InputClass* input)
@@ -286,6 +301,8 @@ bool ApplicationClass::LateFrame(InputClass* input, float frameTime)
 
 bool ApplicationClass::SwitchScene(HWND hwnd)
 {
+	LogClass::Log("Switching Scenes");
+
 	for (int i = 0; i < m_sceneList.size(); i++)
 	{
 		if (m_sceneList.at(i) != m_currentScene)
@@ -293,11 +310,17 @@ bool ApplicationClass::SwitchScene(HWND hwnd)
 
 		int newIndex = (i + 1) % m_sceneList.size();
 		m_currentScene = m_sceneList.at(newIndex);		
+
 		if (!m_currentScene->m_InitializedScene)
 		{
+			LogClass::LogStart("Initialising Scene: " + m_currentScene->m_Name);
+
 			m_currentScene->InitializeScene(hwnd);			
 			m_currentScene->m_InitializedScene = true;
+
+			LogClass::LogEnd("Scene Initialised: " + m_currentScene->m_Name);
 		}
+
 		m_currentScene->OnSwitchTo();
 		return true;
 	}
@@ -314,7 +337,7 @@ bool ApplicationClass::Render()
 
 	m_currentScene->SetParameters(m_Parameters);
 
-	SceneClass::SceneDataType sceneData; // Sus code
+	SceneClass::SceneDataType sceneData;
 	sceneData = *(m_currentScene->GetSceneData());
 	for (auto overlayText : m_overlayTextList)
 		sceneData.TextList.push_back(overlayText);

@@ -5,6 +5,7 @@
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 
+#include "LogClass.h"
 #include <d3d11.h>
 #include <directxmath.h>
 #include "settings.h"
@@ -45,6 +46,8 @@ public:
     void SetBackCulling(bool, bool);
 
 private:
+    void ParseHResult(HRESULT);
+
     bool m_vsync_enabled;
     int m_videoCardMemory;
     char m_videoCardDescription[128];
