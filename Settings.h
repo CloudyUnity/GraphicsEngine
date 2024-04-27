@@ -22,6 +22,10 @@ inline constexpr int BLUR_SAMPLE_SPREAD = 4;
 
 inline constexpr bool DEPTH_STENCIL_FUNC_LESS_EQUAL = true;
 inline constexpr bool BLENDING_ON = true;
+inline constexpr bool ANTI_ALIASING_ENABLED = true;
+
+// MISC
+inline constexpr bool LOGGING_ENABLED = true;
 
 class Settings
 {

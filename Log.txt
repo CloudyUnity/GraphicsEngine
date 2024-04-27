@@ -1,0 +1,2682 @@
+Logging Initialised
+Initialising System
+=Initialising Windows
+=Windows Initialised (48.8966ms)
+=Initialising Input
+=Input Initialised (35.864ms)
+=Initialising Application
+==Initialising D3D
+===Creating DXGI Factory
+===Complete (14.4231ms)
+===Creating Enum Adapters
+===Complete (0.0598ms)
+===Creating Enum Outputs
+===Complete (0.0114ms)
+===Creating Device and Swap Chain
+===Complete (151.137ms)
+===Creating Render Target View
+===Complete (0.045ms)
+===Creating Depth Buffer
+===Complete (0.1671ms)
+===Creating Depth Stencil State
+===Complete (0.0241ms)
+===Creating Depth Stencil View
+===Complete (0.039ms)
+===Creating Rasterizer State
+===Complete (0.0178ms)
+===Creating Depth Disabled Stencil State
+===Complete (0.0103ms)
+===Creating Blend States
+===Complete (0.0187ms)
+==D3D Initialised (166.85ms)
+==Initialising Application Shaders
+==Application Shaders Initialised (14.5856ms)
+==Initialising RenderClass
+==RenderClass Initialised (1.3198ms)
+==Initialising Scene: Ocean
+===Initialising Shader (Tesselation): vs:../GraphicsEngine/Ocean.vs hs:../GraphicsEngine/Ocean.hs ds:../GraphicsEngine/Ocean.ds ps:../GraphicsEngine/Ocean.ps
+===Shader (Tesselation) Initialised: vs:../GraphicsEngine/Ocean.vs hs:../GraphicsEngine/Ocean.hs ds:../GraphicsEngine/Ocean.ds ps:../GraphicsEngine/Ocean.ps (41.5062ms)
+===Initialising Shader (Tesselation): vs:../GraphicsEngine/Ocean.vs hs:../GraphicsEngine/OceanTri.hs ds:../GraphicsEngine/OceanTri.ds ps:../GraphicsEngine/Ocean.ps
+===Shader (Tesselation) Initialised: vs:../GraphicsEngine/Ocean.vs hs:../GraphicsEngine/OceanTri.hs ds:../GraphicsEngine/OceanTri.ds ps:../GraphicsEngine/Ocean.ps (39.914ms)
+===Initialising Shader: vs:../GraphicsEngine/Line.vs ps:../GraphicsEngine/Line.ps
+===Shader Initialised: vs:../GraphicsEngine/Line.vs ps:../GraphicsEngine/Line.ps (3.7893ms)
+===Initialising Shader: vs:../GraphicsEngine/Skybox.vs ps:../GraphicsEngine/Skybox.ps
+===Shader Initialised: vs:../GraphicsEngine/Skybox.vs ps:../GraphicsEngine/Skybox.ps (5.2727ms)
+===Initialising Shader: vs:../GraphicsEngine/Fog.vs ps:../GraphicsEngine/Fog.ps
+===Shader Initialised: vs:../GraphicsEngine/Fog.vs ps:../GraphicsEngine/Fog.ps (27.0192ms)
+===Initialising Shader: vs:../GraphicsEngine/Simple.vs ps:../GraphicsEngine/Fractal.ps
+===Shader Initialised: vs:../GraphicsEngine/Simple.vs ps:../GraphicsEngine/Fractal.ps (8.9458ms)
+===Initialising TexSet
+===TexSet Initialised (0.01ms)
+===Initialising TexSet
+===TexSet Initialised (0.03ms)
+===Initialising Model: ../GraphicsEngine/Models/Plane.txt
+===Model Initialised: ../GraphicsEngine/Models/Plane.txt (0.5255ms)
+===Initialising Model: ../GraphicsEngine/Models/TessellatedPlaneAlt.txt
+===Model Initialised: ../GraphicsEngine/Models/TessellatedPlaneAlt.txt (3.4874ms)
+===Initialising Model (LineList): 
+===Model (LineList) Initialised:  (0.0441ms)
+===Initialising Model (LineList): 
+===Model (LineList) Initialised:  (0.0367ms)
+===Initialising Model (LineList): 
+===Model (LineList) Initialised:  (0.0301ms)
+===Initialising Model (LineList): 
+===Model (LineList) Initialised:  (0.04ms)
+===Initialising Model: ../GraphicsEngine/Models/Cube.txt
+===Model Initialised: ../GraphicsEngine/Models/Cube.txt (1.0881ms)
+===Initialising GameObject: LineYellow
+===GameObject Initialised: LineYellow (0.0228ms)
+===Initialising GameObject: LineBlue
+===GameObject Initialised: LineBlue (0.0142ms)
+===Initialising GameObject: LineGreen
+===GameObject Initialised: LineGreen (0.0133ms)
+===Initialising GameObject: Ocean0-0
+===GameObject Initialised: Ocean0-0 (0.0164ms)
+===Initialising GameObject: Ocean0-1
+===GameObject Initialised: Ocean0-1 (0.0166ms)
+===Initialising GameObject: Ocean0-2
+===GameObject Initialised: Ocean0-2 (0.0159ms)
+===Initialising GameObject: Ocean0-3
+===GameObject Initialised: Ocean0-3 (0.0131ms)
+===Initialising GameObject: Ocean0-4
+===GameObject Initialised: Ocean0-4 (0.0112ms)
+===Initialising GameObject: Ocean0-5
+===GameObject Initialised: Ocean0-5 (0.012ms)
+===Initialising GameObject: Ocean0-6
+===GameObject Initialised: Ocean0-6 (0.0126ms)
+===Initialising GameObject: Ocean0-7
+===GameObject Initialised: Ocean0-7 (0.0206ms)
+===Initialising GameObject: Ocean0-8
+===GameObject Initialised: Ocean0-8 (0.0122ms)
+===Initialising GameObject: Ocean0-9
+===GameObject Initialised: Ocean0-9 (0.0124ms)
+===Initialising GameObject: Ocean0-10
+===GameObject Initialised: Ocean0-10 (0.016ms)
+===Initialising GameObject: Ocean0-11
+===GameObject Initialised: Ocean0-11 (0.0143ms)
+===Initialising GameObject: Ocean0-12
+===GameObject Initialised: Ocean0-12 (0.0161ms)
+===Initialising GameObject: Ocean0-13
+===GameObject Initialised: Ocean0-13 (0.0118ms)
+===Initialising GameObject: Ocean0-14
+===GameObject Initialised: Ocean0-14 (0.0116ms)
+===Initialising GameObject: Ocean0-15
+===GameObject Initialised: Ocean0-15 (0.0162ms)
+===Initialising GameObject: Ocean0-16
+===GameObject Initialised: Ocean0-16 (0.0138ms)
+===Initialising GameObject: Ocean0-17
+===GameObject Initialised: Ocean0-17 (0.0114ms)
+===Initialising GameObject: Ocean0-18
+===GameObject Initialised: Ocean0-18 (0.0126ms)
+===Initialising GameObject: Ocean0-19
+===GameObject Initialised: Ocean0-19 (0.0116ms)
+===Initialising GameObject: Ocean0-20
+===GameObject Initialised: Ocean0-20 (0.0132ms)
+===Initialising GameObject: Ocean0-21
+===GameObject Initialised: Ocean0-21 (0.0111ms)
+===Initialising GameObject: Ocean0-22
+===GameObject Initialised: Ocean0-22 (0.0122ms)
+===Initialising GameObject: Ocean0-23
+===GameObject Initialised: Ocean0-23 (0.013ms)
+===Initialising GameObject: Ocean0-24
+===GameObject Initialised: Ocean0-24 (0.0134ms)
+===Initialising GameObject: Ocean0-25
+===GameObject Initialised: Ocean0-25 (0.0196ms)
+===Initialising GameObject: Ocean0-26
+===GameObject Initialised: Ocean0-26 (0.0133ms)
+===Initialising GameObject: Ocean0-27
+===GameObject Initialised: Ocean0-27 (0.0132ms)
+===Initialising GameObject: Ocean0-28
+===GameObject Initialised: Ocean0-28 (0.0135ms)
+===Initialising GameObject: Ocean0-29
+===GameObject Initialised: Ocean0-29 (0.009ms)
+===Initialising GameObject: Ocean0-30
+===GameObject Initialised: Ocean0-30 (0.0086ms)
+===Initialising GameObject: Ocean0-31
+===GameObject Initialised: Ocean0-31 (0.0086ms)
+===Initialising GameObject: Ocean0-32
+===GameObject Initialised: Ocean0-32 (0.0104ms)
+===Initialising GameObject: Ocean0-33
+===GameObject Initialised: Ocean0-33 (0.0156ms)
+===Initialising GameObject: Ocean0-34
+===GameObject Initialised: Ocean0-34 (0.0085ms)
+===Initialising GameObject: Ocean1-0
+===GameObject Initialised: Ocean1-0 (0.0086ms)
+===Initialising GameObject: Ocean1-1
+===GameObject Initialised: Ocean1-1 (0.0169ms)
+===Initialising GameObject: Ocean1-2
+===GameObject Initialised: Ocean1-2 (0.0132ms)
+===Initialising GameObject: Ocean1-3
+===GameObject Initialised: Ocean1-3 (0.0119ms)
+===Initialising GameObject: Ocean1-4
+===GameObject Initialised: Ocean1-4 (0.0147ms)
+===Initialising GameObject: Ocean1-5
+===GameObject Initialised: Ocean1-5 (0.0131ms)
+===Initialising GameObject: Ocean1-6
+===GameObject Initialised: Ocean1-6 (0.0222ms)
+===Initialising GameObject: Ocean1-7
+===GameObject Initialised: Ocean1-7 (0.0132ms)
+===Initialising GameObject: Ocean1-8
+===GameObject Initialised: Ocean1-8 (0.0127ms)
+===Initialising GameObject: Ocean1-9
+===GameObject Initialised: Ocean1-9 (0.0117ms)
+===Initialising GameObject: Ocean1-10
+===GameObject Initialised: Ocean1-10 (0.0155ms)
+===Initialising GameObject: Ocean1-11
+===GameObject Initialised: Ocean1-11 (0.014ms)
+===Initialising GameObject: Ocean1-12
+===GameObject Initialised: Ocean1-12 (0.0115ms)
+===Initialising GameObject: Ocean1-13
+===GameObject Initialised: Ocean1-13 (0.012ms)
+===Initialising GameObject: Ocean1-14
+===GameObject Initialised: Ocean1-14 (0.0153ms)
+===Initialising GameObject: Ocean1-15
+===GameObject Initialised: Ocean1-15 (0.0116ms)
+===Initialising GameObject: Ocean1-16
+===GameObject Initialised: Ocean1-16 (0.0121ms)
+===Initialising GameObject: Ocean1-17
+===GameObject Initialised: Ocean1-17 (0.0177ms)
+===Initialising GameObject: Ocean1-18
+===GameObject Initialised: Ocean1-18 (0.0143ms)
+===Initialising GameObject: Ocean1-19
+===GameObject Initialised: Ocean1-19 (0.0195ms)
+===Initialising GameObject: Ocean1-20
+===GameObject Initialised: Ocean1-20 (0.0131ms)
+===Initialising GameObject: Ocean1-21
+===GameObject Initialised: Ocean1-21 (0.0114ms)
+===Initialising GameObject: Ocean1-22
+===GameObject Initialised: Ocean1-22 (0.0132ms)
+===Initialising GameObject: Ocean1-23
+===GameObject Initialised: Ocean1-23 (0.0122ms)
+===Initialising GameObject: Ocean1-24
+===GameObject Initialised: Ocean1-24 (0.0143ms)
+===Initialising GameObject: Ocean1-25
+===GameObject Initialised: Ocean1-25 (0.016ms)
+===Initialising GameObject: Ocean1-26
+===GameObject Initialised: Ocean1-26 (0.0128ms)
+===Initialising GameObject: Ocean1-27
+===GameObject Initialised: Ocean1-27 (0.0119ms)
+===Initialising GameObject: Ocean1-28
+===GameObject Initialised: Ocean1-28 (0.0118ms)
+===Initialising GameObject: Ocean1-29
+===GameObject Initialised: Ocean1-29 (0.0124ms)
+===Initialising GameObject: Ocean1-30
+===GameObject Initialised: Ocean1-30 (0.0149ms)
+===Initialising GameObject: Ocean1-31
+===GameObject Initialised: Ocean1-31 (0.0119ms)
+===Initialising GameObject: Ocean1-32
+===GameObject Initialised: Ocean1-32 (0.0129ms)
+===Initialising GameObject: Ocean1-33
+===GameObject Initialised: Ocean1-33 (0.0118ms)
+===Initialising GameObject: Ocean1-34
+===GameObject Initialised: Ocean1-34 (0.0134ms)
+===Initialising GameObject: Ocean2-0
+===GameObject Initialised: Ocean2-0 (0.0119ms)
+===Initialising GameObject: Ocean2-1
+===GameObject Initialised: Ocean2-1 (0.0115ms)
+===Initialising GameObject: Ocean2-2
+===GameObject Initialised: Ocean2-2 (0.0124ms)
+===Initialising GameObject: Ocean2-3
+===GameObject Initialised: Ocean2-3 (0.0155ms)
+===Initialising GameObject: Ocean2-4
+===GameObject Initialised: Ocean2-4 (0.0116ms)
+===Initialising GameObject: Ocean2-5
+===GameObject Initialised: Ocean2-5 (0.0147ms)
+===Initialising GameObject: Ocean2-6
+===GameObject Initialised: Ocean2-6 (0.0183ms)
+===Initialising GameObject: Ocean2-7
+===GameObject Initialised: Ocean2-7 (0.0088ms)
+===Initialising GameObject: Ocean2-8
+===GameObject Initialised: Ocean2-8 (0.0084ms)
+===Initialising GameObject: Ocean2-9
+===GameObject Initialised: Ocean2-9 (0.0114ms)
+===Initialising GameObject: Ocean2-10
+===GameObject Initialised: Ocean2-10 (0.0127ms)
+===Initialising GameObject: Ocean2-11
+===GameObject Initialised: Ocean2-11 (0.0112ms)
+===Initialising GameObject: Ocean2-12
+===GameObject Initialised: Ocean2-12 (0.0112ms)
+===Initialising GameObject: Ocean2-13
+===GameObject Initialised: Ocean2-13 (0.0116ms)
+===Initialising GameObject: Ocean2-14
+===GameObject Initialised: Ocean2-14 (0.0128ms)
+===Initialising GameObject: Ocean2-15
+===GameObject Initialised: Ocean2-15 (0.0118ms)
+===Initialising GameObject: Ocean2-16
+===GameObject Initialised: Ocean2-16 (0.0123ms)
+===Initialising GameObject: Ocean2-17
+===GameObject Initialised: Ocean2-17 (0.0108ms)
+===Initialising GameObject: Ocean2-18
+===GameObject Initialised: Ocean2-18 (0.0114ms)
+===Initialising GameObject: Ocean2-19
+===GameObject Initialised: Ocean2-19 (0.0106ms)
+===Initialising GameObject: Ocean2-20
+===GameObject Initialised: Ocean2-20 (0.0107ms)
+===Initialising GameObject: Ocean2-21
+===GameObject Initialised: Ocean2-21 (0.0154ms)
+===Initialising GameObject: Ocean2-22
+===GameObject Initialised: Ocean2-22 (0.0117ms)
+===Initialising GameObject: Ocean2-23
+===GameObject Initialised: Ocean2-23 (0.0117ms)
+===Initialising GameObject: Ocean2-24
+===GameObject Initialised: Ocean2-24 (0.0121ms)
+===Initialising GameObject: Ocean2-25
+===GameObject Initialised: Ocean2-25 (0.0096ms)
+===Initialising GameObject: Ocean2-26
+===GameObject Initialised: Ocean2-26 (0.0147ms)
+===Initialising GameObject: Ocean2-27
+===GameObject Initialised: Ocean2-27 (0.0126ms)
+===Initialising GameObject: Ocean2-28
+===GameObject Initialised: Ocean2-28 (0.0128ms)
+===Initialising GameObject: Ocean2-29
+===GameObject Initialised: Ocean2-29 (0.0131ms)
+===Initialising GameObject: Ocean2-30
+===GameObject Initialised: Ocean2-30 (0.0127ms)
+===Initialising GameObject: Ocean2-31
+===GameObject Initialised: Ocean2-31 (0.0138ms)
+===Initialising GameObject: Ocean2-32
+===GameObject Initialised: Ocean2-32 (0.0112ms)
+===Initialising GameObject: Ocean2-33
+===GameObject Initialised: Ocean2-33 (0.012ms)
+===Initialising GameObject: Ocean2-34
+===GameObject Initialised: Ocean2-34 (0.0096ms)
+===Initialising GameObject: Ocean3-0
+===GameObject Initialised: Ocean3-0 (0.012ms)
+===Initialising GameObject: Ocean3-1
+===GameObject Initialised: Ocean3-1 (0.0114ms)
+===Initialising GameObject: Ocean3-2
+===GameObject Initialised: Ocean3-2 (0.0084ms)
+===Initialising GameObject: Ocean3-3
+===GameObject Initialised: Ocean3-3 (0.0153ms)
+===Initialising GameObject: Ocean3-4
+===GameObject Initialised: Ocean3-4 (0.0127ms)
+===Initialising GameObject: Ocean3-5
+===GameObject Initialised: Ocean3-5 (0.01ms)
+===Initialising GameObject: Ocean3-6
+===GameObject Initialised: Ocean3-6 (0.0115ms)
+===Initialising GameObject: Ocean3-7
+===GameObject Initialised: Ocean3-7 (0.0087ms)
+===Initialising GameObject: Ocean3-8
+===GameObject Initialised: Ocean3-8 (0.0107ms)
+===Initialising GameObject: Ocean3-9
+===GameObject Initialised: Ocean3-9 (0.0199ms)
+===Initialising GameObject: Ocean3-10
+===GameObject Initialised: Ocean3-10 (0.0086ms)
+===Initialising GameObject: Ocean3-11
+===GameObject Initialised: Ocean3-11 (0.0095ms)
+===Initialising GameObject: Ocean3-12
+===GameObject Initialised: Ocean3-12 (0.0166ms)
+===Initialising GameObject: Ocean3-13
+===GameObject Initialised: Ocean3-13 (0.0093ms)
+===Initialising GameObject: Ocean3-14
+===GameObject Initialised: Ocean3-14 (0.0124ms)
+===Initialising GameObject: Ocean3-15
+===GameObject Initialised: Ocean3-15 (0.0093ms)
+===Initialising GameObject: Ocean3-16
+===GameObject Initialised: Ocean3-16 (0.0089ms)
+===Initialising GameObject: Ocean3-17
+===GameObject Initialised: Ocean3-17 (0.0088ms)
+===Initialising GameObject: Ocean3-18
+===GameObject Initialised: Ocean3-18 (0.0134ms)
+===Initialising GameObject: Ocean3-19
+===GameObject Initialised: Ocean3-19 (0.0087ms)
+===Initialising GameObject: Ocean3-20
+===GameObject Initialised: Ocean3-20 (0.0085ms)
+===Initialising GameObject: Ocean3-21
+===GameObject Initialised: Ocean3-21 (0.0087ms)
+===Initialising GameObject: Ocean3-22
+===GameObject Initialised: Ocean3-22 (0.0128ms)
+===Initialising GameObject: Ocean3-23
+===GameObject Initialised: Ocean3-23 (0.0119ms)
+===Initialising GameObject: Ocean3-24
+===GameObject Initialised: Ocean3-24 (0.0091ms)
+===Initialising GameObject: Ocean3-25
+===GameObject Initialised: Ocean3-25 (0.009ms)
+===Initialising GameObject: Ocean3-26
+===GameObject Initialised: Ocean3-26 (0.0116ms)
+===Initialising GameObject: Ocean3-27
+===GameObject Initialised: Ocean3-27 (0.0136ms)
+===Initialising GameObject: Ocean3-28
+===GameObject Initialised: Ocean3-28 (0.0095ms)
+===Initialising GameObject: Ocean3-29
+===GameObject Initialised: Ocean3-29 (0.0087ms)
+===Initialising GameObject: Ocean3-30
+===GameObject Initialised: Ocean3-30 (0.0092ms)
+===Initialising GameObject: Ocean3-31
+===GameObject Initialised: Ocean3-31 (0.0086ms)
+===Initialising GameObject: Ocean3-32
+===GameObject Initialised: Ocean3-32 (0.0086ms)
+===Initialising GameObject: Ocean3-33
+===GameObject Initialised: Ocean3-33 (0.0132ms)
+===Initialising GameObject: Ocean3-34
+===GameObject Initialised: Ocean3-34 (0.0086ms)
+===Initialising GameObject: Ocean4-0
+===GameObject Initialised: Ocean4-0 (0.009ms)
+===Initialising GameObject: Ocean4-1
+===GameObject Initialised: Ocean4-1 (0.0087ms)
+===Initialising GameObject: Ocean4-2
+===GameObject Initialised: Ocean4-2 (0.0097ms)
+===Initialising GameObject: Ocean4-3
+===GameObject Initialised: Ocean4-3 (0.0088ms)
+===Initialising GameObject: Ocean4-4
+===GameObject Initialised: Ocean4-4 (0.0089ms)
+===Initialising GameObject: Ocean4-5
+===GameObject Initialised: Ocean4-5 (0.0087ms)
+===Initialising GameObject: Ocean4-6
+===GameObject Initialised: Ocean4-6 (0.0132ms)
+===Initialising GameObject: Ocean4-7
+===GameObject Initialised: Ocean4-7 (0.009ms)
+===Initialising GameObject: Ocean4-8
+===GameObject Initialised: Ocean4-8 (0.0183ms)
+===Initialising GameObject: Ocean4-9
+===GameObject Initialised: Ocean4-9 (0.0088ms)
+===Initialising GameObject: Ocean4-10
+===GameObject Initialised: Ocean4-10 (0.0087ms)
+===Initialising GameObject: Ocean4-11
+===GameObject Initialised: Ocean4-11 (0.0116ms)
+===Initialising GameObject: Ocean4-12
+===GameObject Initialised: Ocean4-12 (0.012ms)
+===Initialising GameObject: Ocean4-13
+===GameObject Initialised: Ocean4-13 (0.0136ms)
+===Initialising GameObject: Ocean4-14
+===GameObject Initialised: Ocean4-14 (0.0144ms)
+===Initialising GameObject: Ocean4-15
+===GameObject Initialised: Ocean4-15 (0.0097ms)
+===Initialising GameObject: Ocean4-16
+===GameObject Initialised: Ocean4-16 (0.0089ms)
+===Initialising GameObject: Ocean4-17
+===GameObject Initialised: Ocean4-17 (0.0083ms)
+===Initialising GameObject: Ocean4-18
+===GameObject Initialised: Ocean4-18 (0.0107ms)
+===Initialising GameObject: Ocean4-19
+===GameObject Initialised: Ocean4-19 (0.0166ms)
+===Initialising GameObject: Ocean4-20
+===GameObject Initialised: Ocean4-20 (0.0133ms)
+===Initialising GameObject: Ocean4-21
+===GameObject Initialised: Ocean4-21 (0.012ms)
+===Initialising GameObject: Ocean4-22
+===GameObject Initialised: Ocean4-22 (0.0133ms)
+===Initialising GameObject: Ocean4-23
+===GameObject Initialised: Ocean4-23 (0.0119ms)
+===Initialising GameObject: Ocean4-24
+===GameObject Initialised: Ocean4-24 (0.0131ms)
+===Initialising GameObject: Ocean4-25
+===GameObject Initialised: Ocean4-25 (0.0123ms)
+===Initialising GameObject: Ocean4-26
+===GameObject Initialised: Ocean4-26 (0.0129ms)
+===Initialising GameObject: Ocean4-27
+===GameObject Initialised: Ocean4-27 (0.0132ms)
+===Initialising GameObject: Ocean4-28
+===GameObject Initialised: Ocean4-28 (0.0135ms)
+===Initialising GameObject: Ocean4-29
+===GameObject Initialised: Ocean4-29 (0.0088ms)
+===Initialising GameObject: Ocean4-30
+===GameObject Initialised: Ocean4-30 (0.0121ms)
+===Initialising GameObject: Ocean4-31
+===GameObject Initialised: Ocean4-31 (0.0234ms)
+===Initialising GameObject: Ocean4-32
+===GameObject Initialised: Ocean4-32 (0.0123ms)
+===Initialising GameObject: Ocean4-33
+===GameObject Initialised: Ocean4-33 (0.0128ms)
+===Initialising GameObject: Ocean4-34
+===GameObject Initialised: Ocean4-34 (0.0128ms)
+===Initialising GameObject: Ocean5-0
+===GameObject Initialised: Ocean5-0 (0.0126ms)
+===Initialising GameObject: Ocean5-1
+===GameObject Initialised: Ocean5-1 (0.0119ms)
+===Initialising GameObject: Ocean5-2
+===GameObject Initialised: Ocean5-2 (0.0119ms)
+===Initialising GameObject: Ocean5-3
+===GameObject Initialised: Ocean5-3 (0.011ms)
+===Initialising GameObject: Ocean5-4
+===GameObject Initialised: Ocean5-4 (0.0123ms)
+===Initialising GameObject: Ocean5-5
+===GameObject Initialised: Ocean5-5 (0.0161ms)
+===Initialising GameObject: Ocean5-6
+===GameObject Initialised: Ocean5-6 (0.0116ms)
+===Initialising GameObject: Ocean5-7
+===GameObject Initialised: Ocean5-7 (0.0128ms)
+===Initialising GameObject: Ocean5-8
+===GameObject Initialised: Ocean5-8 (0.0123ms)
+===Initialising GameObject: Ocean5-9
+===GameObject Initialised: Ocean5-9 (0.0117ms)
+===Initialising GameObject: Ocean5-10
+===GameObject Initialised: Ocean5-10 (0.0122ms)
+===Initialising GameObject: Ocean5-11
+===GameObject Initialised: Ocean5-11 (0.0299ms)
+===Initialising GameObject: Ocean5-12
+===GameObject Initialised: Ocean5-12 (0.0138ms)
+===Initialising GameObject: Ocean5-13
+===GameObject Initialised: Ocean5-13 (0.0128ms)
+===Initialising GameObject: Ocean5-14
+===GameObject Initialised: Ocean5-14 (0.0285ms)
+===Initialising GameObject: Ocean5-15
+===GameObject Initialised: Ocean5-15 (0.0142ms)
+===Initialising GameObject: Ocean5-16
+===GameObject Initialised: Ocean5-16 (0.0144ms)
+===Initialising GameObject: Ocean5-17
+===GameObject Initialised: Ocean5-17 (0.0426ms)
+===Initialising GameObject: Ocean5-18
+===GameObject Initialised: Ocean5-18 (0.0449ms)
+===Initialising GameObject: Ocean5-19
+===GameObject Initialised: Ocean5-19 (0.0168ms)
+===Initialising GameObject: Ocean5-20
+===GameObject Initialised: Ocean5-20 (0.0291ms)
+===Initialising GameObject: Ocean5-21
+===GameObject Initialised: Ocean5-21 (0.0474ms)
+===Initialising GameObject: Ocean5-22
+===GameObject Initialised: Ocean5-22 (0.0156ms)
+===Initialising GameObject: Ocean5-23
+===GameObject Initialised: Ocean5-23 (0.0235ms)
+===Initialising GameObject: Ocean5-24
+===GameObject Initialised: Ocean5-24 (0.0121ms)
+===Initialising GameObject: Ocean5-25
+===GameObject Initialised: Ocean5-25 (0.0115ms)
+===Initialising GameObject: Ocean5-26
+===GameObject Initialised: Ocean5-26 (0.012ms)
+===Initialising GameObject: Ocean5-27
+===GameObject Initialised: Ocean5-27 (0.0117ms)
+===Initialising GameObject: Ocean5-28
+===GameObject Initialised: Ocean5-28 (0.012ms)
+===Initialising GameObject: Ocean5-29
+===GameObject Initialised: Ocean5-29 (0.0114ms)
+===Initialising GameObject: Ocean5-30
+===GameObject Initialised: Ocean5-30 (0.012ms)
+===Initialising GameObject: Ocean5-31
+===GameObject Initialised: Ocean5-31 (0.0136ms)
+===Initialising GameObject: Ocean5-32
+===GameObject Initialised: Ocean5-32 (0.0125ms)
+===Initialising GameObject: Ocean5-33
+===GameObject Initialised: Ocean5-33 (0.0359ms)
+===Initialising GameObject: Ocean5-34
+===GameObject Initialised: Ocean5-34 (0.0159ms)
+===Initialising GameObject: Ocean6-0
+===GameObject Initialised: Ocean6-0 (0.0444ms)
+===Initialising GameObject: Ocean6-1
+===GameObject Initialised: Ocean6-1 (0.0146ms)
+===Initialising GameObject: Ocean6-2
+===GameObject Initialised: Ocean6-2 (0.0133ms)
+===Initialising GameObject: Ocean6-3
+===GameObject Initialised: Ocean6-3 (0.0143ms)
+===Initialising GameObject: Ocean6-4
+===GameObject Initialised: Ocean6-4 (0.3722ms)
+===Initialising GameObject: Ocean6-5
+===GameObject Initialised: Ocean6-5 (0.0147ms)
+===Initialising GameObject: Ocean6-6
+===GameObject Initialised: Ocean6-6 (0.0114ms)
+===Initialising GameObject: Ocean6-7
+===GameObject Initialised: Ocean6-7 (0.0123ms)
+===Initialising GameObject: Ocean6-8
+===GameObject Initialised: Ocean6-8 (0.0115ms)
+===Initialising GameObject: Ocean6-9
+===GameObject Initialised: Ocean6-9 (0.0123ms)
+===Initialising GameObject: Ocean6-10
+===GameObject Initialised: Ocean6-10 (0.0125ms)
+===Initialising GameObject: Ocean6-11
+===GameObject Initialised: Ocean6-11 (0.0115ms)
+===Initialising GameObject: Ocean6-12
+===GameObject Initialised: Ocean6-12 (0.0125ms)
+===Initialising GameObject: Ocean6-13
+===GameObject Initialised: Ocean6-13 (0.0173ms)
+===Initialising GameObject: Ocean6-14
+===GameObject Initialised: Ocean6-14 (0.0131ms)
+===Initialising GameObject: Ocean6-15
+===GameObject Initialised: Ocean6-15 (0.014ms)
+===Initialising GameObject: Ocean6-16
+===GameObject Initialised: Ocean6-16 (0.0129ms)
+===Initialising GameObject: Ocean6-17
+===GameObject Initialised: Ocean6-17 (0.0138ms)
+===Initialising GameObject: Ocean6-18
+===GameObject Initialised: Ocean6-18 (0.047ms)
+===Initialising GameObject: Ocean6-19
+===GameObject Initialised: Ocean6-19 (0.0129ms)
+===Initialising GameObject: Ocean6-20
+===GameObject Initialised: Ocean6-20 (0.0126ms)
+===Initialising GameObject: Ocean6-21
+===GameObject Initialised: Ocean6-21 (0.0149ms)
+===Initialising GameObject: Ocean6-22
+===GameObject Initialised: Ocean6-22 (0.0129ms)
+===Initialising GameObject: Ocean6-23
+===GameObject Initialised: Ocean6-23 (0.0123ms)
+===Initialising GameObject: Ocean6-24
+===GameObject Initialised: Ocean6-24 (0.0128ms)
+===Initialising GameObject: Ocean6-25
+===GameObject Initialised: Ocean6-25 (0.0275ms)
+===Initialising GameObject: Ocean6-26
+===GameObject Initialised: Ocean6-26 (0.014ms)
+===Initialising GameObject: Ocean6-27
+===GameObject Initialised: Ocean6-27 (0.0138ms)
+===Initialising GameObject: Ocean6-28
+===GameObject Initialised: Ocean6-28 (0.0128ms)
+===Initialising GameObject: Ocean6-29
+===GameObject Initialised: Ocean6-29 (0.0133ms)
+===Initialising GameObject: Ocean6-30
+===GameObject Initialised: Ocean6-30 (0.0141ms)
+===Initialising GameObject: Ocean6-31
+===GameObject Initialised: Ocean6-31 (0.0207ms)
+===Initialising GameObject: Ocean6-32
+===GameObject Initialised: Ocean6-32 (0.0131ms)
+===Initialising GameObject: Ocean6-33
+===GameObject Initialised: Ocean6-33 (0.0118ms)
+===Initialising GameObject: Ocean6-34
+===GameObject Initialised: Ocean6-34 (0.0113ms)
+===Initialising GameObject: Ocean7-0
+===GameObject Initialised: Ocean7-0 (0.0131ms)
+===Initialising GameObject: Ocean7-1
+===GameObject Initialised: Ocean7-1 (0.0137ms)
+===Initialising GameObject: Ocean7-2
+===GameObject Initialised: Ocean7-2 (0.0161ms)
+===Initialising GameObject: Ocean7-3
+===GameObject Initialised: Ocean7-3 (0.0148ms)
+===Initialising GameObject: Ocean7-4
+===GameObject Initialised: Ocean7-4 (0.0141ms)
+===Initialising GameObject: Ocean7-5
+===GameObject Initialised: Ocean7-5 (0.0136ms)
+===Initialising GameObject: Ocean7-6
+===GameObject Initialised: Ocean7-6 (0.0159ms)
+===Initialising GameObject: Ocean7-7
+===GameObject Initialised: Ocean7-7 (0.0132ms)
+===Initialising GameObject: Ocean7-8
+===GameObject Initialised: Ocean7-8 (0.0157ms)
+===Initialising GameObject: Ocean7-9
+===GameObject Initialised: Ocean7-9 (0.0159ms)
+===Initialising GameObject: Ocean7-10
+===GameObject Initialised: Ocean7-10 (0.0197ms)
+===Initialising GameObject: Ocean7-11
+===GameObject Initialised: Ocean7-11 (0.0143ms)
+===Initialising GameObject: Ocean7-12
+===GameObject Initialised: Ocean7-12 (0.0144ms)
+===Initialising GameObject: Ocean7-13
+===GameObject Initialised: Ocean7-13 (0.0152ms)
+===Initialising GameObject: Ocean7-14
+===GameObject Initialised: Ocean7-14 (0.0159ms)
+===Initialising GameObject: Ocean7-15
+===GameObject Initialised: Ocean7-15 (0.0151ms)
+===Initialising GameObject: Ocean7-16
+===GameObject Initialised: Ocean7-16 (0.0149ms)
+===Initialising GameObject: Ocean7-17
+===GameObject Initialised: Ocean7-17 (0.0145ms)
+===Initialising GameObject: Ocean7-18
+===GameObject Initialised: Ocean7-18 (0.0143ms)
+===Initialising GameObject: Ocean7-19
+===GameObject Initialised: Ocean7-19 (0.0125ms)
+===Initialising GameObject: Ocean7-20
+===GameObject Initialised: Ocean7-20 (0.0168ms)
+===Initialising GameObject: Ocean7-21
+===GameObject Initialised: Ocean7-21 (0.0176ms)
+===Initialising GameObject: Ocean7-22
+===GameObject Initialised: Ocean7-22 (0.0135ms)
+===Initialising GameObject: Ocean7-23
+===GameObject Initialised: Ocean7-23 (0.0282ms)
+===Initialising GameObject: Ocean7-24
+===GameObject Initialised: Ocean7-24 (0.0211ms)
+===Initialising GameObject: Ocean7-25
+===GameObject Initialised: Ocean7-25 (0.0195ms)
+===Initialising GameObject: Ocean7-26
+===GameObject Initialised: Ocean7-26 (0.0165ms)
+===Initialising GameObject: Ocean7-27
+===GameObject Initialised: Ocean7-27 (0.0155ms)
+===Initialising GameObject: Ocean7-28
+===GameObject Initialised: Ocean7-28 (0.0135ms)
+===Initialising GameObject: Ocean7-29
+===GameObject Initialised: Ocean7-29 (0.0521ms)
+===Initialising GameObject: Ocean7-30
+===GameObject Initialised: Ocean7-30 (0.0165ms)
+===Initialising GameObject: Ocean7-31
+===GameObject Initialised: Ocean7-31 (0.0214ms)
+===Initialising GameObject: Ocean7-32
+===GameObject Initialised: Ocean7-32 (0.0179ms)
+===Initialising GameObject: Ocean7-33
+===GameObject Initialised: Ocean7-33 (0.0192ms)
+===Initialising GameObject: Ocean7-34
+===GameObject Initialised: Ocean7-34 (0.016ms)
+===Initialising GameObject: Ocean8-0
+===GameObject Initialised: Ocean8-0 (0.0124ms)
+===Initialising GameObject: Ocean8-1
+===GameObject Initialised: Ocean8-1 (0.0135ms)
+===Initialising GameObject: Ocean8-2
+===GameObject Initialised: Ocean8-2 (0.0158ms)
+===Initialising GameObject: Ocean8-3
+===GameObject Initialised: Ocean8-3 (0.0109ms)
+===Initialising GameObject: Ocean8-4
+===GameObject Initialised: Ocean8-4 (0.0115ms)
+===Initialising GameObject: Ocean8-5
+===GameObject Initialised: Ocean8-5 (0.0115ms)
+===Initialising GameObject: Ocean8-6
+===GameObject Initialised: Ocean8-6 (0.011ms)
+===Initialising GameObject: Ocean8-7
+===GameObject Initialised: Ocean8-7 (0.012ms)
+===Initialising GameObject: Ocean8-8
+===GameObject Initialised: Ocean8-8 (0.018ms)
+===Initialising GameObject: Ocean8-9
+===GameObject Initialised: Ocean8-9 (0.0137ms)
+===Initialising GameObject: Ocean8-10
+===GameObject Initialised: Ocean8-10 (0.0137ms)
+===Initialising GameObject: Ocean8-11
+===GameObject Initialised: Ocean8-11 (0.0127ms)
+===Initialising GameObject: Ocean8-12
+===GameObject Initialised: Ocean8-12 (0.0134ms)
+===Initialising GameObject: Ocean8-13
+===GameObject Initialised: Ocean8-13 (0.0141ms)
+===Initialising GameObject: Ocean8-14
+===GameObject Initialised: Ocean8-14 (0.0127ms)
+===Initialising GameObject: Ocean8-15
+===GameObject Initialised: Ocean8-15 (0.0126ms)
+===Initialising GameObject: Ocean8-16
+===GameObject Initialised: Ocean8-16 (0.0163ms)
+===Initialising GameObject: Ocean8-17
+===GameObject Initialised: Ocean8-17 (0.0142ms)
+===Initialising GameObject: Ocean8-18
+===GameObject Initialised: Ocean8-18 (0.0291ms)
+===Initialising GameObject: Ocean8-19
+===GameObject Initialised: Ocean8-19 (0.0152ms)
+===Initialising GameObject: Ocean8-20
+===GameObject Initialised: Ocean8-20 (0.0122ms)
+===Initialising GameObject: Ocean8-21
+===GameObject Initialised: Ocean8-21 (0.015ms)
+===Initialising GameObject: Ocean8-22
+===GameObject Initialised: Ocean8-22 (0.0126ms)
+===Initialising GameObject: Ocean8-23
+===GameObject Initialised: Ocean8-23 (0.0125ms)
+===Initialising GameObject: Ocean8-24
+===GameObject Initialised: Ocean8-24 (0.0175ms)
+===Initialising GameObject: Ocean8-25
+===GameObject Initialised: Ocean8-25 (0.0148ms)
+===Initialising GameObject: Ocean8-26
+===GameObject Initialised: Ocean8-26 (0.0133ms)
+===Initialising GameObject: Ocean8-27
+===GameObject Initialised: Ocean8-27 (0.0129ms)
+===Initialising GameObject: Ocean8-28
+===GameObject Initialised: Ocean8-28 (0.0145ms)
+===Initialising GameObject: Ocean8-29
+===GameObject Initialised: Ocean8-29 (0.0182ms)
+===Initialising GameObject: Ocean8-30
+===GameObject Initialised: Ocean8-30 (0.0132ms)
+===Initialising GameObject: Ocean8-31
+===GameObject Initialised: Ocean8-31 (0.0132ms)
+===Initialising GameObject: Ocean8-32
+===GameObject Initialised: Ocean8-32 (0.0129ms)
+===Initialising GameObject: Ocean8-33
+===GameObject Initialised: Ocean8-33 (0.0183ms)
+===Initialising GameObject: Ocean8-34
+===GameObject Initialised: Ocean8-34 (0.0116ms)
+===Initialising GameObject: Ocean9-0
+===GameObject Initialised: Ocean9-0 (0.0128ms)
+===Initialising GameObject: Ocean9-1
+===GameObject Initialised: Ocean9-1 (0.0122ms)
+===Initialising GameObject: Ocean9-2
+===GameObject Initialised: Ocean9-2 (0.012ms)
+===Initialising GameObject: Ocean9-3
+===GameObject Initialised: Ocean9-3 (0.0124ms)
+===Initialising GameObject: Ocean9-4
+===GameObject Initialised: Ocean9-4 (0.0118ms)
+===Initialising GameObject: Ocean9-5
+===GameObject Initialised: Ocean9-5 (0.0118ms)
+===Initialising GameObject: Ocean9-6
+===GameObject Initialised: Ocean9-6 (0.0135ms)
+===Initialising GameObject: Ocean9-7
+===GameObject Initialised: Ocean9-7 (0.0135ms)
+===Initialising GameObject: Ocean9-8
+===GameObject Initialised: Ocean9-8 (0.0135ms)
+===Initialising GameObject: Ocean9-9
+===GameObject Initialised: Ocean9-9 (0.0134ms)
+===Initialising GameObject: Ocean9-10
+===GameObject Initialised: Ocean9-10 (0.013ms)
+===Initialising GameObject: Ocean9-11
+===GameObject Initialised: Ocean9-11 (0.0126ms)
+===Initialising GameObject: Ocean9-12
+===GameObject Initialised: Ocean9-12 (0.0215ms)
+===Initialising GameObject: Ocean9-13
+===GameObject Initialised: Ocean9-13 (0.0132ms)
+===Initialising GameObject: Ocean9-14
+===GameObject Initialised: Ocean9-14 (0.0175ms)
+===Initialising GameObject: Ocean9-15
+===GameObject Initialised: Ocean9-15 (0.0142ms)
+===Initialising GameObject: Ocean9-16
+===GameObject Initialised: Ocean9-16 (0.0131ms)
+===Initialising GameObject: Ocean9-17
+===GameObject Initialised: Ocean9-17 (0.0135ms)
+===Initialising GameObject: Ocean9-18
+===GameObject Initialised: Ocean9-18 (0.0122ms)
+===Initialising GameObject: Ocean9-19
+===GameObject Initialised: Ocean9-19 (0.0138ms)
+===Initialising GameObject: Ocean9-20
+===GameObject Initialised: Ocean9-20 (0.0208ms)
+===Initialising GameObject: Ocean9-21
+===GameObject Initialised: Ocean9-21 (0.0134ms)
+===Initialising GameObject: Ocean9-22
+===GameObject Initialised: Ocean9-22 (0.0144ms)
+===Initialising GameObject: Ocean9-23
+===GameObject Initialised: Ocean9-23 (0.0144ms)
+===Initialising GameObject: Ocean9-24
+===GameObject Initialised: Ocean9-24 (0.0122ms)
+===Initialising GameObject: Ocean9-25
+===GameObject Initialised: Ocean9-25 (0.0122ms)
+===Initialising GameObject: Ocean9-26
+===GameObject Initialised: Ocean9-26 (0.0134ms)
+===Initialising GameObject: Ocean9-27
+===GameObject Initialised: Ocean9-27 (0.0119ms)
+===Initialising GameObject: Ocean9-28
+===GameObject Initialised: Ocean9-28 (0.0119ms)
+===Initialising GameObject: Ocean9-29
+===GameObject Initialised: Ocean9-29 (0.0123ms)
+===Initialising GameObject: Ocean9-30
+===GameObject Initialised: Ocean9-30 (0.0127ms)
+===Initialising GameObject: Ocean9-31
+===GameObject Initialised: Ocean9-31 (0.0121ms)
+===Initialising GameObject: Ocean9-32
+===GameObject Initialised: Ocean9-32 (0.0119ms)
+===Initialising GameObject: Ocean9-33
+===GameObject Initialised: Ocean9-33 (0.0119ms)
+===Initialising GameObject: Ocean9-34
+===GameObject Initialised: Ocean9-34 (0.0116ms)
+===Initialising GameObject: Ocean10-0
+===GameObject Initialised: Ocean10-0 (0.012ms)
+===Initialising GameObject: Ocean10-1
+===GameObject Initialised: Ocean10-1 (0.0117ms)
+===Initialising GameObject: Ocean10-2
+===GameObject Initialised: Ocean10-2 (0.0191ms)
+===Initialising GameObject: Ocean10-3
+===GameObject Initialised: Ocean10-3 (0.0129ms)
+===Initialising GameObject: Ocean10-4
+===GameObject Initialised: Ocean10-4 (0.0119ms)
+===Initialising GameObject: Ocean10-5
+===GameObject Initialised: Ocean10-5 (0.0122ms)
+===Initialising GameObject: Ocean10-6
+===GameObject Initialised: Ocean10-6 (0.0131ms)
+===Initialising GameObject: Ocean10-7
+===GameObject Initialised: Ocean10-7 (0.0122ms)
+===Initialising GameObject: Ocean10-8
+===GameObject Initialised: Ocean10-8 (0.0129ms)
+===Initialising GameObject: Ocean10-9
+===GameObject Initialised: Ocean10-9 (0.0147ms)
+===Initialising GameObject: Ocean10-10
+===GameObject Initialised: Ocean10-10 (0.0149ms)
+===Initialising GameObject: Ocean10-11
+===GameObject Initialised: Ocean10-11 (0.0142ms)
+===Initialising GameObject: Ocean10-12
+===GameObject Initialised: Ocean10-12 (0.0131ms)
+===Initialising GameObject: Ocean10-13
+===GameObject Initialised: Ocean10-13 (0.0155ms)
+===Initialising GameObject: Ocean10-14
+===GameObject Initialised: Ocean10-14 (0.0154ms)
+===Initialising GameObject: Ocean10-15
+===GameObject Initialised: Ocean10-15 (0.014ms)
+===Initialising GameObject: Ocean10-16
+===GameObject Initialised: Ocean10-16 (0.0124ms)
+===Initialising GameObject: Ocean10-17
+===GameObject Initialised: Ocean10-17 (0.0125ms)
+===Initialising GameObject: Ocean10-18
+===GameObject Initialised: Ocean10-18 (0.0122ms)
+===Initialising GameObject: Ocean10-19
+===GameObject Initialised: Ocean10-19 (0.0125ms)
+===Initialising GameObject: Ocean10-20
+===GameObject Initialised: Ocean10-20 (0.0124ms)
+===Initialising GameObject: Ocean10-21
+===GameObject Initialised: Ocean10-21 (0.013ms)
+===Initialising GameObject: Ocean10-22
+===GameObject Initialised: Ocean10-22 (0.0146ms)
+===Initialising GameObject: Ocean10-23
+===GameObject Initialised: Ocean10-23 (0.0139ms)
+===Initialising GameObject: Ocean10-24
+===GameObject Initialised: Ocean10-24 (0.014ms)
+===Initialising GameObject: Ocean10-25
+===GameObject Initialised: Ocean10-25 (0.0131ms)
+===Initialising GameObject: Ocean10-26
+===GameObject Initialised: Ocean10-26 (0.0149ms)
+===Initialising GameObject: Ocean10-27
+===GameObject Initialised: Ocean10-27 (0.0142ms)
+===Initialising GameObject: Ocean10-28
+===GameObject Initialised: Ocean10-28 (0.0138ms)
+===Initialising GameObject: Ocean10-29
+===GameObject Initialised: Ocean10-29 (0.0163ms)
+===Initialising GameObject: Ocean10-30
+===GameObject Initialised: Ocean10-30 (0.0158ms)
+===Initialising GameObject: Ocean10-31
+===GameObject Initialised: Ocean10-31 (0.0202ms)
+===Initialising GameObject: Ocean10-32
+===GameObject Initialised: Ocean10-32 (0.0141ms)
+===Initialising GameObject: Ocean10-33
+===GameObject Initialised: Ocean10-33 (0.0123ms)
+===Initialising GameObject: Ocean10-34
+===GameObject Initialised: Ocean10-34 (0.0134ms)
+===Initialising GameObject: Ocean11-0
+===GameObject Initialised: Ocean11-0 (0.0129ms)
+===Initialising GameObject: Ocean11-1
+===GameObject Initialised: Ocean11-1 (0.0133ms)
+===Initialising GameObject: Ocean11-2
+===GameObject Initialised: Ocean11-2 (0.0134ms)
+===Initialising GameObject: Ocean11-3
+===GameObject Initialised: Ocean11-3 (0.012ms)
+===Initialising GameObject: Ocean11-4
+===GameObject Initialised: Ocean11-4 (0.0124ms)
+===Initialising GameObject: Ocean11-5
+===GameObject Initialised: Ocean11-5 (0.0142ms)
+===Initialising GameObject: Ocean11-6
+===GameObject Initialised: Ocean11-6 (0.0138ms)
+===Initialising GameObject: Ocean11-7
+===GameObject Initialised: Ocean11-7 (0.0136ms)
+===Initialising GameObject: Ocean11-8
+===GameObject Initialised: Ocean11-8 (0.0129ms)
+===Initialising GameObject: Ocean11-9
+===GameObject Initialised: Ocean11-9 (0.0124ms)
+===Initialising GameObject: Ocean11-10
+===GameObject Initialised: Ocean11-10 (0.0219ms)
+===Initialising GameObject: Ocean11-11
+===GameObject Initialised: Ocean11-11 (0.0123ms)
+===Initialising GameObject: Ocean11-12
+===GameObject Initialised: Ocean11-12 (0.0133ms)
+===Initialising GameObject: Ocean11-13
+===GameObject Initialised: Ocean11-13 (0.0124ms)
+===Initialising GameObject: Ocean11-14
+===GameObject Initialised: Ocean11-14 (0.0128ms)
+===Initialising GameObject: Ocean11-15
+===GameObject Initialised: Ocean11-15 (0.0125ms)
+===Initialising GameObject: Ocean11-16
+===GameObject Initialised: Ocean11-16 (0.0117ms)
+===Initialising GameObject: Ocean11-17
+===GameObject Initialised: Ocean11-17 (0.0111ms)
+===Initialising GameObject: Ocean11-18
+===GameObject Initialised: Ocean11-18 (0.0119ms)
+===Initialising GameObject: Ocean11-19
+===GameObject Initialised: Ocean11-19 (0.0131ms)
+===Initialising GameObject: Ocean11-20
+===GameObject Initialised: Ocean11-20 (0.0129ms)
+===Initialising GameObject: Ocean11-21
+===GameObject Initialised: Ocean11-21 (0.0139ms)
+===Initialising GameObject: Ocean11-22
+===GameObject Initialised: Ocean11-22 (0.0131ms)
+===Initialising GameObject: Ocean11-23
+===GameObject Initialised: Ocean11-23 (0.0127ms)
+===Initialising GameObject: Ocean11-24
+===GameObject Initialised: Ocean11-24 (0.0126ms)
+===Initialising GameObject: Ocean11-25
+===GameObject Initialised: Ocean11-25 (0.0137ms)
+===Initialising GameObject: Ocean11-26
+===GameObject Initialised: Ocean11-26 (0.0135ms)
+===Initialising GameObject: Ocean11-27
+===GameObject Initialised: Ocean11-27 (0.013ms)
+===Initialising GameObject: Ocean11-28
+===GameObject Initialised: Ocean11-28 (0.0133ms)
+===Initialising GameObject: Ocean11-29
+===GameObject Initialised: Ocean11-29 (0.0144ms)
+===Initialising GameObject: Ocean11-30
+===GameObject Initialised: Ocean11-30 (0.0135ms)
+===Initialising GameObject: Ocean11-31
+===GameObject Initialised: Ocean11-31 (0.0128ms)
+===Initialising GameObject: Ocean11-32
+===GameObject Initialised: Ocean11-32 (0.0132ms)
+===Initialising GameObject: Ocean11-33
+===GameObject Initialised: Ocean11-33 (0.0125ms)
+===Initialising GameObject: Ocean11-34
+===GameObject Initialised: Ocean11-34 (0.013ms)
+===Initialising GameObject: Ocean12-0
+===GameObject Initialised: Ocean12-0 (0.0134ms)
+===Initialising GameObject: Ocean12-1
+===GameObject Initialised: Ocean12-1 (0.0126ms)
+===Initialising GameObject: Ocean12-2
+===GameObject Initialised: Ocean12-2 (0.0125ms)
+===Initialising GameObject: Ocean12-3
+===GameObject Initialised: Ocean12-3 (0.0145ms)
+===Initialising GameObject: Ocean12-4
+===GameObject Initialised: Ocean12-4 (0.0127ms)
+===Initialising GameObject: Ocean12-5
+===GameObject Initialised: Ocean12-5 (0.0162ms)
+===Initialising GameObject: Ocean12-6
+===GameObject Initialised: Ocean12-6 (0.0152ms)
+===Initialising GameObject: Ocean12-7
+===GameObject Initialised: Ocean12-7 (0.0195ms)
+===Initialising GameObject: Ocean12-8
+===GameObject Initialised: Ocean12-8 (0.0128ms)
+===Initialising GameObject: Ocean12-9
+===GameObject Initialised: Ocean12-9 (0.015ms)
+===Initialising GameObject: Ocean12-10
+===GameObject Initialised: Ocean12-10 (0.0136ms)
+===Initialising GameObject: Ocean12-11
+===GameObject Initialised: Ocean12-11 (0.0145ms)
+===Initialising GameObject: Ocean12-12
+===GameObject Initialised: Ocean12-12 (0.0131ms)
+===Initialising GameObject: Ocean12-13
+===GameObject Initialised: Ocean12-13 (0.0144ms)
+===Initialising GameObject: Ocean12-14
+===GameObject Initialised: Ocean12-14 (0.013ms)
+===Initialising GameObject: Ocean12-15
+===GameObject Initialised: Ocean12-15 (0.0146ms)
+===Initialising GameObject: Ocean12-16
+===GameObject Initialised: Ocean12-16 (0.0148ms)
+===Initialising GameObject: Ocean12-17
+===GameObject Initialised: Ocean12-17 (0.0142ms)
+===Initialising GameObject: Ocean12-18
+===GameObject Initialised: Ocean12-18 (0.0123ms)
+===Initialising GameObject: Ocean12-19
+===GameObject Initialised: Ocean12-19 (0.0135ms)
+===Initialising GameObject: Ocean12-20
+===GameObject Initialised: Ocean12-20 (0.0119ms)
+===Initialising GameObject: Ocean12-21
+===GameObject Initialised: Ocean12-21 (0.0119ms)
+===Initialising GameObject: Ocean12-22
+===GameObject Initialised: Ocean12-22 (0.0125ms)
+===Initialising GameObject: Ocean12-23
+===GameObject Initialised: Ocean12-23 (0.013ms)
+===Initialising GameObject: Ocean12-24
+===GameObject Initialised: Ocean12-24 (0.0123ms)
+===Initialising GameObject: Ocean12-25
+===GameObject Initialised: Ocean12-25 (0.0134ms)
+===Initialising GameObject: Ocean12-26
+===GameObject Initialised: Ocean12-26 (0.0138ms)
+===Initialising GameObject: Ocean12-27
+===GameObject Initialised: Ocean12-27 (0.013ms)
+===Initialising GameObject: Ocean12-28
+===GameObject Initialised: Ocean12-28 (0.0127ms)
+===Initialising GameObject: Ocean12-29
+===GameObject Initialised: Ocean12-29 (0.0119ms)
+===Initialising GameObject: Ocean12-30
+===GameObject Initialised: Ocean12-30 (0.012ms)
+===Initialising GameObject: Ocean12-31
+===GameObject Initialised: Ocean12-31 (0.0125ms)
+===Initialising GameObject: Ocean12-32
+===GameObject Initialised: Ocean12-32 (0.0137ms)
+===Initialising GameObject: Ocean12-33
+===GameObject Initialised: Ocean12-33 (0.0143ms)
+===Initialising GameObject: Ocean12-34
+===GameObject Initialised: Ocean12-34 (0.0143ms)
+===Initialising GameObject: Ocean13-0
+===GameObject Initialised: Ocean13-0 (0.0139ms)
+===Initialising GameObject: Ocean13-1
+===GameObject Initialised: Ocean13-1 (0.0215ms)
+===Initialising GameObject: Ocean13-2
+===GameObject Initialised: Ocean13-2 (0.0138ms)
+===Initialising GameObject: Ocean13-3
+===GameObject Initialised: Ocean13-3 (0.0134ms)
+===Initialising GameObject: Ocean13-4
+===GameObject Initialised: Ocean13-4 (0.013ms)
+===Initialising GameObject: Ocean13-5
+===GameObject Initialised: Ocean13-5 (0.0133ms)
+===Initialising GameObject: Ocean13-6
+===GameObject Initialised: Ocean13-6 (0.0129ms)
+===Initialising GameObject: Ocean13-7
+===GameObject Initialised: Ocean13-7 (0.0185ms)
+===Initialising GameObject: Ocean13-8
+===GameObject Initialised: Ocean13-8 (0.0173ms)
+===Initialising GameObject: Ocean13-9
+===GameObject Initialised: Ocean13-9 (0.018ms)
+===Initialising GameObject: Ocean13-10
+===GameObject Initialised: Ocean13-10 (0.0157ms)
+===Initialising GameObject: Ocean13-11
+===GameObject Initialised: Ocean13-11 (0.0141ms)
+===Initialising GameObject: Ocean13-12
+===GameObject Initialised: Ocean13-12 (0.014ms)
+===Initialising GameObject: Ocean13-13
+===GameObject Initialised: Ocean13-13 (0.0138ms)
+===Initialising GameObject: Ocean13-14
+===GameObject Initialised: Ocean13-14 (0.0125ms)
+===Initialising GameObject: Ocean13-15
+===GameObject Initialised: Ocean13-15 (0.0127ms)
+===Initialising GameObject: Ocean13-16
+===GameObject Initialised: Ocean13-16 (0.0184ms)
+===Initialising GameObject: Ocean13-17
+===GameObject Initialised: Ocean13-17 (0.0136ms)
+===Initialising GameObject: Ocean13-18
+===GameObject Initialised: Ocean13-18 (0.0201ms)
+===Initialising GameObject: Ocean13-19
+===GameObject Initialised: Ocean13-19 (0.0127ms)
+===Initialising GameObject: Ocean13-20
+===GameObject Initialised: Ocean13-20 (0.0119ms)
+===Initialising GameObject: Ocean13-21
+===GameObject Initialised: Ocean13-21 (0.0127ms)
+===Initialising GameObject: Ocean13-22
+===GameObject Initialised: Ocean13-22 (0.0132ms)
+===Initialising GameObject: Ocean13-23
+===GameObject Initialised: Ocean13-23 (0.0122ms)
+===Initialising GameObject: Ocean13-24
+===GameObject Initialised: Ocean13-24 (0.0119ms)
+===Initialising GameObject: Ocean13-25
+===GameObject Initialised: Ocean13-25 (0.0135ms)
+===Initialising GameObject: Ocean13-26
+===GameObject Initialised: Ocean13-26 (0.0125ms)
+===Initialising GameObject: Ocean13-27
+===GameObject Initialised: Ocean13-27 (0.0175ms)
+===Initialising GameObject: Ocean13-28
+===GameObject Initialised: Ocean13-28 (0.0132ms)
+===Initialising GameObject: Ocean13-29
+===GameObject Initialised: Ocean13-29 (0.0128ms)
+===Initialising GameObject: Ocean13-30
+===GameObject Initialised: Ocean13-30 (0.0125ms)
+===Initialising GameObject: Ocean13-31
+===GameObject Initialised: Ocean13-31 (0.0129ms)
+===Initialising GameObject: Ocean13-32
+===GameObject Initialised: Ocean13-32 (0.0134ms)
+===Initialising GameObject: Ocean13-33
+===GameObject Initialised: Ocean13-33 (0.0138ms)
+===Initialising GameObject: Ocean13-34
+===GameObject Initialised: Ocean13-34 (0.014ms)
+===Initialising GameObject: Ocean14-0
+===GameObject Initialised: Ocean14-0 (0.0145ms)
+===Initialising GameObject: Ocean14-1
+===GameObject Initialised: Ocean14-1 (0.0141ms)
+===Initialising GameObject: Ocean14-2
+===GameObject Initialised: Ocean14-2 (0.0139ms)
+===Initialising GameObject: Ocean14-3
+===GameObject Initialised: Ocean14-3 (0.014ms)
+===Initialising GameObject: Ocean14-4
+===GameObject Initialised: Ocean14-4 (0.0137ms)
+===Initialising GameObject: Ocean14-5
+===GameObject Initialised: Ocean14-5 (0.013ms)
+===Initialising GameObject: Ocean14-6
+===GameObject Initialised: Ocean14-6 (0.0125ms)
+===Initialising GameObject: Ocean14-7
+===GameObject Initialised: Ocean14-7 (0.0125ms)
+===Initialising GameObject: Ocean14-8
+===GameObject Initialised: Ocean14-8 (0.0122ms)
+===Initialising GameObject: Ocean14-9
+===GameObject Initialised: Ocean14-9 (0.0121ms)
+===Initialising GameObject: Ocean14-10
+===GameObject Initialised: Ocean14-10 (0.0123ms)
+===Initialising GameObject: Ocean14-11
+===GameObject Initialised: Ocean14-11 (0.0125ms)
+===Initialising GameObject: Ocean14-12
+===GameObject Initialised: Ocean14-12 (0.0134ms)
+===Initialising GameObject: Ocean14-13
+===GameObject Initialised: Ocean14-13 (0.0149ms)
+===Initialising GameObject: Ocean14-14
+===GameObject Initialised: Ocean14-14 (0.0195ms)
+===Initialising GameObject: Ocean14-15
+===GameObject Initialised: Ocean14-15 (0.0178ms)
+===Initialising GameObject: Ocean14-16
+===GameObject Initialised: Ocean14-16 (0.0181ms)
+===Initialising GameObject: Ocean14-17
+===GameObject Initialised: Ocean14-17 (0.0286ms)
+===Initialising GameObject: Ocean14-18
+===GameObject Initialised: Ocean14-18 (0.0232ms)
+===Initialising GameObject: Ocean14-19
+===GameObject Initialised: Ocean14-19 (0.0136ms)
+===Initialising GameObject: Ocean14-20
+===GameObject Initialised: Ocean14-20 (0.0136ms)
+===Initialising GameObject: Ocean14-21
+===GameObject Initialised: Ocean14-21 (0.0134ms)
+===Initialising GameObject: Ocean14-22
+===GameObject Initialised: Ocean14-22 (0.0319ms)
+===Initialising GameObject: Ocean14-23
+===GameObject Initialised: Ocean14-23 (0.0251ms)
+===Initialising GameObject: Ocean14-24
+===GameObject Initialised: Ocean14-24 (0.0144ms)
+===Initialising GameObject: Ocean14-25
+===GameObject Initialised: Ocean14-25 (0.0139ms)
+===Initialising GameObject: Ocean14-26
+===GameObject Initialised: Ocean14-26 (0.0136ms)
+===Initialising GameObject: Ocean14-27
+===GameObject Initialised: Ocean14-27 (0.0555ms)
+===Initialising GameObject: Ocean14-28
+===GameObject Initialised: Ocean14-28 (0.0157ms)
+===Initialising GameObject: Ocean14-29
+===GameObject Initialised: Ocean14-29 (0.0183ms)
+===Initialising GameObject: Ocean14-30
+===GameObject Initialised: Ocean14-30 (0.0132ms)
+===Initialising GameObject: Ocean14-31
+===GameObject Initialised: Ocean14-31 (0.0146ms)
+===Initialising GameObject: Ocean14-32
+===GameObject Initialised: Ocean14-32 (0.0315ms)
+===Initialising GameObject: Ocean14-33
+===GameObject Initialised: Ocean14-33 (0.0294ms)
+===Initialising GameObject: Ocean14-34
+===GameObject Initialised: Ocean14-34 (0.0129ms)
+===Initialising GameObject: Ocean15-0
+===GameObject Initialised: Ocean15-0 (0.0133ms)
+===Initialising GameObject: Ocean15-1
+===GameObject Initialised: Ocean15-1 (0.0128ms)
+===Initialising GameObject: Ocean15-2
+===GameObject Initialised: Ocean15-2 (0.0142ms)
+===Initialising GameObject: Ocean15-3
+===GameObject Initialised: Ocean15-3 (0.0139ms)
+===Initialising GameObject: Ocean15-4
+===GameObject Initialised: Ocean15-4 (0.0136ms)
+===Initialising GameObject: Ocean15-5
+===GameObject Initialised: Ocean15-5 (0.0128ms)
+===Initialising GameObject: Ocean15-6
+===GameObject Initialised: Ocean15-6 (0.0147ms)
+===Initialising GameObject: Ocean15-7
+===GameObject Initialised: Ocean15-7 (0.0138ms)
+===Initialising GameObject: Ocean15-8
+===GameObject Initialised: Ocean15-8 (0.0158ms)
+===Initialising GameObject: Ocean15-9
+===GameObject Initialised: Ocean15-9 (0.0144ms)
+===Initialising GameObject: Ocean15-10
+===GameObject Initialised: Ocean15-10 (0.0158ms)
+===Initialising GameObject: Ocean15-11
+===GameObject Initialised: Ocean15-11 (0.016ms)
+===Initialising GameObject: Ocean15-12
+===GameObject Initialised: Ocean15-12 (0.017ms)
+===Initialising GameObject: Ocean15-13
+===GameObject Initialised: Ocean15-13 (0.0153ms)
+===Initialising GameObject: Ocean15-14
+===GameObject Initialised: Ocean15-14 (0.0149ms)
+===Initialising GameObject: Ocean15-15
+===GameObject Initialised: Ocean15-15 (0.016ms)
+===Initialising GameObject: Ocean15-16
+===GameObject Initialised: Ocean15-16 (0.0139ms)
+===Initialising GameObject: Ocean15-17
+===GameObject Initialised: Ocean15-17 (0.0139ms)
+===Initialising GameObject: Ocean15-18
+===GameObject Initialised: Ocean15-18 (0.0131ms)
+===Initialising GameObject: Ocean15-19
+===GameObject Initialised: Ocean15-19 (0.0147ms)
+===Initialising GameObject: Ocean15-20
+===GameObject Initialised: Ocean15-20 (0.0143ms)
+===Initialising GameObject: Ocean15-21
+===GameObject Initialised: Ocean15-21 (0.0135ms)
+===Initialising GameObject: Ocean15-22
+===GameObject Initialised: Ocean15-22 (0.013ms)
+===Initialising GameObject: Ocean15-23
+===GameObject Initialised: Ocean15-23 (0.0165ms)
+===Initialising GameObject: Ocean15-24
+===GameObject Initialised: Ocean15-24 (0.014ms)
+===Initialising GameObject: Ocean15-25
+===GameObject Initialised: Ocean15-25 (0.0139ms)
+===Initialising GameObject: Ocean15-26
+===GameObject Initialised: Ocean15-26 (0.0161ms)
+===Initialising GameObject: Ocean15-27
+===GameObject Initialised: Ocean15-27 (0.015ms)
+===Initialising GameObject: Ocean15-28
+===GameObject Initialised: Ocean15-28 (0.0138ms)
+===Initialising GameObject: Ocean15-29
+===GameObject Initialised: Ocean15-29 (0.012ms)
+===Initialising GameObject: Ocean15-30
+===GameObject Initialised: Ocean15-30 (0.0119ms)
+===Initialising GameObject: Ocean15-31
+===GameObject Initialised: Ocean15-31 (0.0144ms)
+===Initialising GameObject: Ocean15-32
+===GameObject Initialised: Ocean15-32 (0.0124ms)
+===Initialising GameObject: Ocean15-33
+===GameObject Initialised: Ocean15-33 (0.0116ms)
+===Initialising GameObject: Ocean15-34
+===GameObject Initialised: Ocean15-34 (0.014ms)
+===Initialising GameObject: Ocean16-0
+===GameObject Initialised: Ocean16-0 (0.0131ms)
+===Initialising GameObject: Ocean16-1
+===GameObject Initialised: Ocean16-1 (0.0149ms)
+===Initialising GameObject: Ocean16-2
+===GameObject Initialised: Ocean16-2 (0.0139ms)
+===Initialising GameObject: Ocean16-3
+===GameObject Initialised: Ocean16-3 (0.0179ms)
+===Initialising GameObject: Ocean16-4
+===GameObject Initialised: Ocean16-4 (0.0167ms)
+===Initialising GameObject: Ocean16-5
+===GameObject Initialised: Ocean16-5 (0.0227ms)
+===Initialising GameObject: Ocean16-6
+===GameObject Initialised: Ocean16-6 (0.0154ms)
+===Initialising GameObject: Ocean16-7
+===GameObject Initialised: Ocean16-7 (0.0153ms)
+===Initialising GameObject: Ocean16-8
+===GameObject Initialised: Ocean16-8 (0.0145ms)
+===Initialising GameObject: Ocean16-9
+===GameObject Initialised: Ocean16-9 (0.5151ms)
+===Initialising GameObject: Ocean16-10
+===GameObject Initialised: Ocean16-10 (0.0168ms)
+===Initialising GameObject: Ocean16-11
+===GameObject Initialised: Ocean16-11 (0.0131ms)
+===Initialising GameObject: Ocean16-12
+===GameObject Initialised: Ocean16-12 (0.0139ms)
+===Initialising GameObject: Ocean16-13
+===GameObject Initialised: Ocean16-13 (0.0132ms)
+===Initialising GameObject: Ocean16-14
+===GameObject Initialised: Ocean16-14 (0.0144ms)
+===Initialising GameObject: Ocean16-15
+===GameObject Initialised: Ocean16-15 (0.0293ms)
+===Initialising GameObject: Ocean16-16
+===GameObject Initialised: Ocean16-16 (0.0145ms)
+===Initialising GameObject: Ocean16-17
+===GameObject Initialised: Ocean16-17 (0.0145ms)
+===Initialising GameObject: Ocean16-18
+===GameObject Initialised: Ocean16-18 (0.0161ms)
+===Initialising GameObject: Ocean16-19
+===GameObject Initialised: Ocean16-19 (0.0159ms)
+===Initialising GameObject: Ocean16-20
+===GameObject Initialised: Ocean16-20 (0.0159ms)
+===Initialising GameObject: Ocean16-21
+===GameObject Initialised: Ocean16-21 (0.0152ms)
+===Initialising GameObject: Ocean16-22
+===GameObject Initialised: Ocean16-22 (0.0142ms)
+===Initialising GameObject: Ocean16-23
+===GameObject Initialised: Ocean16-23 (0.0144ms)
+===Initialising GameObject: Ocean16-24
+===GameObject Initialised: Ocean16-24 (0.0136ms)
+===Initialising GameObject: Ocean16-25
+===GameObject Initialised: Ocean16-25 (0.015ms)
+===Initialising GameObject: Ocean16-26
+===GameObject Initialised: Ocean16-26 (0.0135ms)
+===Initialising GameObject: Ocean16-27
+===GameObject Initialised: Ocean16-27 (0.0148ms)
+===Initialising GameObject: Ocean16-28
+===GameObject Initialised: Ocean16-28 (0.0131ms)
+===Initialising GameObject: Ocean16-29
+===GameObject Initialised: Ocean16-29 (0.0148ms)
+===Initialising GameObject: Ocean16-30
+===GameObject Initialised: Ocean16-30 (0.014ms)
+===Initialising GameObject: Ocean16-31
+===GameObject Initialised: Ocean16-31 (0.0139ms)
+===Initialising GameObject: Ocean16-32
+===GameObject Initialised: Ocean16-32 (0.0147ms)
+===Initialising GameObject: Ocean16-33
+===GameObject Initialised: Ocean16-33 (0.0147ms)
+===Initialising GameObject: Ocean16-34
+===GameObject Initialised: Ocean16-34 (0.0358ms)
+===Initialising GameObject: Ocean17-0
+===GameObject Initialised: Ocean17-0 (0.0163ms)
+===Initialising GameObject: Ocean17-1
+===GameObject Initialised: Ocean17-1 (0.0143ms)
+===Initialising GameObject: Ocean17-2
+===GameObject Initialised: Ocean17-2 (0.0137ms)
+===Initialising GameObject: Ocean17-3
+===GameObject Initialised: Ocean17-3 (0.0129ms)
+===Initialising GameObject: Ocean17-4
+===GameObject Initialised: Ocean17-4 (0.0134ms)
+===Initialising GameObject: Ocean17-5
+===GameObject Initialised: Ocean17-5 (0.0126ms)
+===Initialising GameObject: Ocean17-6
+===GameObject Initialised: Ocean17-6 (0.0128ms)
+===Initialising GameObject: Ocean17-7
+===GameObject Initialised: Ocean17-7 (0.0161ms)
+===Initialising GameObject: Ocean17-8
+===GameObject Initialised: Ocean17-8 (0.0133ms)
+===Initialising GameObject: Ocean17-9
+===GameObject Initialised: Ocean17-9 (0.0138ms)
+===Initialising GameObject: Ocean17-10
+===GameObject Initialised: Ocean17-10 (0.0166ms)
+===Initialising GameObject: Ocean17-11
+===GameObject Initialised: Ocean17-11 (0.0135ms)
+===Initialising GameObject: Ocean17-12
+===GameObject Initialised: Ocean17-12 (0.0137ms)
+===Initialising GameObject: Ocean17-13
+===GameObject Initialised: Ocean17-13 (0.0132ms)
+===Initialising GameObject: Ocean17-14
+===GameObject Initialised: Ocean17-14 (0.0135ms)
+===Initialising GameObject: Ocean17-15
+===GameObject Initialised: Ocean17-15 (0.0139ms)
+===Initialising GameObject: Ocean17-16
+===GameObject Initialised: Ocean17-16 (0.0178ms)
+===Initialising GameObject: Ocean17-17
+===GameObject Initialised: Ocean17-17 (0.0152ms)
+===Initialising GameObject: Ocean17-18
+===GameObject Initialised: Ocean17-18 (0.0127ms)
+===Initialising GameObject: Ocean17-19
+===GameObject Initialised: Ocean17-19 (0.0122ms)
+===Initialising GameObject: Ocean17-20
+===GameObject Initialised: Ocean17-20 (0.013ms)
+===Initialising GameObject: Ocean17-21
+===GameObject Initialised: Ocean17-21 (0.0134ms)
+===Initialising GameObject: Ocean17-22
+===GameObject Initialised: Ocean17-22 (0.0127ms)
+===Initialising GameObject: Ocean17-23
+===GameObject Initialised: Ocean17-23 (0.0145ms)
+===Initialising GameObject: Ocean17-24
+===GameObject Initialised: Ocean17-24 (0.0148ms)
+===Initialising GameObject: Ocean17-25
+===GameObject Initialised: Ocean17-25 (0.0132ms)
+===Initialising GameObject: Ocean17-26
+===GameObject Initialised: Ocean17-26 (0.0128ms)
+===Initialising GameObject: Ocean17-27
+===GameObject Initialised: Ocean17-27 (0.0132ms)
+===Initialising GameObject: Ocean17-28
+===GameObject Initialised: Ocean17-28 (0.0131ms)
+===Initialising GameObject: Ocean17-29
+===GameObject Initialised: Ocean17-29 (0.0123ms)
+===Initialising GameObject: Ocean17-30
+===GameObject Initialised: Ocean17-30 (0.0117ms)
+===Initialising GameObject: Ocean17-31
+===GameObject Initialised: Ocean17-31 (0.0132ms)
+===Initialising GameObject: Ocean17-32
+===GameObject Initialised: Ocean17-32 (0.013ms)
+===Initialising GameObject: Ocean17-33
+===GameObject Initialised: Ocean17-33 (0.0121ms)
+===Initialising GameObject: Ocean17-34
+===GameObject Initialised: Ocean17-34 (0.0111ms)
+===Initialising GameObject: Ocean18-0
+===GameObject Initialised: Ocean18-0 (0.0119ms)
+===Initialising GameObject: Ocean18-1
+===GameObject Initialised: Ocean18-1 (0.0126ms)
+===Initialising GameObject: Ocean18-2
+===GameObject Initialised: Ocean18-2 (0.0122ms)
+===Initialising GameObject: Ocean18-3
+===GameObject Initialised: Ocean18-3 (0.0127ms)
+===Initialising GameObject: Ocean18-4
+===GameObject Initialised: Ocean18-4 (0.0128ms)
+===Initialising GameObject: Ocean18-5
+===GameObject Initialised: Ocean18-5 (0.0125ms)
+===Initialising GameObject: Ocean18-6
+===GameObject Initialised: Ocean18-6 (0.0122ms)
+===Initialising GameObject: Ocean18-7
+===GameObject Initialised: Ocean18-7 (0.0119ms)
+===Initialising GameObject: Ocean18-8
+===GameObject Initialised: Ocean18-8 (0.013ms)
+===Initialising GameObject: Ocean18-9
+===GameObject Initialised: Ocean18-9 (0.0124ms)
+===Initialising GameObject: Ocean18-10
+===GameObject Initialised: Ocean18-10 (0.0128ms)
+===Initialising GameObject: Ocean18-11
+===GameObject Initialised: Ocean18-11 (0.0132ms)
+===Initialising GameObject: Ocean18-12
+===GameObject Initialised: Ocean18-12 (0.0124ms)
+===Initialising GameObject: Ocean18-13
+===GameObject Initialised: Ocean18-13 (0.0129ms)
+===Initialising GameObject: Ocean18-14
+===GameObject Initialised: Ocean18-14 (0.0127ms)
+===Initialising GameObject: Ocean18-15
+===GameObject Initialised: Ocean18-15 (0.0127ms)
+===Initialising GameObject: Ocean18-16
+===GameObject Initialised: Ocean18-16 (0.0376ms)
+===Initialising GameObject: Ocean18-17
+===GameObject Initialised: Ocean18-17 (0.0136ms)
+===Initialising GameObject: Ocean18-18
+===GameObject Initialised: Ocean18-18 (0.0139ms)
+===Initialising GameObject: Ocean18-19
+===GameObject Initialised: Ocean18-19 (0.0141ms)
+===Initialising GameObject: Ocean18-20
+===GameObject Initialised: Ocean18-20 (0.0126ms)
+===Initialising GameObject: Ocean18-21
+===GameObject Initialised: Ocean18-21 (0.0151ms)
+===Initialising GameObject: Ocean18-22
+===GameObject Initialised: Ocean18-22 (0.0141ms)
+===Initialising GameObject: Ocean18-23
+===GameObject Initialised: Ocean18-23 (0.0152ms)
+===Initialising GameObject: Ocean18-24
+===GameObject Initialised: Ocean18-24 (0.0144ms)
+===Initialising GameObject: Ocean18-25
+===GameObject Initialised: Ocean18-25 (0.0138ms)
+===Initialising GameObject: Ocean18-26
+===GameObject Initialised: Ocean18-26 (0.0493ms)
+===Initialising GameObject: Ocean18-27
+===GameObject Initialised: Ocean18-27 (0.0146ms)
+===Initialising GameObject: Ocean18-28
+===GameObject Initialised: Ocean18-28 (0.0136ms)
+===Initialising GameObject: Ocean18-29
+===GameObject Initialised: Ocean18-29 (0.0148ms)
+===Initialising GameObject: Ocean18-30
+===GameObject Initialised: Ocean18-30 (0.0164ms)
+===Initialising GameObject: Ocean18-31
+===GameObject Initialised: Ocean18-31 (0.0146ms)
+===Initialising GameObject: Ocean18-32
+===GameObject Initialised: Ocean18-32 (0.016ms)
+===Initialising GameObject: Ocean18-33
+===GameObject Initialised: Ocean18-33 (0.0168ms)
+===Initialising GameObject: Ocean18-34
+===GameObject Initialised: Ocean18-34 (0.0162ms)
+===Initialising GameObject: Ocean19-0
+===GameObject Initialised: Ocean19-0 (0.015ms)
+===Initialising GameObject: Ocean19-1
+===GameObject Initialised: Ocean19-1 (0.0152ms)
+===Initialising GameObject: Ocean19-2
+===GameObject Initialised: Ocean19-2 (0.0149ms)
+===Initialising GameObject: Ocean19-3
+===GameObject Initialised: Ocean19-3 (0.0151ms)
+===Initialising GameObject: Ocean19-4
+===GameObject Initialised: Ocean19-4 (0.0146ms)
+===Initialising GameObject: Ocean19-5
+===GameObject Initialised: Ocean19-5 (0.0158ms)
+===Initialising GameObject: Ocean19-6
+===GameObject Initialised: Ocean19-6 (0.0157ms)
+===Initialising GameObject: Ocean19-7
+===GameObject Initialised: Ocean19-7 (0.0138ms)
+===Initialising GameObject: Ocean19-8
+===GameObject Initialised: Ocean19-8 (0.0129ms)
+===Initialising GameObject: Ocean19-9
+===GameObject Initialised: Ocean19-9 (0.0148ms)
+===Initialising GameObject: Ocean19-10
+===GameObject Initialised: Ocean19-10 (0.0156ms)
+===Initialising GameObject: Ocean19-11
+===GameObject Initialised: Ocean19-11 (0.0147ms)
+===Initialising GameObject: Ocean19-12
+===GameObject Initialised: Ocean19-12 (0.0146ms)
+===Initialising GameObject: Ocean19-13
+===GameObject Initialised: Ocean19-13 (0.0137ms)
+===Initialising GameObject: Ocean19-14
+===GameObject Initialised: Ocean19-14 (0.0132ms)
+===Initialising GameObject: Ocean19-15
+===GameObject Initialised: Ocean19-15 (0.0129ms)
+===Initialising GameObject: Ocean19-16
+===GameObject Initialised: Ocean19-16 (0.0132ms)
+===Initialising GameObject: Ocean19-17
+===GameObject Initialised: Ocean19-17 (0.0126ms)
+===Initialising GameObject: Ocean19-18
+===GameObject Initialised: Ocean19-18 (0.0133ms)
+===Initialising GameObject: Ocean19-19
+===GameObject Initialised: Ocean19-19 (0.0132ms)
+===Initialising GameObject: Ocean19-20
+===GameObject Initialised: Ocean19-20 (0.014ms)
+===Initialising GameObject: Ocean19-21
+===GameObject Initialised: Ocean19-21 (0.0148ms)
+===Initialising GameObject: Ocean19-22
+===GameObject Initialised: Ocean19-22 (0.0151ms)
+===Initialising GameObject: Ocean19-23
+===GameObject Initialised: Ocean19-23 (0.0142ms)
+===Initialising GameObject: Ocean19-24
+===GameObject Initialised: Ocean19-24 (0.0147ms)
+===Initialising GameObject: Ocean19-25
+===GameObject Initialised: Ocean19-25 (0.0146ms)
+===Initialising GameObject: Ocean19-26
+===GameObject Initialised: Ocean19-26 (0.0152ms)
+===Initialising GameObject: Ocean19-27
+===GameObject Initialised: Ocean19-27 (0.0148ms)
+===Initialising GameObject: Ocean19-28
+===GameObject Initialised: Ocean19-28 (0.0274ms)
+===Initialising GameObject: Ocean19-29
+===GameObject Initialised: Ocean19-29 (0.0147ms)
+===Initialising GameObject: Ocean19-30
+===GameObject Initialised: Ocean19-30 (0.0141ms)
+===Initialising GameObject: Ocean19-31
+===GameObject Initialised: Ocean19-31 (0.014ms)
+===Initialising GameObject: Ocean19-32
+===GameObject Initialised: Ocean19-32 (0.0138ms)
+===Initialising GameObject: Ocean19-33
+===GameObject Initialised: Ocean19-33 (0.0144ms)
+===Initialising GameObject: Ocean19-34
+===GameObject Initialised: Ocean19-34 (0.0139ms)
+===Initialising GameObject: Ocean20-0
+===GameObject Initialised: Ocean20-0 (0.0142ms)
+===Initialising GameObject: Ocean20-1
+===GameObject Initialised: Ocean20-1 (0.0136ms)
+===Initialising GameObject: Ocean20-2
+===GameObject Initialised: Ocean20-2 (0.1042ms)
+===Initialising GameObject: Ocean20-3
+===GameObject Initialised: Ocean20-3 (0.0142ms)
+===Initialising GameObject: Ocean20-4
+===GameObject Initialised: Ocean20-4 (0.0136ms)
+===Initialising GameObject: Ocean20-5
+===GameObject Initialised: Ocean20-5 (0.0133ms)
+===Initialising GameObject: Ocean20-6
+===GameObject Initialised: Ocean20-6 (0.0139ms)
+===Initialising GameObject: Ocean20-7
+===GameObject Initialised: Ocean20-7 (0.0316ms)
+===Initialising GameObject: Ocean20-8
+===GameObject Initialised: Ocean20-8 (0.0252ms)
+===Initialising GameObject: Ocean20-9
+===GameObject Initialised: Ocean20-9 (0.0125ms)
+===Initialising GameObject: Ocean20-10
+===GameObject Initialised: Ocean20-10 (0.0114ms)
+===Initialising GameObject: Ocean20-11
+===GameObject Initialised: Ocean20-11 (0.0119ms)
+===Initialising GameObject: Ocean20-12
+===GameObject Initialised: Ocean20-12 (0.013ms)
+===Initialising GameObject: Ocean20-13
+===GameObject Initialised: Ocean20-13 (0.0136ms)
+===Initialising GameObject: Ocean20-14
+===GameObject Initialised: Ocean20-14 (0.0138ms)
+===Initialising GameObject: Ocean20-15
+===GameObject Initialised: Ocean20-15 (0.0141ms)
+===Initialising GameObject: Ocean20-16
+===GameObject Initialised: Ocean20-16 (0.0144ms)
+===Initialising GameObject: Ocean20-17
+===GameObject Initialised: Ocean20-17 (0.0187ms)
+===Initialising GameObject: Ocean20-18
+===GameObject Initialised: Ocean20-18 (0.0133ms)
+===Initialising GameObject: Ocean20-19
+===GameObject Initialised: Ocean20-19 (0.0162ms)
+===Initialising GameObject: Ocean20-20
+===GameObject Initialised: Ocean20-20 (0.0162ms)
+===Initialising GameObject: Ocean20-21
+===GameObject Initialised: Ocean20-21 (0.0161ms)
+===Initialising GameObject: Ocean20-22
+===GameObject Initialised: Ocean20-22 (0.0137ms)
+===Initialising GameObject: Ocean20-23
+===GameObject Initialised: Ocean20-23 (0.0139ms)
+===Initialising GameObject: Ocean20-24
+===GameObject Initialised: Ocean20-24 (0.01ms)
+===Initialising GameObject: Ocean20-25
+===GameObject Initialised: Ocean20-25 (0.0095ms)
+===Initialising GameObject: Ocean20-26
+===GameObject Initialised: Ocean20-26 (0.0156ms)
+===Initialising GameObject: Ocean20-27
+===GameObject Initialised: Ocean20-27 (0.0102ms)
+===Initialising GameObject: Ocean20-28
+===GameObject Initialised: Ocean20-28 (0.0144ms)
+===Initialising GameObject: Ocean20-29
+===GameObject Initialised: Ocean20-29 (0.0098ms)
+===Initialising GameObject: Ocean20-30
+===GameObject Initialised: Ocean20-30 (0.0107ms)
+===Initialising GameObject: Ocean20-31
+===GameObject Initialised: Ocean20-31 (0.0095ms)
+===Initialising GameObject: Ocean20-32
+===GameObject Initialised: Ocean20-32 (0.0096ms)
+===Initialising GameObject: Ocean20-33
+===GameObject Initialised: Ocean20-33 (0.0098ms)
+===Initialising GameObject: Ocean20-34
+===GameObject Initialised: Ocean20-34 (0.0095ms)
+===Initialising GameObject: Ocean21-0
+===GameObject Initialised: Ocean21-0 (0.009ms)
+===Initialising GameObject: Ocean21-1
+===GameObject Initialised: Ocean21-1 (0.0092ms)
+===Initialising GameObject: Ocean21-2
+===GameObject Initialised: Ocean21-2 (0.0092ms)
+===Initialising GameObject: Ocean21-3
+===GameObject Initialised: Ocean21-3 (0.0139ms)
+===Initialising GameObject: Ocean21-4
+===GameObject Initialised: Ocean21-4 (0.0157ms)
+===Initialising GameObject: Ocean21-5
+===GameObject Initialised: Ocean21-5 (0.0141ms)
+===Initialising GameObject: Ocean21-6
+===GameObject Initialised: Ocean21-6 (0.0149ms)
+===Initialising GameObject: Ocean21-7
+===GameObject Initialised: Ocean21-7 (0.0143ms)
+===Initialising GameObject: Ocean21-8
+===GameObject Initialised: Ocean21-8 (0.0744ms)
+===Initialising GameObject: Ocean21-9
+===GameObject Initialised: Ocean21-9 (0.0149ms)
+===Initialising GameObject: Ocean21-10
+===GameObject Initialised: Ocean21-10 (0.0133ms)
+===Initialising GameObject: Ocean21-11
+===GameObject Initialised: Ocean21-11 (0.0127ms)
+===Initialising GameObject: Ocean21-12
+===GameObject Initialised: Ocean21-12 (0.0153ms)
+===Initialising GameObject: Ocean21-13
+===GameObject Initialised: Ocean21-13 (0.0198ms)
+===Initialising GameObject: Ocean21-14
+===GameObject Initialised: Ocean21-14 (0.0091ms)
+===Initialising GameObject: Ocean21-15
+===GameObject Initialised: Ocean21-15 (0.0115ms)
+===Initialising GameObject: Ocean21-16
+===GameObject Initialised: Ocean21-16 (0.0125ms)
+===Initialising GameObject: Ocean21-17
+===GameObject Initialised: Ocean21-17 (0.0141ms)
+===Initialising GameObject: Ocean21-18
+===GameObject Initialised: Ocean21-18 (0.0133ms)
+===Initialising GameObject: Ocean21-19
+===GameObject Initialised: Ocean21-19 (0.0129ms)
+===Initialising GameObject: Ocean21-20
+===GameObject Initialised: Ocean21-20 (0.0139ms)
+===Initialising GameObject: Ocean21-21
+===GameObject Initialised: Ocean21-21 (0.0127ms)
+===Initialising GameObject: Ocean21-22
+===GameObject Initialised: Ocean21-22 (0.0149ms)
+===Initialising GameObject: Ocean21-23
+===GameObject Initialised: Ocean21-23 (0.0134ms)
+===Initialising GameObject: Ocean21-24
+===GameObject Initialised: Ocean21-24 (0.0134ms)
+===Initialising GameObject: Ocean21-25
+===GameObject Initialised: Ocean21-25 (0.0126ms)
+===Initialising GameObject: Ocean21-26
+===GameObject Initialised: Ocean21-26 (0.0135ms)
+===Initialising GameObject: Ocean21-27
+===GameObject Initialised: Ocean21-27 (0.0128ms)
+===Initialising GameObject: Ocean21-28
+===GameObject Initialised: Ocean21-28 (0.0135ms)
+===Initialising GameObject: Ocean21-29
+===GameObject Initialised: Ocean21-29 (0.0135ms)
+===Initialising GameObject: Ocean21-30
+===GameObject Initialised: Ocean21-30 (0.0136ms)
+===Initialising GameObject: Ocean21-31
+===GameObject Initialised: Ocean21-31 (0.0123ms)
+===Initialising GameObject: Ocean21-32
+===GameObject Initialised: Ocean21-32 (0.0119ms)
+===Initialising GameObject: Ocean21-33
+===GameObject Initialised: Ocean21-33 (0.0127ms)
+===Initialising GameObject: Ocean21-34
+===GameObject Initialised: Ocean21-34 (0.0215ms)
+===Initialising GameObject: Ocean22-0
+===GameObject Initialised: Ocean22-0 (0.0179ms)
+===Initialising GameObject: Ocean22-1
+===GameObject Initialised: Ocean22-1 (0.0144ms)
+===Initialising GameObject: Ocean22-2
+===GameObject Initialised: Ocean22-2 (0.0136ms)
+===Initialising GameObject: Ocean22-3
+===GameObject Initialised: Ocean22-3 (0.0139ms)
+===Initialising GameObject: Ocean22-4
+===GameObject Initialised: Ocean22-4 (0.0143ms)
+===Initialising GameObject: Ocean22-5
+===GameObject Initialised: Ocean22-5 (0.0137ms)
+===Initialising GameObject: Ocean22-6
+===GameObject Initialised: Ocean22-6 (0.0135ms)
+===Initialising GameObject: Ocean22-7
+===GameObject Initialised: Ocean22-7 (0.0145ms)
+===Initialising GameObject: Ocean22-8
+===GameObject Initialised: Ocean22-8 (0.0155ms)
+===Initialising GameObject: Ocean22-9
+===GameObject Initialised: Ocean22-9 (0.0136ms)
+===Initialising GameObject: Ocean22-10
+===GameObject Initialised: Ocean22-10 (0.013ms)
+===Initialising GameObject: Ocean22-11
+===GameObject Initialised: Ocean22-11 (0.0154ms)
+===Initialising GameObject: Ocean22-12
+===GameObject Initialised: Ocean22-12 (0.0139ms)
+===Initialising GameObject: Ocean22-13
+===GameObject Initialised: Ocean22-13 (0.0159ms)
+===Initialising GameObject: Ocean22-14
+===GameObject Initialised: Ocean22-14 (0.016ms)
+===Initialising GameObject: Ocean22-15
+===GameObject Initialised: Ocean22-15 (0.0162ms)
+===Initialising GameObject: Ocean22-16
+===GameObject Initialised: Ocean22-16 (0.0142ms)
+===Initialising GameObject: Ocean22-17
+===GameObject Initialised: Ocean22-17 (0.0155ms)
+===Initialising GameObject: Ocean22-18
+===GameObject Initialised: Ocean22-18 (0.0126ms)
+===Initialising GameObject: Ocean22-19
+===GameObject Initialised: Ocean22-19 (0.0132ms)
+===Initialising GameObject: Ocean22-20
+===GameObject Initialised: Ocean22-20 (0.0141ms)
+===Initialising GameObject: Ocean22-21
+===GameObject Initialised: Ocean22-21 (0.0144ms)
+===Initialising GameObject: Ocean22-22
+===GameObject Initialised: Ocean22-22 (0.0142ms)
+===Initialising GameObject: Ocean22-23
+===GameObject Initialised: Ocean22-23 (0.0135ms)
+===Initialising GameObject: Ocean22-24
+===GameObject Initialised: Ocean22-24 (0.0193ms)
+===Initialising GameObject: Ocean22-25
+===GameObject Initialised: Ocean22-25 (0.0143ms)
+===Initialising GameObject: Ocean22-26
+===GameObject Initialised: Ocean22-26 (0.0139ms)
+===Initialising GameObject: Ocean22-27
+===GameObject Initialised: Ocean22-27 (0.0145ms)
+===Initialising GameObject: Ocean22-28
+===GameObject Initialised: Ocean22-28 (0.0136ms)
+===Initialising GameObject: Ocean22-29
+===GameObject Initialised: Ocean22-29 (0.0134ms)
+===Initialising GameObject: Ocean22-30
+===GameObject Initialised: Ocean22-30 (0.0136ms)
+===Initialising GameObject: Ocean22-31
+===GameObject Initialised: Ocean22-31 (0.0137ms)
+===Initialising GameObject: Ocean22-32
+===GameObject Initialised: Ocean22-32 (0.0147ms)
+===Initialising GameObject: Ocean22-33
+===GameObject Initialised: Ocean22-33 (0.0146ms)
+===Initialising GameObject: Ocean22-34
+===GameObject Initialised: Ocean22-34 (0.0138ms)
+===Initialising GameObject: Ocean23-0
+===GameObject Initialised: Ocean23-0 (0.0137ms)
+===Initialising GameObject: Ocean23-1
+===GameObject Initialised: Ocean23-1 (0.0144ms)
+===Initialising GameObject: Ocean23-2
+===GameObject Initialised: Ocean23-2 (0.0125ms)
+===Initialising GameObject: Ocean23-3
+===GameObject Initialised: Ocean23-3 (0.014ms)
+===Initialising GameObject: Ocean23-4
+===GameObject Initialised: Ocean23-4 (0.014ms)
+===Initialising GameObject: Ocean23-5
+===GameObject Initialised: Ocean23-5 (0.0133ms)
+===Initialising GameObject: Ocean23-6
+===GameObject Initialised: Ocean23-6 (0.0137ms)
+===Initialising GameObject: Ocean23-7
+===GameObject Initialised: Ocean23-7 (0.0119ms)
+===Initialising GameObject: Ocean23-8
+===GameObject Initialised: Ocean23-8 (0.0132ms)
+===Initialising GameObject: Ocean23-9
+===GameObject Initialised: Ocean23-9 (0.0129ms)
+===Initialising GameObject: Ocean23-10
+===GameObject Initialised: Ocean23-10 (0.0127ms)
+===Initialising GameObject: Ocean23-11
+===GameObject Initialised: Ocean23-11 (0.0136ms)
+===Initialising GameObject: Ocean23-12
+===GameObject Initialised: Ocean23-12 (0.0152ms)
+===Initialising GameObject: Ocean23-13
+===GameObject Initialised: Ocean23-13 (0.0137ms)
+===Initialising GameObject: Ocean23-14
+===GameObject Initialised: Ocean23-14 (0.0123ms)
+===Initialising GameObject: Ocean23-15
+===GameObject Initialised: Ocean23-15 (0.012ms)
+===Initialising GameObject: Ocean23-16
+===GameObject Initialised: Ocean23-16 (0.0124ms)
+===Initialising GameObject: Ocean23-17
+===GameObject Initialised: Ocean23-17 (0.0132ms)
+===Initialising GameObject: Ocean23-18
+===GameObject Initialised: Ocean23-18 (0.0115ms)
+===Initialising GameObject: Ocean23-19
+===GameObject Initialised: Ocean23-19 (0.0123ms)
+===Initialising GameObject: Ocean23-20
+===GameObject Initialised: Ocean23-20 (0.0127ms)
+===Initialising GameObject: Ocean23-21
+===GameObject Initialised: Ocean23-21 (0.0125ms)
+===Initialising GameObject: Ocean23-22
+===GameObject Initialised: Ocean23-22 (0.0127ms)
+===Initialising GameObject: Ocean23-23
+===GameObject Initialised: Ocean23-23 (0.0132ms)
+===Initialising GameObject: Ocean23-24
+===GameObject Initialised: Ocean23-24 (0.0137ms)
+===Initialising GameObject: Ocean23-25
+===GameObject Initialised: Ocean23-25 (0.0128ms)
+===Initialising GameObject: Ocean23-26
+===GameObject Initialised: Ocean23-26 (0.0128ms)
+===Initialising GameObject: Ocean23-27
+===GameObject Initialised: Ocean23-27 (0.013ms)
+===Initialising GameObject: Ocean23-28
+===GameObject Initialised: Ocean23-28 (0.0119ms)
+===Initialising GameObject: Ocean23-29
+===GameObject Initialised: Ocean23-29 (0.0125ms)
+===Initialising GameObject: Ocean23-30
+===GameObject Initialised: Ocean23-30 (0.0134ms)
+===Initialising GameObject: Ocean23-31
+===GameObject Initialised: Ocean23-31 (0.0125ms)
+===Initialising GameObject: Ocean23-32
+===GameObject Initialised: Ocean23-32 (0.013ms)
+===Initialising GameObject: Ocean23-33
+===GameObject Initialised: Ocean23-33 (0.0143ms)
+===Initialising GameObject: Ocean23-34
+===GameObject Initialised: Ocean23-34 (0.0133ms)
+===Initialising GameObject: Ocean24-0
+===GameObject Initialised: Ocean24-0 (0.0153ms)
+===Initialising GameObject: Ocean24-1
+===GameObject Initialised: Ocean24-1 (0.0121ms)
+===Initialising GameObject: Ocean24-2
+===GameObject Initialised: Ocean24-2 (0.0122ms)
+===Initialising GameObject: Ocean24-3
+===GameObject Initialised: Ocean24-3 (0.0125ms)
+===Initialising GameObject: Ocean24-4
+===GameObject Initialised: Ocean24-4 (0.0133ms)
+===Initialising GameObject: Ocean24-5
+===GameObject Initialised: Ocean24-5 (0.0137ms)
+===Initialising GameObject: Ocean24-6
+===GameObject Initialised: Ocean24-6 (0.0131ms)
+===Initialising GameObject: Ocean24-7
+===GameObject Initialised: Ocean24-7 (0.0135ms)
+===Initialising GameObject: Ocean24-8
+===GameObject Initialised: Ocean24-8 (0.0127ms)
+===Initialising GameObject: Ocean24-9
+===GameObject Initialised: Ocean24-9 (0.0139ms)
+===Initialising GameObject: Ocean24-10
+===GameObject Initialised: Ocean24-10 (0.012ms)
+===Initialising GameObject: Ocean24-11
+===GameObject Initialised: Ocean24-11 (0.0122ms)
+===Initialising GameObject: Ocean24-12
+===GameObject Initialised: Ocean24-12 (0.0122ms)
+===Initialising GameObject: Ocean24-13
+===GameObject Initialised: Ocean24-13 (0.0127ms)
+===Initialising GameObject: Ocean24-14
+===GameObject Initialised: Ocean24-14 (0.0133ms)
+===Initialising GameObject: Ocean24-15
+===GameObject Initialised: Ocean24-15 (0.0126ms)
+===Initialising GameObject: Ocean24-16
+===GameObject Initialised: Ocean24-16 (0.0129ms)
+===Initialising GameObject: Ocean24-17
+===GameObject Initialised: Ocean24-17 (0.0134ms)
+===Initialising GameObject: Ocean24-18
+===GameObject Initialised: Ocean24-18 (0.0135ms)
+===Initialising GameObject: Ocean24-19
+===GameObject Initialised: Ocean24-19 (0.0123ms)
+===Initialising GameObject: Ocean24-20
+===GameObject Initialised: Ocean24-20 (0.0122ms)
+===Initialising GameObject: Ocean24-21
+===GameObject Initialised: Ocean24-21 (0.0125ms)
+===Initialising GameObject: Ocean24-22
+===GameObject Initialised: Ocean24-22 (0.0139ms)
+===Initialising GameObject: Ocean24-23
+===GameObject Initialised: Ocean24-23 (0.0122ms)
+===Initialising GameObject: Ocean24-24
+===GameObject Initialised: Ocean24-24 (0.0133ms)
+===Initialising GameObject: Ocean24-25
+===GameObject Initialised: Ocean24-25 (0.0131ms)
+===Initialising GameObject: Ocean24-26
+===GameObject Initialised: Ocean24-26 (0.0137ms)
+===Initialising GameObject: Ocean24-27
+===GameObject Initialised: Ocean24-27 (0.0141ms)
+===Initialising GameObject: Ocean24-28
+===GameObject Initialised: Ocean24-28 (0.0132ms)
+===Initialising GameObject: Ocean24-29
+===GameObject Initialised: Ocean24-29 (0.013ms)
+===Initialising GameObject: Ocean24-30
+===GameObject Initialised: Ocean24-30 (0.014ms)
+===Initialising GameObject: Ocean24-31
+===GameObject Initialised: Ocean24-31 (0.0139ms)
+===Initialising GameObject: Ocean24-32
+===GameObject Initialised: Ocean24-32 (0.0141ms)
+===Initialising GameObject: Ocean24-33
+===GameObject Initialised: Ocean24-33 (0.0142ms)
+===Initialising GameObject: Ocean24-34
+===GameObject Initialised: Ocean24-34 (0.0136ms)
+===Initialising GameObject: Ocean25-0
+===GameObject Initialised: Ocean25-0 (0.0128ms)
+===Initialising GameObject: Ocean25-1
+===GameObject Initialised: Ocean25-1 (0.0135ms)
+===Initialising GameObject: Ocean25-2
+===GameObject Initialised: Ocean25-2 (0.0139ms)
+===Initialising GameObject: Ocean25-3
+===GameObject Initialised: Ocean25-3 (0.0128ms)
+===Initialising GameObject: Ocean25-4
+===GameObject Initialised: Ocean25-4 (0.0135ms)
+===Initialising GameObject: Ocean25-5
+===GameObject Initialised: Ocean25-5 (0.0139ms)
+===Initialising GameObject: Ocean25-6
+===GameObject Initialised: Ocean25-6 (0.0133ms)
+===Initialising GameObject: Ocean25-7
+===GameObject Initialised: Ocean25-7 (0.0133ms)
+===Initialising GameObject: Ocean25-8
+===GameObject Initialised: Ocean25-8 (0.0135ms)
+===Initialising GameObject: Ocean25-9
+===GameObject Initialised: Ocean25-9 (0.0152ms)
+===Initialising GameObject: Ocean25-10
+===GameObject Initialised: Ocean25-10 (0.0134ms)
+===Initialising GameObject: Ocean25-11
+===GameObject Initialised: Ocean25-11 (0.0154ms)
+===Initialising GameObject: Ocean25-12
+===GameObject Initialised: Ocean25-12 (0.0134ms)
+===Initialising GameObject: Ocean25-13
+===GameObject Initialised: Ocean25-13 (0.0138ms)
+===Initialising GameObject: Ocean25-14
+===GameObject Initialised: Ocean25-14 (0.0134ms)
+===Initialising GameObject: Ocean25-15
+===GameObject Initialised: Ocean25-15 (0.0137ms)
+===Initialising GameObject: Ocean25-16
+===GameObject Initialised: Ocean25-16 (0.013ms)
+===Initialising GameObject: Ocean25-17
+===GameObject Initialised: Ocean25-17 (0.0135ms)
+===Initialising GameObject: Ocean25-18
+===GameObject Initialised: Ocean25-18 (0.0134ms)
+===Initialising GameObject: Ocean25-19
+===GameObject Initialised: Ocean25-19 (0.0136ms)
+===Initialising GameObject: Ocean25-20
+===GameObject Initialised: Ocean25-20 (0.0126ms)
+===Initialising GameObject: Ocean25-21
+===GameObject Initialised: Ocean25-21 (0.0141ms)
+===Initialising GameObject: Ocean25-22
+===GameObject Initialised: Ocean25-22 (0.0138ms)
+===Initialising GameObject: Ocean25-23
+===GameObject Initialised: Ocean25-23 (0.0129ms)
+===Initialising GameObject: Ocean25-24
+===GameObject Initialised: Ocean25-24 (0.0136ms)
+===Initialising GameObject: Ocean25-25
+===GameObject Initialised: Ocean25-25 (0.0137ms)
+===Initialising GameObject: Ocean25-26
+===GameObject Initialised: Ocean25-26 (0.0129ms)
+===Initialising GameObject: Ocean25-27
+===GameObject Initialised: Ocean25-27 (0.0129ms)
+===Initialising GameObject: Ocean25-28
+===GameObject Initialised: Ocean25-28 (0.0136ms)
+===Initialising GameObject: Ocean25-29
+===GameObject Initialised: Ocean25-29 (0.0129ms)
+===Initialising GameObject: Ocean25-30
+===GameObject Initialised: Ocean25-30 (0.0133ms)
+===Initialising GameObject: Ocean25-31
+===GameObject Initialised: Ocean25-31 (0.0135ms)
+===Initialising GameObject: Ocean25-32
+===GameObject Initialised: Ocean25-32 (0.0123ms)
+===Initialising GameObject: Ocean25-33
+===GameObject Initialised: Ocean25-33 (0.0122ms)
+===Initialising GameObject: Ocean25-34
+===GameObject Initialised: Ocean25-34 (0.014ms)
+===Initialising GameObject: Ocean26-0
+===GameObject Initialised: Ocean26-0 (0.0126ms)
+===Initialising GameObject: Ocean26-1
+===GameObject Initialised: Ocean26-1 (0.0131ms)
+===Initialising GameObject: Ocean26-2
+===GameObject Initialised: Ocean26-2 (0.0122ms)
+===Initialising GameObject: Ocean26-3
+===GameObject Initialised: Ocean26-3 (0.0124ms)
+===Initialising GameObject: Ocean26-4
+===GameObject Initialised: Ocean26-4 (0.0119ms)
+===Initialising GameObject: Ocean26-5
+===GameObject Initialised: Ocean26-5 (0.012ms)
+===Initialising GameObject: Ocean26-6
+===GameObject Initialised: Ocean26-6 (0.0124ms)
+===Initialising GameObject: Ocean26-7
+===GameObject Initialised: Ocean26-7 (0.0628ms)
+===Initialising GameObject: Ocean26-8
+===GameObject Initialised: Ocean26-8 (0.0123ms)
+===Initialising GameObject: Ocean26-9
+===GameObject Initialised: Ocean26-9 (0.0121ms)
+===Initialising GameObject: Ocean26-10
+===GameObject Initialised: Ocean26-10 (0.012ms)
+===Initialising GameObject: Ocean26-11
+===GameObject Initialised: Ocean26-11 (0.0125ms)
+===Initialising GameObject: Ocean26-12
+===GameObject Initialised: Ocean26-12 (0.0136ms)
+===Initialising GameObject: Ocean26-13
+===GameObject Initialised: Ocean26-13 (0.012ms)
+===Initialising GameObject: Ocean26-14
+===GameObject Initialised: Ocean26-14 (0.013ms)
+===Initialising GameObject: Ocean26-15
+===GameObject Initialised: Ocean26-15 (0.0149ms)
+===Initialising GameObject: Ocean26-16
+===GameObject Initialised: Ocean26-16 (0.012ms)
+===Initialising GameObject: Ocean26-17
+===GameObject Initialised: Ocean26-17 (0.0126ms)
+===Initialising GameObject: Ocean26-18
+===GameObject Initialised: Ocean26-18 (0.0121ms)
+===Initialising GameObject: Ocean26-19
+===GameObject Initialised: Ocean26-19 (0.0119ms)
+===Initialising GameObject: Ocean26-20
+===GameObject Initialised: Ocean26-20 (0.0118ms)
+===Initialising GameObject: Ocean26-21
+===GameObject Initialised: Ocean26-21 (0.0121ms)
+===Initialising GameObject: Ocean26-22
+===GameObject Initialised: Ocean26-22 (0.0143ms)
+===Initialising GameObject: Ocean26-23
+===GameObject Initialised: Ocean26-23 (0.0133ms)
+===Initialising GameObject: Ocean26-24
+===GameObject Initialised: Ocean26-24 (0.0139ms)
+===Initialising GameObject: Ocean26-25
+===GameObject Initialised: Ocean26-25 (0.0125ms)
+===Initialising GameObject: Ocean26-26
+===GameObject Initialised: Ocean26-26 (0.0129ms)
+===Initialising GameObject: Ocean26-27
+===GameObject Initialised: Ocean26-27 (0.0137ms)
+===Initialising GameObject: Ocean26-28
+===GameObject Initialised: Ocean26-28 (0.0127ms)
+===Initialising GameObject: Ocean26-29
+===GameObject Initialised: Ocean26-29 (0.0124ms)
+===Initialising GameObject: Ocean26-30
+===GameObject Initialised: Ocean26-30 (0.0119ms)
+===Initialising GameObject: Ocean26-31
+===GameObject Initialised: Ocean26-31 (0.0129ms)
+===Initialising GameObject: Ocean26-32
+===GameObject Initialised: Ocean26-32 (0.0127ms)
+===Initialising GameObject: Ocean26-33
+===GameObject Initialised: Ocean26-33 (0.0126ms)
+===Initialising GameObject: Ocean26-34
+===GameObject Initialised: Ocean26-34 (0.0129ms)
+===Initialising GameObject: Ocean27-0
+===GameObject Initialised: Ocean27-0 (0.0128ms)
+===Initialising GameObject: Ocean27-1
+===GameObject Initialised: Ocean27-1 (0.0129ms)
+===Initialising GameObject: Ocean27-2
+===GameObject Initialised: Ocean27-2 (0.0125ms)
+===Initialising GameObject: Ocean27-3
+===GameObject Initialised: Ocean27-3 (0.0146ms)
+===Initialising GameObject: Ocean27-4
+===GameObject Initialised: Ocean27-4 (0.0123ms)
+===Initialising GameObject: Ocean27-5
+===GameObject Initialised: Ocean27-5 (0.0132ms)
+===Initialising GameObject: Ocean27-6
+===GameObject Initialised: Ocean27-6 (0.0134ms)
+===Initialising GameObject: Ocean27-7
+===GameObject Initialised: Ocean27-7 (0.0126ms)
+===Initialising GameObject: Ocean27-8
+===GameObject Initialised: Ocean27-8 (0.0136ms)
+===Initialising GameObject: Ocean27-9
+===GameObject Initialised: Ocean27-9 (0.0123ms)
+===Initialising GameObject: Ocean27-10
+===GameObject Initialised: Ocean27-10 (0.0119ms)
+===Initialising GameObject: Ocean27-11
+===GameObject Initialised: Ocean27-11 (0.0119ms)
+===Initialising GameObject: Ocean27-12
+===GameObject Initialised: Ocean27-12 (0.012ms)
+===Initialising GameObject: Ocean27-13
+===GameObject Initialised: Ocean27-13 (0.0119ms)
+===Initialising GameObject: Ocean27-14
+===GameObject Initialised: Ocean27-14 (0.0124ms)
+===Initialising GameObject: Ocean27-15
+===GameObject Initialised: Ocean27-15 (0.0154ms)
+===Initialising GameObject: Ocean27-16
+===GameObject Initialised: Ocean27-16 (0.0124ms)
+===Initialising GameObject: Ocean27-17
+===GameObject Initialised: Ocean27-17 (0.0134ms)
+===Initialising GameObject: Ocean27-18
+===GameObject Initialised: Ocean27-18 (0.0133ms)
+===Initialising GameObject: Ocean27-19
+===GameObject Initialised: Ocean27-19 (0.0129ms)
+===Initialising GameObject: Ocean27-20
+===GameObject Initialised: Ocean27-20 (0.0122ms)
+===Initialising GameObject: Ocean27-21
+===GameObject Initialised: Ocean27-21 (0.012ms)
+===Initialising GameObject: Ocean27-22
+===GameObject Initialised: Ocean27-22 (0.0117ms)
+===Initialising GameObject: Ocean27-23
+===GameObject Initialised: Ocean27-23 (0.013ms)
+===Initialising GameObject: Ocean27-24
+===GameObject Initialised: Ocean27-24 (0.0133ms)
+===Initialising GameObject: Ocean27-25
+===GameObject Initialised: Ocean27-25 (0.0122ms)
+===Initialising GameObject: Ocean27-26
+===GameObject Initialised: Ocean27-26 (0.0124ms)
+===Initialising GameObject: Ocean27-27
+===GameObject Initialised: Ocean27-27 (0.0145ms)
+===Initialising GameObject: Ocean27-28
+===GameObject Initialised: Ocean27-28 (0.0143ms)
+===Initialising GameObject: Ocean27-29
+===GameObject Initialised: Ocean27-29 (0.0126ms)
+===Initialising GameObject: Ocean27-30
+===GameObject Initialised: Ocean27-30 (0.0124ms)
+===Initialising GameObject: Ocean27-31
+===GameObject Initialised: Ocean27-31 (0.0119ms)
+===Initialising GameObject: Ocean27-32
+===GameObject Initialised: Ocean27-32 (0.019ms)
+===Initialising GameObject: Ocean27-33
+===GameObject Initialised: Ocean27-33 (0.0129ms)
+===Initialising GameObject: Ocean27-34
+===GameObject Initialised: Ocean27-34 (0.0142ms)
+===Initialising GameObject: Ocean28-0
+===GameObject Initialised: Ocean28-0 (0.0131ms)
+===Initialising GameObject: Ocean28-1
+===GameObject Initialised: Ocean28-1 (0.0125ms)
+===Initialising GameObject: Ocean28-2
+===GameObject Initialised: Ocean28-2 (0.0124ms)
+===Initialising GameObject: Ocean28-3
+===GameObject Initialised: Ocean28-3 (0.0123ms)
+===Initialising GameObject: Ocean28-4
+===GameObject Initialised: Ocean28-4 (0.0141ms)
+===Initialising GameObject: Ocean28-5
+===GameObject Initialised: Ocean28-5 (0.0132ms)
+===Initialising GameObject: Ocean28-6
+===GameObject Initialised: Ocean28-6 (0.0137ms)
+===Initialising GameObject: Ocean28-7
+===GameObject Initialised: Ocean28-7 (0.013ms)
+===Initialising GameObject: Ocean28-8
+===GameObject Initialised: Ocean28-8 (0.0134ms)
+===Initialising GameObject: Ocean28-9
+===GameObject Initialised: Ocean28-9 (0.0127ms)
+===Initialising GameObject: Ocean28-10
+===GameObject Initialised: Ocean28-10 (0.0123ms)
+===Initialising GameObject: Ocean28-11
+===GameObject Initialised: Ocean28-11 (0.0125ms)
+===Initialising GameObject: Ocean28-12
+===GameObject Initialised: Ocean28-12 (0.014ms)
+===Initialising GameObject: Ocean28-13
+===GameObject Initialised: Ocean28-13 (0.0129ms)
+===Initialising GameObject: Ocean28-14
+===GameObject Initialised: Ocean28-14 (0.0141ms)
+===Initialising GameObject: Ocean28-15
+===GameObject Initialised: Ocean28-15 (0.013ms)
+===Initialising GameObject: Ocean28-16
+===GameObject Initialised: Ocean28-16 (0.0126ms)
+===Initialising GameObject: Ocean28-17
+===GameObject Initialised: Ocean28-17 (0.0126ms)
+===Initialising GameObject: Ocean28-18
+===GameObject Initialised: Ocean28-18 (0.0133ms)
+===Initialising GameObject: Ocean28-19
+===GameObject Initialised: Ocean28-19 (0.0135ms)
+===Initialising GameObject: Ocean28-20
+===GameObject Initialised: Ocean28-20 (0.0134ms)
+===Initialising GameObject: Ocean28-21
+===GameObject Initialised: Ocean28-21 (0.0137ms)
+===Initialising GameObject: Ocean28-22
+===GameObject Initialised: Ocean28-22 (0.013ms)
+===Initialising GameObject: Ocean28-23
+===GameObject Initialised: Ocean28-23 (0.0137ms)
+===Initialising GameObject: Ocean28-24
+===GameObject Initialised: Ocean28-24 (0.0128ms)
+===Initialising GameObject: Ocean28-25
+===GameObject Initialised: Ocean28-25 (0.0119ms)
+===Initialising GameObject: Ocean28-26
+===GameObject Initialised: Ocean28-26 (0.0143ms)
+===Initialising GameObject: Ocean28-27
+===GameObject Initialised: Ocean28-27 (0.0126ms)
+===Initialising GameObject: Ocean28-28
+===GameObject Initialised: Ocean28-28 (0.013ms)
+===Initialising GameObject: Ocean28-29
+===GameObject Initialised: Ocean28-29 (0.0131ms)
+===Initialising GameObject: Ocean28-30
+===GameObject Initialised: Ocean28-30 (0.0123ms)
+===Initialising GameObject: Ocean28-31
+===GameObject Initialised: Ocean28-31 (0.0126ms)
+===Initialising GameObject: Ocean28-32
+===GameObject Initialised: Ocean28-32 (0.0132ms)
+===Initialising GameObject: Ocean28-33
+===GameObject Initialised: Ocean28-33 (0.0244ms)
+===Initialising GameObject: Ocean28-34
+===GameObject Initialised: Ocean28-34 (0.0136ms)
+===Initialising GameObject: Ocean29-0
+===GameObject Initialised: Ocean29-0 (0.0125ms)
+===Initialising GameObject: Ocean29-1
+===GameObject Initialised: Ocean29-1 (0.0116ms)
+===Initialising GameObject: Ocean29-2
+===GameObject Initialised: Ocean29-2 (0.0116ms)
+===Initialising GameObject: Ocean29-3
+===GameObject Initialised: Ocean29-3 (0.0132ms)
+===Initialising GameObject: Ocean29-4
+===GameObject Initialised: Ocean29-4 (0.0131ms)
+===Initialising GameObject: Ocean29-5
+===GameObject Initialised: Ocean29-5 (0.0137ms)
+===Initialising GameObject: Ocean29-6
+===GameObject Initialised: Ocean29-6 (0.0119ms)
+===Initialising GameObject: Ocean29-7
+===GameObject Initialised: Ocean29-7 (0.0121ms)
+===Initialising GameObject: Ocean29-8
+===GameObject Initialised: Ocean29-8 (0.016ms)
+===Initialising GameObject: Ocean29-9
+===GameObject Initialised: Ocean29-9 (0.013ms)
+===Initialising GameObject: Ocean29-10
+===GameObject Initialised: Ocean29-10 (0.012ms)
+===Initialising GameObject: Ocean29-11
+===GameObject Initialised: Ocean29-11 (0.0154ms)
+===Initialising GameObject: Ocean29-12
+===GameObject Initialised: Ocean29-12 (0.0136ms)
+===Initialising GameObject: Ocean29-13
+===GameObject Initialised: Ocean29-13 (0.0152ms)
+===Initialising GameObject: Ocean29-14
+===GameObject Initialised: Ocean29-14 (0.0132ms)
+===Initialising GameObject: Ocean29-15
+===GameObject Initialised: Ocean29-15 (0.0128ms)
+===Initialising GameObject: Ocean29-16
+===GameObject Initialised: Ocean29-16 (0.0134ms)
+===Initialising GameObject: Ocean29-17
+===GameObject Initialised: Ocean29-17 (0.0129ms)
+===Initialising GameObject: Ocean29-18
+===GameObject Initialised: Ocean29-18 (0.0128ms)
+===Initialising GameObject: Ocean29-19
+===GameObject Initialised: Ocean29-19 (0.0144ms)
+===Initialising GameObject: Ocean29-20
+===GameObject Initialised: Ocean29-20 (0.0127ms)
+===Initialising GameObject: Ocean29-21
+===GameObject Initialised: Ocean29-21 (0.0127ms)
+===Initialising GameObject: Ocean29-22
+===GameObject Initialised: Ocean29-22 (0.0126ms)
+===Initialising GameObject: Ocean29-23
+===GameObject Initialised: Ocean29-23 (0.024ms)
+===Initialising GameObject: Ocean29-24
+===GameObject Initialised: Ocean29-24 (0.0128ms)
+===Initialising GameObject: Ocean29-25
+===GameObject Initialised: Ocean29-25 (0.0126ms)
+===Initialising GameObject: Ocean29-26
+===GameObject Initialised: Ocean29-26 (0.0132ms)
+===Initialising GameObject: Ocean29-27
+===GameObject Initialised: Ocean29-27 (0.0132ms)
+===Initialising GameObject: Ocean29-28
+===GameObject Initialised: Ocean29-28 (0.0153ms)
+===Initialising GameObject: Ocean29-29
+===GameObject Initialised: Ocean29-29 (0.0139ms)
+===Initialising GameObject: Ocean29-30
+===GameObject Initialised: Ocean29-30 (0.0131ms)
+===Initialising GameObject: Ocean29-31
+===GameObject Initialised: Ocean29-31 (0.0124ms)
+===Initialising GameObject: Ocean29-32
+===GameObject Initialised: Ocean29-32 (0.013ms)
+===Initialising GameObject: Ocean29-33
+===GameObject Initialised: Ocean29-33 (0.0349ms)
+===Initialising GameObject: Ocean29-34
+===GameObject Initialised: Ocean29-34 (0.0128ms)
+===Initialising GameObject: Ocean30-0
+===GameObject Initialised: Ocean30-0 (0.0123ms)
+===Initialising GameObject: Ocean30-1
+===GameObject Initialised: Ocean30-1 (0.0123ms)
+===Initialising GameObject: Ocean30-2
+===GameObject Initialised: Ocean30-2 (0.0125ms)
+===Initialising GameObject: Ocean30-3
+===GameObject Initialised: Ocean30-3 (0.0121ms)
+===Initialising GameObject: Ocean30-4
+===GameObject Initialised: Ocean30-4 (0.0124ms)
+===Initialising GameObject: Ocean30-5
+===GameObject Initialised: Ocean30-5 (0.0124ms)
+===Initialising GameObject: Ocean30-6
+===GameObject Initialised: Ocean30-6 (0.0124ms)
+===Initialising GameObject: Ocean30-7
+===GameObject Initialised: Ocean30-7 (0.0122ms)
+===Initialising GameObject: Ocean30-8
+===GameObject Initialised: Ocean30-8 (0.0122ms)
+===Initialising GameObject: Ocean30-9
+===GameObject Initialised: Ocean30-9 (0.0124ms)
+===Initialising GameObject: Ocean30-10
+===GameObject Initialised: Ocean30-10 (0.0124ms)
+===Initialising GameObject: Ocean30-11
+===GameObject Initialised: Ocean30-11 (0.0124ms)
+===Initialising GameObject: Ocean30-12
+===GameObject Initialised: Ocean30-12 (0.0124ms)
+===Initialising GameObject: Ocean30-13
+===GameObject Initialised: Ocean30-13 (0.0445ms)
+===Initialising GameObject: Ocean30-14
+===GameObject Initialised: Ocean30-14 (0.0126ms)
+===Initialising GameObject: Ocean30-15
+===GameObject Initialised: Ocean30-15 (0.0124ms)
+===Initialising GameObject: Ocean30-16
+===GameObject Initialised: Ocean30-16 (0.0124ms)
+===Initialising GameObject: Ocean30-17
+===GameObject Initialised: Ocean30-17 (0.0123ms)
+===Initialising GameObject: Ocean30-18
+===GameObject Initialised: Ocean30-18 (0.0124ms)
+===Initialising GameObject: Ocean30-19
+===GameObject Initialised: Ocean30-19 (0.0161ms)
+===Initialising GameObject: Ocean30-20
+===GameObject Initialised: Ocean30-20 (0.0124ms)
+===Initialising GameObject: Ocean30-21
+===GameObject Initialised: Ocean30-21 (0.0124ms)
+===Initialising GameObject: Ocean30-22
+===GameObject Initialised: Ocean30-22 (0.0137ms)
+===Initialising GameObject: Ocean30-23
+===GameObject Initialised: Ocean30-23 (0.0123ms)
+===Initialising GameObject: Ocean30-24
+===GameObject Initialised: Ocean30-24 (0.0118ms)
+===Initialising GameObject: Ocean30-25
+===GameObject Initialised: Ocean30-25 (0.0116ms)
+===Initialising GameObject: Ocean30-26
+===GameObject Initialised: Ocean30-26 (0.0127ms)
+===Initialising GameObject: Ocean30-27
+===GameObject Initialised: Ocean30-27 (0.0124ms)
+===Initialising GameObject: Ocean30-28
+===GameObject Initialised: Ocean30-28 (0.0127ms)
+===Initialising GameObject: Ocean30-29
+===GameObject Initialised: Ocean30-29 (0.0126ms)
+===Initialising GameObject: Ocean30-30
+===GameObject Initialised: Ocean30-30 (0.0133ms)
+===Initialising GameObject: Ocean30-31
+===GameObject Initialised: Ocean30-31 (0.0146ms)
+===Initialising GameObject: Ocean30-32
+===GameObject Initialised: Ocean30-32 (0.0215ms)
+===Initialising GameObject: Ocean30-33
+===GameObject Initialised: Ocean30-33 (0.0134ms)
+===Initialising GameObject: Ocean30-34
+===GameObject Initialised: Ocean30-34 (0.0126ms)
+===Initialising GameObject: Ocean31-0
+===GameObject Initialised: Ocean31-0 (0.0113ms)
+===Initialising GameObject: Ocean31-1
+===GameObject Initialised: Ocean31-1 (0.0118ms)
+===Initialising GameObject: Ocean31-2
+===GameObject Initialised: Ocean31-2 (0.0125ms)
+===Initialising GameObject: Ocean31-3
+===GameObject Initialised: Ocean31-3 (0.0128ms)
+===Initialising GameObject: Ocean31-4
+===GameObject Initialised: Ocean31-4 (0.0195ms)
+===Initialising GameObject: Ocean31-5
+===GameObject Initialised: Ocean31-5 (0.0127ms)
+===Initialising GameObject: Ocean31-6
+===GameObject Initialised: Ocean31-6 (0.0718ms)
+===Initialising GameObject: Ocean31-7
+===GameObject Initialised: Ocean31-7 (0.022ms)
+===Initialising GameObject: Ocean31-8
+===GameObject Initialised: Ocean31-8 (0.0145ms)
+===Initialising GameObject: Ocean31-9
+===GameObject Initialised: Ocean31-9 (0.015ms)
+===Initialising GameObject: Ocean31-10
+===GameObject Initialised: Ocean31-10 (0.0153ms)
+===Initialising GameObject: Ocean31-11
+===GameObject Initialised: Ocean31-11 (0.0156ms)
+===Initialising GameObject: Ocean31-12
+===GameObject Initialised: Ocean31-12 (0.0148ms)
+===Initialising GameObject: Ocean31-13
+===GameObject Initialised: Ocean31-13 (0.0133ms)
+===Initialising GameObject: Ocean31-14
+===GameObject Initialised: Ocean31-14 (0.0141ms)
+===Initialising GameObject: Ocean31-15
+===GameObject Initialised: Ocean31-15 (0.0157ms)
+===Initialising GameObject: Ocean31-16
+===GameObject Initialised: Ocean31-16 (0.0155ms)
+===Initialising GameObject: Ocean31-17
+===GameObject Initialised: Ocean31-17 (0.0158ms)
+===Initialising GameObject: Ocean31-18
+===GameObject Initialised: Ocean31-18 (0.0168ms)
+===Initialising GameObject: Ocean31-19
+===GameObject Initialised: Ocean31-19 (0.0156ms)
+===Initialising GameObject: Ocean31-20
+===GameObject Initialised: Ocean31-20 (0.0179ms)
+===Initialising GameObject: Ocean31-21
+===GameObject Initialised: Ocean31-21 (0.0178ms)
+===Initialising GameObject: Ocean31-22
+===GameObject Initialised: Ocean31-22 (0.0139ms)
+===Initialising GameObject: Ocean31-23
+===GameObject Initialised: Ocean31-23 (0.0164ms)
+===Initialising GameObject: Ocean31-24
+===GameObject Initialised: Ocean31-24 (0.014ms)
+===Initialising GameObject: Ocean31-25
+===GameObject Initialised: Ocean31-25 (0.0134ms)
+===Initialising GameObject: Ocean31-26
+===GameObject Initialised: Ocean31-26 (0.0135ms)
+===Initialising GameObject: Ocean31-27
+===GameObject Initialised: Ocean31-27 (0.0141ms)
+===Initialising GameObject: Ocean31-28
+===GameObject Initialised: Ocean31-28 (0.0135ms)
+===Initialising GameObject: Ocean31-29
+===GameObject Initialised: Ocean31-29 (0.0152ms)
+===Initialising GameObject: Ocean31-30
+===GameObject Initialised: Ocean31-30 (0.0161ms)
+===Initialising GameObject: Ocean31-31
+===GameObject Initialised: Ocean31-31 (0.0128ms)
+===Initialising GameObject: Ocean31-32
+===GameObject Initialised: Ocean31-32 (0.0127ms)
+===Initialising GameObject: Ocean31-33
+===GameObject Initialised: Ocean31-33 (0.016ms)
+===Initialising GameObject: Ocean31-34
+===GameObject Initialised: Ocean31-34 (0.0136ms)
+===Initialising GameObject: Ocean32-0
+===GameObject Initialised: Ocean32-0 (0.0126ms)
+===Initialising GameObject: Ocean32-1
+===GameObject Initialised: Ocean32-1 (0.0135ms)
+===Initialising GameObject: Ocean32-2
+===GameObject Initialised: Ocean32-2 (0.0242ms)
+===Initialising GameObject: Ocean32-3
+===GameObject Initialised: Ocean32-3 (0.0133ms)
+===Initialising GameObject: Ocean32-4
+===GameObject Initialised: Ocean32-4 (0.0148ms)
+===Initialising GameObject: Ocean32-5
+===GameObject Initialised: Ocean32-5 (0.0131ms)
+===Initialising GameObject: Ocean32-6
+===GameObject Initialised: Ocean32-6 (0.0134ms)
+===Initialising GameObject: Ocean32-7
+===GameObject Initialised: Ocean32-7 (0.0136ms)
+===Initialising GameObject: Ocean32-8
+===GameObject Initialised: Ocean32-8 (0.0128ms)
+===Initialising GameObject: Ocean32-9
+===GameObject Initialised: Ocean32-9 (0.0126ms)
+===Initialising GameObject: Ocean32-10
+===GameObject Initialised: Ocean32-10 (0.0132ms)
+===Initialising GameObject: Ocean32-11
+===GameObject Initialised: Ocean32-11 (0.0129ms)
+===Initialising GameObject: Ocean32-12
+===GameObject Initialised: Ocean32-12 (0.0137ms)
+===Initialising GameObject: Ocean32-13
+===GameObject Initialised: Ocean32-13 (0.0137ms)
+===Initialising GameObject: Ocean32-14
+===GameObject Initialised: Ocean32-14 (0.0129ms)
+===Initialising GameObject: Ocean32-15
+===GameObject Initialised: Ocean32-15 (0.0128ms)
+===Initialising GameObject: Ocean32-16
+===GameObject Initialised: Ocean32-16 (0.0128ms)
+===Initialising GameObject: Ocean32-17
+===GameObject Initialised: Ocean32-17 (0.0125ms)
+===Initialising GameObject: Ocean32-18
+===GameObject Initialised: Ocean32-18 (0.0131ms)
+===Initialising GameObject: Ocean32-19
+===GameObject Initialised: Ocean32-19 (0.0129ms)
+===Initialising GameObject: Ocean32-20
+===GameObject Initialised: Ocean32-20 (0.0128ms)
+===Initialising GameObject: Ocean32-21
+===GameObject Initialised: Ocean32-21 (0.0136ms)
+===Initialising GameObject: Ocean32-22
+===GameObject Initialised: Ocean32-22 (0.0146ms)
+===Initialising GameObject: Ocean32-23
+===GameObject Initialised: Ocean32-23 (0.0142ms)
+===Initialising GameObject: Ocean32-24
+===GameObject Initialised: Ocean32-24 (0.0126ms)
+===Initialising GameObject: Ocean32-25
+===GameObject Initialised: Ocean32-25 (0.0153ms)
+===Initialising GameObject: Ocean32-26
+===GameObject Initialised: Ocean32-26 (0.0131ms)
+===Initialising GameObject: Ocean32-27
+===GameObject Initialised: Ocean32-27 (0.0131ms)
+===Initialising GameObject: Ocean32-28
+===GameObject Initialised: Ocean32-28 (0.013ms)
+===Initialising GameObject: Ocean32-29
+===GameObject Initialised: Ocean32-29 (0.0128ms)
+===Initialising GameObject: Ocean32-30
+===GameObject Initialised: Ocean32-30 (0.016ms)
+===Initialising GameObject: Ocean32-31
+===GameObject Initialised: Ocean32-31 (0.0136ms)
+===Initialising GameObject: Ocean32-32
+===GameObject Initialised: Ocean32-32 (0.0139ms)
+===Initialising GameObject: Ocean32-33
+===GameObject Initialised: Ocean32-33 (0.0121ms)
+===Initialising GameObject: Ocean32-34
+===GameObject Initialised: Ocean32-34 (0.0141ms)
+===Initialising GameObject: Ocean33-0
+===GameObject Initialised: Ocean33-0 (0.0136ms)
+===Initialising GameObject: Ocean33-1
+===GameObject Initialised: Ocean33-1 (0.0139ms)
+===Initialising GameObject: Ocean33-2
+===GameObject Initialised: Ocean33-2 (0.0121ms)
+===Initialising GameObject: Ocean33-3
+===GameObject Initialised: Ocean33-3 (0.0137ms)
+===Initialising GameObject: Ocean33-4
+===GameObject Initialised: Ocean33-4 (0.0143ms)
+===Initialising GameObject: Ocean33-5
+===GameObject Initialised: Ocean33-5 (0.0134ms)
+===Initialising GameObject: Ocean33-6
+===GameObject Initialised: Ocean33-6 (0.0179ms)
+===Initialising GameObject: Ocean33-7
+===GameObject Initialised: Ocean33-7 (0.0137ms)
+===Initialising GameObject: Ocean33-8
+===GameObject Initialised: Ocean33-8 (0.0134ms)
+===Initialising GameObject: Ocean33-9
+===GameObject Initialised: Ocean33-9 (0.0143ms)
+===Initialising GameObject: Ocean33-10
+===GameObject Initialised: Ocean33-10 (0.0138ms)
+===Initialising GameObject: Ocean33-11
+===GameObject Initialised: Ocean33-11 (0.0144ms)
+===Initialising GameObject: Ocean33-12
+===GameObject Initialised: Ocean33-12 (0.0124ms)
+===Initialising GameObject: Ocean33-13
+===GameObject Initialised: Ocean33-13 (0.0121ms)
+===Initialising GameObject: Ocean33-14
+===GameObject Initialised: Ocean33-14 (0.013ms)
+===Initialising GameObject: Ocean33-15
+===GameObject Initialised: Ocean33-15 (0.0137ms)
+===Initialising GameObject: Ocean33-16
+===GameObject Initialised: Ocean33-16 (0.0128ms)
+===Initialising GameObject: Ocean33-17
+===GameObject Initialised: Ocean33-17 (0.0123ms)
+===Initialising GameObject: Ocean33-18
+===GameObject Initialised: Ocean33-18 (0.0135ms)
+===Initialising GameObject: Ocean33-19
+===GameObject Initialised: Ocean33-19 (0.0144ms)
+===Initialising GameObject: Ocean33-20
+===GameObject Initialised: Ocean33-20 (0.0139ms)
+===Initialising GameObject: Ocean33-21
+===GameObject Initialised: Ocean33-21 (0.0137ms)
+===Initialising GameObject: Ocean33-22
+===GameObject Initialised: Ocean33-22 (0.0125ms)
+===Initialising GameObject: Ocean33-23
+===GameObject Initialised: Ocean33-23 (0.0141ms)
+===Initialising GameObject: Ocean33-24
+===GameObject Initialised: Ocean33-24 (0.0137ms)
+===Initialising GameObject: Ocean33-25
+===GameObject Initialised: Ocean33-25 (0.0126ms)
+===Initialising GameObject: Ocean33-26
+===GameObject Initialised: Ocean33-26 (0.0124ms)
+===Initialising GameObject: Ocean33-27
+===GameObject Initialised: Ocean33-27 (0.0137ms)
+===Initialising GameObject: Ocean33-28
+===GameObject Initialised: Ocean33-28 (0.0121ms)
+===Initialising GameObject: Ocean33-29
+===GameObject Initialised: Ocean33-29 (0.0128ms)
+===Initialising GameObject: Ocean33-30
+===GameObject Initialised: Ocean33-30 (0.0129ms)
+===Initialising GameObject: Ocean33-31
+===GameObject Initialised: Ocean33-31 (0.0128ms)
+===Initialising GameObject: Ocean33-32
+===GameObject Initialised: Ocean33-32 (0.0127ms)
+===Initialising GameObject: Ocean33-33
+===GameObject Initialised: Ocean33-33 (0.0133ms)
+===Initialising GameObject: Ocean33-34
+===GameObject Initialised: Ocean33-34 (0.0135ms)
+===Initialising GameObject: Ocean34-0
+===GameObject Initialised: Ocean34-0 (0.0128ms)
+===Initialising GameObject: Ocean34-1
+===GameObject Initialised: Ocean34-1 (0.0131ms)
+===Initialising GameObject: Ocean34-2
+===GameObject Initialised: Ocean34-2 (0.0129ms)
+===Initialising GameObject: Ocean34-3
+===GameObject Initialised: Ocean34-3 (0.0142ms)
+===Initialising GameObject: Ocean34-4
+===GameObject Initialised: Ocean34-4 (0.0135ms)
+===Initialising GameObject: Ocean34-5
+===GameObject Initialised: Ocean34-5 (0.0118ms)
+===Initialising GameObject: Ocean34-6
+===GameObject Initialised: Ocean34-6 (0.0127ms)
+===Initialising GameObject: Ocean34-7
+===GameObject Initialised: Ocean34-7 (0.0127ms)
+===Initialising GameObject: Ocean34-8
+===GameObject Initialised: Ocean34-8 (0.0139ms)
+===Initialising GameObject: Ocean34-9
+===GameObject Initialised: Ocean34-9 (0.0137ms)
+===Initialising GameObject: Ocean34-10
+===GameObject Initialised: Ocean34-10 (0.0154ms)
+===Initialising GameObject: Ocean34-11
+===GameObject Initialised: Ocean34-11 (0.0127ms)
+===Initialising GameObject: Ocean34-12
+===GameObject Initialised: Ocean34-12 (0.0126ms)
+===Initialising GameObject: Ocean34-13
+===GameObject Initialised: Ocean34-13 (0.0106ms)
+===Initialising GameObject: Ocean34-14
+===GameObject Initialised: Ocean34-14 (0.0097ms)
+===Initialising GameObject: Ocean34-15
+===GameObject Initialised: Ocean34-15 (0.0087ms)
+===Initialising GameObject: Ocean34-16
+===GameObject Initialised: Ocean34-16 (0.0087ms)
+===Initialising GameObject: Ocean34-17
+===GameObject Initialised: Ocean34-17 (0.0107ms)
+===Initialising GameObject: Ocean34-18
+===GameObject Initialised: Ocean34-18 (0.0086ms)
+===Initialising GameObject: Ocean34-19
+===GameObject Initialised: Ocean34-19 (0.0102ms)
+===Initialising GameObject: Ocean34-20
+===GameObject Initialised: Ocean34-20 (0.0085ms)
+===Initialising GameObject: Ocean34-21
+===GameObject Initialised: Ocean34-21 (0.0087ms)
+===Initialising GameObject: Ocean34-22
+===GameObject Initialised: Ocean34-22 (0.0087ms)
+===Initialising GameObject: Ocean34-23
+===GameObject Initialised: Ocean34-23 (0.0084ms)
+===Initialising GameObject: Ocean34-24
+===GameObject Initialised: Ocean34-24 (0.0089ms)
+===Initialising GameObject: Ocean34-25
+===GameObject Initialised: Ocean34-25 (0.0088ms)
+===Initialising GameObject: Ocean34-26
+===GameObject Initialised: Ocean34-26 (0.0093ms)
+===Initialising GameObject: Ocean34-27
+===GameObject Initialised: Ocean34-27 (0.0085ms)
+===Initialising GameObject: Ocean34-28
+===GameObject Initialised: Ocean34-28 (0.0088ms)
+===Initialising GameObject: Ocean34-29
+===GameObject Initialised: Ocean34-29 (0.0127ms)
+===Initialising GameObject: Ocean34-30
+===GameObject Initialised: Ocean34-30 (0.0087ms)
+===Initialising GameObject: Ocean34-31
+===GameObject Initialised: Ocean34-31 (0.0087ms)
+===Initialising GameObject: Ocean34-32
+===GameObject Initialised: Ocean34-32 (0.0084ms)
+===Initialising GameObject: Ocean34-33
+===GameObject Initialised: Ocean34-33 (0.0085ms)
+===Initialising GameObject: Ocean34-34
+===GameObject Initialised: Ocean34-34 (0.0086ms)
+===Initialising GameObject: Wall1
+===GameObject Initialised: Wall1 (0.0084ms)
+===Initialising GameObject: Wall2
+===GameObject Initialised: Wall2 (0.008ms)
+===Initialising GameObject: Wall3
+===GameObject Initialised: Wall3 (0.0078ms)
+===Initialising GameObject: Wall4
+===GameObject Initialised: Wall4 (0.0079ms)
+===Initialising GameObject: Floor
+===GameObject Initialised: Floor (0.0099ms)
+===Initialising GameObject: Skybox
+===GameObject Initialised: Skybox (0.0123ms)
+==Scene Initialised: Ocean (765.766ms)
+=Application Initialised (960.049ms)
+System Initialised (1045.16ms)
+
+Running engine
+Switching Scenes
+Initialising Scene: Test
+=Initialising Shader: vs:../GraphicsEngine/Fog.vs ps:../GraphicsEngine/Fog.ps
+=Shader Initialised: vs:../GraphicsEngine/Fog.vs ps:../GraphicsEngine/Fog.ps (21.52ms)
+=Initialising Shader: vs:../GraphicsEngine/Reflect.vs ps:../GraphicsEngine/Reflect.ps
+=Shader Initialised: vs:../GraphicsEngine/Reflect.vs ps:../GraphicsEngine/Reflect.ps (28.9266ms)
+=Initialising Shader: vs:../GraphicsEngine/Water.vs ps:../GraphicsEngine/Water.ps
+=Shader Initialised: vs:../GraphicsEngine/Water.vs ps:../GraphicsEngine/Water.ps (42.032ms)
+=Initialising Shader: vs:../GraphicsEngine/Simple.vs ps:../GraphicsEngine/2D.ps
+=Shader Initialised: vs:../GraphicsEngine/Simple.vs ps:../GraphicsEngine/2D.ps (6.2222ms)
+=Initialising Shader: vs:../GraphicsEngine/Simple.vs ps:../GraphicsEngine/Font.ps
+=Shader Initialised: vs:../GraphicsEngine/Simple.vs ps:../GraphicsEngine/Font.ps (4.8788ms)
+=Initialising Shader: vs:../GraphicsEngine/Simple.vs ps:../GraphicsEngine/Fire.ps
+=Shader Initialised: vs:../GraphicsEngine/Simple.vs ps:../GraphicsEngine/Fire.ps (10.1888ms)
+=Initialising Shader: vs:../GraphicsEngine/Simple.vs ps:../GraphicsEngine/Blur.ps
+=Shader Initialised: vs:../GraphicsEngine/Simple.vs ps:../GraphicsEngine/Blur.ps (15.8461ms)
+=Initialising Shader: vs:../GraphicsEngine/Simple.vs ps:../GraphicsEngine/Filter.ps
+=Shader Initialised: vs:../GraphicsEngine/Simple.vs ps:../GraphicsEngine/Filter.ps (15.8971ms)
+=Initialising Shader: vs:../GraphicsEngine/Skybox.vs ps:../GraphicsEngine/Skybox.ps
+=Shader Initialised: vs:../GraphicsEngine/Skybox.vs ps:../GraphicsEngine/Skybox.ps (3.4202ms)
+=Initialising Shader: vs:../GraphicsEngine/Particle.vs ps:../GraphicsEngine/Particle.ps
+=Shader Initialised: vs:../GraphicsEngine/Particle.vs ps:../GraphicsEngine/Particle.ps (3.9279ms)
+=Initialising Shader: vs:../GraphicsEngine/Simple.vs ps:../GraphicsEngine/Portal.ps
+=Shader Initialised: vs:../GraphicsEngine/Simple.vs ps:../GraphicsEngine/Portal.ps (4.8286ms)
+=Initialising Shader: vs:../GraphicsEngine/Fog.vs ps:../GraphicsEngine/Fractal.ps
+=Shader Initialised: vs:../GraphicsEngine/Fog.vs ps:../GraphicsEngine/Fractal.ps (12.2183ms)
+=Initialising TexSet
+=TexSet Initialised (0.0104ms)
+=Initialising TexSet
+=TexSet Initialised (0.0109ms)
+=Initialising TexSet
+=TexSet Initialised (0.0346ms)
+=Initialising TexSet
+=TexSet Initialised (0.0274ms)
+=Initialising TexSet
+=TexSet Initialised (0.0262ms)
+=Initialising TexSet
+=TexSet Initialised (0.0297ms)
+=Initialising TexSet
+=TexSet Initialised (0.0585ms)
+=Initialising TexSet
+=TexSet Initialised (0.0355ms)
+=Initialising TexSet
+=TexSet Initialised (0.0292ms)
+=Initialising TexSet
+=TexSet Initialised (0.0373ms)
+=Initialising Model: ../GraphicsEngine/Models/Madeline.txt
+=Model Initialised: ../GraphicsEngine/Models/Madeline.txt (1519.65ms)
+=Initialising Model: ../GraphicsEngine/Models/MountFuji.txt
+=Model Initialised: ../GraphicsEngine/Models/MountFuji.txt (2543.69ms)
+=Initialising Model: ../GraphicsEngine/Models/Cube.txt
+=Model Initialised: ../GraphicsEngine/Models/Cube.txt (0.6738ms)
+=Initialising Model: ../GraphicsEngine/Models/Icosphere.txt
+=Model Initialised: ../GraphicsEngine/Models/Icosphere.txt (4.5832ms)
+=Initialising Model: ../GraphicsEngine/Models/TomBoxTriangulated.txt
+=Model Initialised: ../GraphicsEngine/Models/TomBoxTriangulated.txt (48.2573ms)
+=Initialising Model: ../GraphicsEngine/Models/Plane.txt
+=Model Initialised: ../GraphicsEngine/Models/Plane.txt (0.242ms)
+=Initialising Bitmap: ../GraphicsEngine/Animations/Spinner.txt
+=Bitmap Initialised: ../GraphicsEngine/Animations/Spinner.txt (4.7877ms)
+=Initialising Bitmap: ../GraphicsEngine/Animations/MouseAnim.txt
+=Bitmap Initialised: ../GraphicsEngine/Animations/MouseAnim.txt (3.6852ms)
+=Initialising GameObject: Madeline1
+=GameObject Initialised: Madeline1 (0.0135ms)
+=Initialising GameObject: Madeline2
+=GameObject Initialised: Madeline2 (0.0095ms)
+=Initialising GameObject: IcosphereBig
+=GameObject Initialised: IcosphereBig (0.0094ms)
+=Initialising GameObject: IcosphereTrans
+=GameObject Initialised: IcosphereTrans (0.0116ms)
+=Initialising GameObject: Mountain
+=GameObject Initialised: Mountain (0.0101ms)
+=Initialising GameObject: GlassCube
+=GameObject Initialised: GlassCube (0.0181ms)
+=Initialising GameObject: Water
+=GameObject Initialised: Water (0.018ms)
+=Initialising GameObject: WaterCube
+=GameObject Initialised: WaterCube (0.0139ms)
+=Initialising GameObject: Fractal
+=GameObject Initialised: Fractal (0.0086ms)
+=Initialising GameObject: Fire
+=GameObject Initialised: Fire (0.0078ms)
+=Initialising GameObject: Floor
+=GameObject Initialised: Floor (0.0072ms)
+=Initialising GameObject: Floor2
+=GameObject Initialised: Floor2 (0.007ms)
+=Initialising GameObject: Skybox
+=GameObject Initialised: Skybox (0.0097ms)
+=Initialising GameObject: Test
+=GameObject Initialised: Test (0.0072ms)
+=Initialising GameObject: TomBox
+=GameObject Initialised: TomBox (0.007ms)
+=Initialising GameObject: Fire2
+=GameObject Initialised: Fire2 (0.008ms)
+=Initialising GameObject: Fire3
+=GameObject Initialised: Fire3 (0.0079ms)
+=Initialising GameObject (2D)
+=GameObject(2D) Initialised (0.0084ms)
+=Initialising GameObject (2D)
+=GameObject(2D) Initialised (0.008ms)
+=Initialising Text
+=Text Initialised (0.0734ms)
+=Initialising Text
+=Text Initialised (0.0282ms)
+=Initialising Render Texture
+=Render Texture Initialised (0.1709ms)
+=Initialising Render Texture
+=Render Texture Initialised (0.3148ms)
+=Initialising Render Texture
+=Render Texture Initialised (0.1222ms)
+=Initialising Render Texture
+=Render Texture Initialised (0.2702ms)
+=Initialising Render Texture
+=Render Texture Initialised (0.1113ms)
+=Initialising Render Texture
+=Render Texture Initialised (0.1045ms)
+=Initialising Display Plane: MainDisplay
+=Display Plane Initialised: MainDisplay (0.0288ms)
+=Initialising Display Plane: Display PP1
+=Display Plane Initialised: Display PP1 (0.0246ms)
+=Initialising Display Plane: Display PP2
+=Display Plane Initialised: Display PP2 (0.0192ms)
+=Initialising Display Plane: Display PP3
+=Display Plane Initialised: Display PP3 (0.0275ms)
+=Initialising Display Plane: Display Portal1
+=Display Plane Initialised: Display Portal1 (0.0254ms)
+=Initialising Display Plane: Display Portal2
+=Display Plane Initialised: Display Portal2 (0.0174ms)
+=Initialising Particle System: PS1
+=Particle System Initialised: PS1 (0.8122ms)
+Scene Initialised: Test (4580.29ms)
+
+Engine exited. Shutting down
+=Shutting down System
+==Shutting down Application
+===Shutting down D3D
+===D3D Shutdown (19.6842ms)
+==Application shutdown (19.9929ms)
+==Shutting down Windows
+==Windows shutdown (16.6983ms)
+=System shutdown (36.8286ms)
+Shutdown complete (36.9053ms)
+Program exiting with code 0

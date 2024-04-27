@@ -7,7 +7,7 @@
 class SceneTestClass : public SceneClass
 {
 public:
-	SceneTestClass();
+	SceneTestClass(string);
 
 	bool InitializeScene(HWND hwnd) override;
 

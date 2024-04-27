@@ -1,6 +1,6 @@
 #include "SceneTestClass.h"
 
-SceneTestClass::SceneTestClass()
+SceneTestClass::SceneTestClass(string name) : SceneClass(name)
 {
 	m_Camera = 0;
 	m_Font = 0;
@@ -60,7 +60,7 @@ bool SceneTestClass::InitializeScene(HWND hwnd)
 
 	// TEXSETS
 
-	TextureSetClass* texSetMoss, * texSetStars, * texSetSnow, * texSetReflection, * texSetWater, * texSetNone, * texSetFire, * texSetSkybox, * texSetPS;
+	TextureSetClass* texSetMoss, * texSetStars, * texSetSnow, * texSetReflection, * texSetWater, * texSetNone, * texSetFire, * texSetSkybox, * texSetPS, * texSetWood;
 	CreateTexSet(&texSetNone);
 
 	CreateTexSet(&texSetMoss);		
@@ -98,6 +98,12 @@ bool SceneTestClass::InitializeScene(HWND hwnd)
 	texSetFire->Add(device, context, "../GraphicsEngine/Data/fireColor.tga");
 	texSetFire->Add(device, context, "../GraphicsEngine/Data/flameAlpha.tga");
 
+	CreateTexSet(&texSetWood);
+	texSetWood->Add(device, context, "../GraphicsEngine/Data/Planks.tga");
+	texSetWood->Add(device, context, "../GraphicsEngine/Data/Planks.tga");
+	texSetWood->Add(device, context, "../GraphicsEngine/Data/DefaultAlphaMap.tga");
+	texSetWood->Add(device, context, "../GraphicsEngine/Data/PlanksNormal.tga");
+
 	CreateTexSet(&texSetSkybox);
 	result = texSetSkybox->AddCubemap(device, context, "../GraphicsEngine/Data/Skybox/Skybox.tga");
 	if (!result)
@@ -108,12 +114,13 @@ bool SceneTestClass::InitializeScene(HWND hwnd)
 
 	// MODELS
 
-	ModelClass* modelMadeline = 0, * modelMountain = 0, * modelCube = 0, * modelIcosphere = 0, * modelPlane = 0;
+	ModelClass* modelMadeline = 0, * modelMountain = 0, * modelCube = 0, * modelIcosphere = 0, * modelPlane = 0, * modelTomBox = 0;
 	result =
 		CreateModel(hwnd, &modelMadeline, "../GraphicsEngine/Models/Madeline.txt") &&
 		CreateModel(hwnd, &modelMountain, "../GraphicsEngine/Models/MountFuji.txt") &&
 		CreateModel(hwnd, &modelCube, "../GraphicsEngine/Models/Cube.txt") &&
 		CreateModel(hwnd, &modelIcosphere, "../GraphicsEngine/Models/Icosphere.txt") &&
+		CreateModel(hwnd, &modelTomBox, "../GraphicsEngine/Models/TomBoxTriangulated.txt") &&
 		CreateModel(hwnd, &modelPlane, "../GraphicsEngine/Models/Plane.txt");
 	if (!result)
 		return false;
@@ -197,6 +204,12 @@ bool SceneTestClass::InitializeScene(HWND hwnd)
 	floorGO->SetScale(25, 1, 25);
 	SubscribeToShadow(floorGO, 4);
 
+	floorGO = nullptr;
+	CreateGameObject(modelPlane, shaderMain, texSetSnow, opaque, "Floor2", floorGO);
+	floorGO->SetPosition(0, -10, -75);
+	floorGO->SetScale(15, 1, 15);
+	SubscribeToShadow(floorGO, 4);
+
 	CreateGameObject(modelCube, shaderSkybox, texSetSkybox, opaque, "Skybox", m_skyboxGO);
 	m_skyboxGO->SetScale(500);
 	m_skyboxGO->SetBackCulling(false);
@@ -204,6 +217,35 @@ bool SceneTestClass::InitializeScene(HWND hwnd)
 	CreateGameObject(modelIcosphere, shaderMain, texSetSnow, opaque, "Test", m_testIcoGO);
 	m_testIcoGO->SetScale(0.3f);
 	m_testIcoGO->SetPosition(999, 999, 999);
+
+	GameObjectClass* goTomBox;
+	CreateGameObject(modelTomBox, shaderMain, texSetWood, false, "TomBox", goTomBox);
+	goTomBox->SetPosition(0, -8, -75);
+	goTomBox->SetScale(2);
+
+	fireGO = nullptr;
+	CreateGameObject(modelPlane, shaderFire, texSetFire, transparent, "Fire2", fireGO);
+	fireGO->SetPosition(0, -2, -75);
+	fireGO->SetScale(8);
+	fireGO->SetRotation(-90, 0, 0);
+	//fireGO->SetBillBoarding(true);
+	fireGO->m_shaderUniformData.fire.distortion1 = XMFLOAT2(0.1f, 0.2f);
+	fireGO->m_shaderUniformData.fire.distortion2 = XMFLOAT2(0.1f, 0.3f);
+	fireGO->m_shaderUniformData.fire.distortion3 = XMFLOAT2(0.1f, 0.1f);
+	fireGO->m_shaderUniformData.fire.distortionScale = 0.8f;
+	fireGO->m_shaderUniformData.fire.distortionBias = 0.5f;
+
+	fireGO = nullptr;
+	CreateGameObject(modelPlane, shaderFire, texSetFire, transparent, "Fire3", fireGO);
+	fireGO->SetPosition(0, -2, -75);
+	fireGO->SetScale(8);
+	fireGO->SetRotation(-90, 90, 0);
+	//fireGO->SetBillBoarding(true);
+	fireGO->m_shaderUniformData.fire.distortion1 = XMFLOAT2(0.1f, 0.2f);
+	fireGO->m_shaderUniformData.fire.distortion2 = XMFLOAT2(0.1f, 0.3f);
+	fireGO->m_shaderUniformData.fire.distortion3 = XMFLOAT2(0.1f, 0.1f);
+	fireGO->m_shaderUniformData.fire.distortionScale = 0.8f;
+	fireGO->m_shaderUniformData.fire.distortionBias = 0.5f;
 
 	// 2D GAMEOBJECTS
 

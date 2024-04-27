@@ -11,6 +11,7 @@
 #define GET_X_LPARAM(lp) ((int)(short)LOWORD(lp))
 #define GET_Y_LPARAM(lp) ((int)(short)HIWORD(lp))
 
+#include "LogClass.h"
 #include <windows.h>
 #include "InputClass.h"
 #include "ApplicationClass.h"

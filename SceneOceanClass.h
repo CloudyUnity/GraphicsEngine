@@ -8,7 +8,7 @@
 class SceneOceanClass : public SceneClass
 {
 public:
-	SceneOceanClass();
+	SceneOceanClass(string);
 
 	bool InitializeScene(HWND hwnd) override;
 

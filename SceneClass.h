@@ -17,6 +17,7 @@
 #include "ParticleSystemClass.h"
 #include "ShaderTessClass.h"
 #include "ModelLineListClass.h"
+#include "LogClass.h"
 
 class RenderClass;
 
@@ -40,7 +41,7 @@ public:
 		vector<DisplayPlaneClass*> PostProcessingLayers;
 	};
 
-	SceneClass();
+	SceneClass(string);
 
     bool InitializeMembers(Settings* settings, D3DClass* d3d, RenderClass* renderClass);
 	virtual bool InitializeScene(HWND hwnd);
@@ -55,6 +56,7 @@ public:
 	SceneDataType* GetSceneData();
 
 	bool m_InitializedScene;
+	string m_Name;
 
 protected:
 	bool CreateModel(HWND, ModelClass**, const char*);
@@ -73,7 +75,7 @@ protected:
 
 	void SubscribeToReflection(GameObjectClass* goPtr, int, int);
 	void SubscribeToRefraction(GameObjectClass* goPtr, int, int);
-	void SubscribeToShadow(GameObjectClass* goPtr, int);
+	void SubscribeToShadow(GameObjectClass* goPtr, int);	
 
 	Settings* m_settings;
 	D3DClass* m_Direct3D;

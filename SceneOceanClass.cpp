@@ -1,7 +1,8 @@
 #include "SceneOceanClass.h"
 
-SceneOceanClass::SceneOceanClass()
+SceneOceanClass::SceneOceanClass(string name) : SceneClass(name)
 {
+	
 }
 
 bool SceneOceanClass::InitializeScene(HWND hwnd)
@@ -19,6 +20,7 @@ bool SceneOceanClass::InitializeScene(HWND hwnd)
 	m_DirLight = new LightClass();
 	m_DirLight->SetAmbientColor(0.0f, 0.106f, 0.15294f, 1.0f);
 	m_DirLight->SetDiffuseColor(0.2235f, 0.30588f, 0.34902f, 1.0f);
+	// m_DirLight->SetDiffuseColor(1,1, 1, 1.0f);
 	m_DirLight->SetDirection(dirLightX, dirLightY, dirLightZ);
 	m_DirLight->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_DirLight->SetSpecularPower(32.0f);
@@ -80,7 +82,7 @@ bool SceneOceanClass::InitializeScene(HWND hwnd)
 		CreateModel(hwnd, &m_debugLineLight, debugLinePoints) &&
 		CreateModel(hwnd, &m_debugLineNormal, debugLinePoints) &&
 		CreateModel(hwnd, &m_debugLineOrigin, originLinePoints) &&
-		CreateModel(hwnd, &m_debugLineBinormal, debugLinePoints) &&
+		CreateModel(hwnd, &m_debugLineBinormal, debugLinePoints) &&		
 		CreateModel(hwnd, &modelCube, "../GraphicsEngine/Models/Cube.txt");
 	if (!result)
 		return false;
@@ -114,7 +116,8 @@ bool SceneOceanClass::InitializeScene(HWND hwnd)
 		for (int j = 0; j < gridSize; j++)
 		{
 			GameObjectClass* ptr;
-			CreateGameObject(oceanModel, (usingTri ? shaderOceanTri : shaderOcean), texSetSkybox, false, "Ocean" + i, ptr);
+			string name = "Ocean" + std::to_string(i) + "-" + std::to_string(j);
+			CreateGameObject(oceanModel, (usingTri ? shaderOceanTri : shaderOcean), texSetSkybox, false, name.c_str(), ptr);
 			ptr->SetScale(size, 1, size);
 			ptr->SetPosition(startPos.x + i * size * 2, 0, startPos.y + j * size * 2);
 			ptr->m_shaderUniformData.tesselation.tessellationAmount = 2.0f;
