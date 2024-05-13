@@ -1,3 +1,0 @@
-1
-../GraphicsEngine/Data/Mouse.tga
-99999

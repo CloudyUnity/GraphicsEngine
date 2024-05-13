@@ -1,6 +1,0 @@
-4
-../GraphicsEngine/Data/spinner_0.tga
-../GraphicsEngine/Data/spinner_1.tga
-../GraphicsEngine/Data/spinner_2.tga
-../GraphicsEngine/Data/spinner_3.tga
-150
