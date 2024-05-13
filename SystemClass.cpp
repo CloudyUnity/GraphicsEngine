@@ -87,13 +87,28 @@ void SystemClass::Run()
 			DispatchMessage(&msg);
 		}
 
-		// If windows signals to end the application then exit out.
-		if (msg.message == WM_QUIT || msg.message == WM_DESTROY || msg.message == WM_CLOSE)
+		if (msg.message == WM_QUIT)
+		{
+			LogClass::Log("Program exit invoked with exit code (QUIT): " + std::to_string(msg.message));
 			break;
+		}
+		if (msg.message == WM_DESTROY)
+		{
+			LogClass::Log("Program exit invoked with exit code (DESTROY): " + std::to_string(msg.message));
+			break;
+		}
+		if (msg.message == WM_CLOSE)
+		{
+			LogClass::Log("Program exit invoked with exit code (CLOSE): " + std::to_string(msg.message));
+			break;
+		}
 		
 		// Otherwise do the frame processing.
 		if (!Frame())
+		{
+			LogClass::Log("Program exit invoked due to System Frame");
 			break;
+		}
 	}
 }
 
@@ -101,7 +116,10 @@ bool SystemClass::Frame()
 {
 	bool result = m_Input->Frame();
 	if (!result)
+	{
+		LogClass::Log("[!!!] Input Frame failed");
 		return false;
+	}		
 
 	// Do the frame processing for the application class object.
 	return m_Application->Frame(m_hwnd, m_Input);

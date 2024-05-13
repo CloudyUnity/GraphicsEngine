@@ -263,6 +263,8 @@ void ApplicationClass::Shutdown()
 
 bool ApplicationClass::Frame(HWND hwnd, InputClass* input)
 {
+	bool result;
+
 	int outSettingsIndex;
 	if (input->IsNumberPressed(outSettingsIndex))
 	{
@@ -291,7 +293,25 @@ bool ApplicationClass::Frame(HWND hwnd, InputClass* input)
 	m_currentScene->ParticlesFrame(frameTime);
 	m_currentScene->Frame(input, frameTime);
 
-	return Render() && m_Fps->UpdateFPS(m_FpsString) && LateFrame(input, frameTime);
+	result = Render();
+	if (!result)
+	{
+		LogClass::Log("[!!!] Render error");
+		return false;
+	}
+
+	result = m_Fps->UpdateFPS(m_FpsString);
+	if (!result)
+		return false;
+
+	result = LateFrame(input, frameTime);
+	if (!result)
+	{
+		LogClass::Log("[!!!] Late Frame error");
+		return false;
+	}
+
+	return true;
 }
 
 bool ApplicationClass::LateFrame(InputClass* input, float frameTime)
@@ -309,7 +329,7 @@ bool ApplicationClass::SwitchScene(HWND hwnd)
 			continue;
 
 		int newIndex = (i + 1) % m_sceneList.size();
-		m_currentScene = m_sceneList.at(newIndex);		
+		m_currentScene = m_sceneList.at(newIndex);				
 
 		if (!m_currentScene->m_InitializedScene)
 		{

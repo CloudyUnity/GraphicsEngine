@@ -15,6 +15,7 @@ const int SIN_COUNT = 32;
 #include "TextureSetClass.h"
 #include "settings.h"
 #include "IShutdown.h"
+#include "LogClass.h"
 
 using namespace DirectX;
 using std::ofstream;
@@ -239,7 +240,11 @@ private:
 			T* ptr;
 			ID3D11Buffer* buffer = m_bufferPtrListVertex.at(bufferIndex);
 			if (!TryMapBuffer(deviceContext, &buffer, &ptr))
+			{
+				LogClass::Log("[!!!] Vertex buffer failed to map correctly: " + name);
 				return false;
+			}
+
 			*ptr = values;
 			UnmapVertexBuffer(deviceContext, bufferIndex, &buffer);
 		}
@@ -250,10 +255,16 @@ private:
 			T* ptr;
 			ID3D11Buffer* buffer = m_bufferPtrListFragment.at(bufferIndex);
 			if (!TryMapBuffer(deviceContext, &buffer, &ptr))
+			{
+				LogClass::Log("[!!!] Fragment buffer failed to map correctly: " + name);
 				return false;
+			}
+
 			*ptr = values;
 			UnmapFragmentBuffer(deviceContext, bufferIndex, &buffer);
 		}
+
+		return true;
 	}
 };
 
