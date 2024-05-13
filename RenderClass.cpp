@@ -94,7 +94,10 @@ bool RenderClass::Render(Settings* settings, ShaderClass::ShaderParamsGlobalType
 	{
 		result = RenderToShadowTexture(&renderInfo);
 		if (!result)
+		{
+			LogClass::Log("[!!!] RenderToShadowTexture error");
 			return false;
+		}
 
 		for (auto go : sceneData->GoShadowList)
 		{
@@ -105,7 +108,10 @@ bool RenderClass::Render(Settings* settings, ShaderClass::ShaderParamsGlobalType
 		{
 			result = m_depthBufferDisplay->Render(m_Direct3D->GetDeviceContext(), params);
 			if (!result)
+			{
+				LogClass::Log("[!!!] Shadow map debug rendering error");
 				return false;
+			}
 		}
 
 		m_framesSinceShadowMapRender = 0;
@@ -130,7 +136,10 @@ bool RenderClass::Render(Settings* settings, ShaderClass::ShaderParamsGlobalType
 		{
 			result = RenderToRefractionTexture(go, &renderInfo);
 			if (!result)
+			{
+				LogClass::Log("[!!!] Refraction error");
 				return false;
+			}
 			go->SetRefractionTex();
 		}	
 
@@ -139,7 +148,10 @@ bool RenderClass::Render(Settings* settings, ShaderClass::ShaderParamsGlobalType
 		{
 			result = RenderToReflectionTexture(go, &renderInfo);
 			if (!result)
+			{
+				LogClass::Log("[!!!] Reflection error");
 				return false;
+			}
 			go->SetReflectionTex();
 		}
 
@@ -149,7 +161,10 @@ bool RenderClass::Render(Settings* settings, ShaderClass::ShaderParamsGlobalType
 
 	result = SetupDisplayPlanes(&renderInfo);
 	if (!result)
+	{
+		LogClass::Log("[!!!] Display Plane error");
 		return false;
+	}
 
 	vector<string> skippedNames;
 
@@ -159,13 +174,19 @@ bool RenderClass::Render(Settings* settings, ShaderClass::ShaderParamsGlobalType
 
 	result = RenderScene(&renderInfo, view, proj, skippedNames);
 	if (!result)
+	{
+		LogClass::Log("[!!!] Scene rendering error");
 		return false;
+	}
 
 	if (settings->m_CurrentData.PostProcessingEnabled && sceneData->PostProcessingLayers.size() > 0)
 	{
 		result = RenderPostProcessing(&renderInfo);
 		if (!result)
+		{
+			LogClass::Log("[!!!] Post-Processing error");
 			return false;
+		}
 	}
 
 	result = Render2D(&renderInfo);
@@ -187,19 +208,31 @@ bool RenderClass::RenderScene(RenderInfoType* renderInfo, XMMATRIX view, XMMATRI
 
 	result = RenderGameObjects(renderInfo, view, proj, false, skippedNames);
 	if (!result)
+	{
+		LogClass::Log("[!!!] GameObject rendering error");
 		return false;
+	}
 
 	result = RenderDisplayPlanes(renderInfo, view, proj, skippedNames);
 	if (!result)
+	{
+		LogClass::Log("[!!!] Display plane rendering error");
 		return false;
+	}
 
 	result = RenderParticleSystems(renderInfo, view, proj, skippedNames);
 	if (!result)
+	{
+		LogClass::Log("[!!!] Particles rendering error");
 		return false;
+	}
 
 	result = RenderGameObjects(renderInfo, view, proj, true, skippedNames);
 	if (!result)
+	{
+		LogClass::Log("[!!!] Transparent GameObject rendering error");
 		return false;
+	}
 
 	return true;
 }
@@ -233,7 +266,10 @@ bool RenderClass::RenderGameObjects(RenderInfoType* renderInfo, XMMATRIX view, X
 
 		bool result = go->Render(m_Direct3D->GetDeviceContext(), renderInfo->Params);
 		if (!result)
+		{
+			LogClass::Log("[!!!] Failed to render GO: " + go->m_NameIdentifier);
 			return false;
+		}
 
 		if (go->m_BackCullingDisabled)
 			m_Direct3D->SetBackCulling(renderInfo->Settings->m_CurrentData.WireframeMode, true);

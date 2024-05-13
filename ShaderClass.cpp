@@ -394,13 +394,19 @@ bool ShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, Textur
 		SetShaderCBuffer(deviceContext, objectParams->blur, "BlurBuffer") &&
 		SetShaderCBuffer(deviceContext, objectParams->filter, "FilterBuffer");
 	if (!result)
+	{
+		LogClass::Log("[!!!] Failed to set shader parameters");
 		return false;
+	}
 
 	if (globalParams->reflectionEnabled)
 	{
 		result = SetShaderCBuffer(deviceContext, globalParams->reflection, "ReflectionBuffer");
 		if (!result)
+		{
+			LogClass::Log("[!!!] Failed to set shader parameters (Reflection Buffer)");
 			return false;
+		}
 	}
 
 	globalParams->reflection.reflectionMatrix = XMMatrixTranspose(globalParams->reflection.reflectionMatrix);

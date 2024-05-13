@@ -50,7 +50,11 @@ private:
 			T* ptr;
 			ID3D11Buffer* buffer = m_bufferPtrListHull.at(bufferIndex);
 			if (!TryMapBuffer(deviceContext, &buffer, &ptr))
+			{
+				LogClass::Log("[!!!] Hull buffer failed to map correctly: " + name);
 				return false;
+			}
+
 			*ptr = values;
 			UnmapHullBuffer(deviceContext, bufferIndex, &buffer);
 		}
@@ -61,10 +65,16 @@ private:
 			T* ptr;
 			ID3D11Buffer* buffer = m_bufferPtrListDomain.at(bufferIndex);
 			if (!TryMapBuffer(deviceContext, &buffer, &ptr))
+			{
+				LogClass::Log("[!!!] Domain buffer failed to map correctly: " + name);
 				return false;
+			}
+
 			*ptr = values;
 			UnmapDomainBuffer(deviceContext, bufferIndex, &buffer);
 		}
+
+		return true;
 	}
 };
 
