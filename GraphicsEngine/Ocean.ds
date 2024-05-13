@@ -1,0 +1,102 @@
+#define SIN_COUNT 32
+
+cbuffer MatrixBuffer : register(b0)
+{
+    matrix worldMatrix;
+    matrix viewMatrix;
+    matrix projectionMatrix;
+};
+
+cbuffer OceanSineBuffer : register(b1)
+{
+    float4 ampPhaseFreq[SIN_COUNT];
+}
+
+cbuffer UtilBuffer: register(b2)
+{
+    float time;
+    float texelX;
+    float texelY;
+    float pad4;
+};
+
+cbuffer CameraBuffer : register(b3)
+{
+    float3 cameraPosition;
+    float padding;
+};
+
+struct ConstantOutputType
+{
+    float edges[4] : SV_TessFactor;
+    float inside[2] : SV_InsideTessFactor;
+};
+
+struct DomainInputType
+{
+    float4 position : POSITION;
+    float2 tex : TEXCOORD0;
+};
+
+struct PixelInputType
+{
+    float4 position : SV_POSITION0;
+    float2 tex : TEXCOORD0;
+    float3 normal : NORMAL;
+    float3 viewDirection : TEXCOORD1;
+};
+
+[domain("quad")]
+
+PixelInputType DS_MAIN(ConstantOutputType input, float2 uvwCoord : SV_DomainLocation, const OutputPatch<DomainInputType, 4> patch)
+{
+    float4 vertexPosition;
+    PixelInputType output; 
+
+    // Determine the position of the new vertex.
+    vertexPosition = lerp(lerp(patch[0].position, patch[1].position, uvwCoord.x), lerp(patch[3].position, patch[2].position, uvwCoord.x), uvwCoord.y);
+    vertexPosition.w = 1.0f;
+    float4 worldPosition = mul(vertexPosition, worldMatrix);
+
+    float ddx = 0;    
+    float ddz = 0;
+    float lastDDX = 0;
+    float lastDDZ = 0;
+
+    // Debug
+    float t = time;
+
+    for (int i = 0; i < SIN_COUNT; i++)
+    {
+        float amp = ampPhaseFreq[i].x;
+        float phase = ampPhaseFreq[i].y;
+        float freq = ampPhaseFreq[i].z;
+        float theta = ampPhaseFreq[i].w;
+
+        float2 D = float2(cos(theta), sin(theta));
+        float2 pos = worldPosition.xz + float2(lastDDX, lastDDZ);
+        float align = dot(D, pos);
+
+        float exponent = sin(phase * t + align * freq) - 1;
+        vertexPosition.y += amp * exp(exponent);
+
+        float cosine = cos(phase * t + align * freq);
+        lastDDX = amp * freq * D.x * cosine * exp(exponent);
+        lastDDZ = amp * freq * D.y * cosine * exp(exponent);
+        ddx += lastDDX;
+        ddz += lastDDZ;
+    }       
+    
+    output.normal = float3(-ddx, 1, -ddz);
+    output.normal = normalize(output.normal);    
+    
+    output.position = mul(vertexPosition, worldMatrix);
+    output.position = mul(output.position, viewMatrix);
+    output.position = mul(output.position, projectionMatrix);
+
+    output.tex = lerp(lerp(patch[0].tex, patch[1].tex, uvwCoord.x), lerp(patch[3].tex, patch[2].tex, uvwCoord.x), uvwCoord.y);
+
+    output.viewDirection = normalize(cameraPosition.xyz - worldPosition.xyz);
+
+    return output;
+}
