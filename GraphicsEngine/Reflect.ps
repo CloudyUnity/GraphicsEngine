@@ -1,0 +1,105 @@
+Texture2D shaderTexture1 : register(t0);
+Texture2D shaderTexture2 : register(t1);
+Texture2D alphaMap : register(t2);
+Texture2D normalMap : register(t3);
+Texture2D reflectionTexture : register(t4);
+
+SamplerState SampleType : register(s0);
+
+cbuffer UtilBuffer: register(b0)
+{
+    float time;
+    float pad2;
+    float pad3;
+    float pad4;
+};
+
+cbuffer LightBuffer : register(b1)
+{
+    float4 ambientColor;
+    float4 diffuseDirColor;
+    float3 lightDirection;
+    float specularPower;
+    float4 specularColor;
+};
+
+cbuffer TextureTranslationBuffer : register(b2)
+{
+    float2 translation;
+    float timeMultiplier;
+    float texPad;
+};
+
+cbuffer AlphaBuffer : register(b3)
+{
+    float alphaBlend;
+    float alphaPad1;
+    float alphaPad2;
+    float alphaPad3;
+};
+
+struct PixelInputType
+{
+    float4 position : SV_POSITION;
+
+    float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAL;
+
+    float2 tex : TEXCOORD0;    
+    float3 viewDirection : TEXCOORD1;
+    float4 reflectionPosition : TEXCOORD2;
+
+    float fogFactor : FOG;
+    float clip : SV_ClipDistance0;
+};
+
+float4 PS_MAIN(PixelInputType input) : SV_TARGET
+{
+    float4 texCol1, texCol2, blendCol, alphaMapCol;    
+    float3 reflection;
+    float4 specular;
+    float4 bumpMap;
+    float3 bumpNormal;
+
+    input.tex.xy += time * timeMultiplier;
+    input.tex += translation;
+
+    float4 colorSum = ambientColor;
+
+    texCol1 = shaderTexture1.Sample(SampleType, input.tex);
+    texCol2 = shaderTexture2.Sample(SampleType, input.tex);
+    alphaMapCol = alphaMap.Sample(SampleType, input.tex);
+
+    // If tex2 is not assigned then texCol2 == texCol1
+    blendCol = (alphaMapCol * texCol1) + ((1.0 - alphaMapCol) * texCol2);
+    blendCol = saturate(blendCol);
+
+    bumpMap = normalMap.Sample(SampleType, input.tex);
+    bumpMap = (bumpMap * 2.0f) - 1.0f;
+
+    bumpNormal = (bumpMap.x * input.tangent) + (bumpMap.y * input.binormal) + (bumpMap.z * input.normal);
+    bumpNormal = normalize(bumpNormal);    
+
+    float intensity = saturate(dot(bumpNormal, -lightDirection));
+    if(intensity > 0.0f)
+    {        
+        colorSum += diffuseDirColor * intensity;
+        reflection = normalize(2.0f * intensity * bumpNormal + lightDirection); 
+        specular = pow(saturate(dot(reflection, input.viewDirection)), specularPower);
+    }
+
+    float4 finalColor = saturate(saturate(colorSum + specular) * blendCol);
+
+    float2 reflectTexCoord;
+    reflectTexCoord.x = (input.reflectionPosition.x / input.reflectionPosition.w) * 0.5f + 0.5f;
+    reflectTexCoord.y = (-input.reflectionPosition.y / input.reflectionPosition.w) * 0.5f + 0.5f;
+    float4 reflectionColor = reflectionTexture.Sample(SampleType, reflectTexCoord);
+
+    finalColor = lerp(finalColor, reflectionColor, 0.6f);
+    finalColor.a = alphaBlend;
+
+    float4 fogColor = float4(0.5f, 0.5f, 0.5f, 1.0f);    
+
+    return input.fogFactor * finalColor + (1.0f - input.fogFactor) * fogColor;
+}

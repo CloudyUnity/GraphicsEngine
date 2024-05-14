@@ -1,0 +1,170 @@
+# Config File
+sceneName DebugScene
+
+camPos 0 0 -5
+dirLightDir -1 -1 -1
+dirLightAmbient 0.15 0.15 0.15 1
+dirLightColor 1 1 1 1
+dirLightSpecular 1 1 1 1
+dirLightSpecularPow 32
+
+pointLights 4
+pointLightsPos 0 100 0 0
+pointLightsPos 1 100 0 0
+pointLightsPos 2 100 0 0
+pointLightsPos 3 100 0 0
+
+shader main "../GraphicsEngine/Fog.vs" "../GraphicsEngine/Fog.ps"
+shader reflect "../GraphicsEngine/Reflect.vs" "../GraphicsEngine/Reflect.ps"
+shader water "../GraphicsEngine/Water.vs" "../GraphicsEngine/Water.ps"
+shader 2D "../GraphicsEngine/Simple.vs" "../GraphicsEngine/2D.ps"
+shader font "../GraphicsEngine/Simple.vs" "../GraphicsEngine/Font.ps" 
+shader fire "../GraphicsEngine/Simple.vs" "../GraphicsEngine/Fire.ps" clamp
+shader depth "../GraphicsEngine/Depth.vs" "../GraphicsEngine/Depth.ps" 
+shader blur "../GraphicsEngine/Simple.vs" "../GraphicsEngine/Blur.ps"
+shader filter "../GraphicsEngine/Simple.vs" "../GraphicsEngine/Filter.ps"
+shader skybox "../GraphicsEngine/Skybox.vs" "../GraphicsEngine/Skybox.ps" clamp
+shader ps "../GraphicsEngine/Particle.vs" "../GraphicsEngine/Particle.ps"
+shader portal "../GraphicsEngine/Simple.vs" "../GraphicsEngine/Portal.ps"
+shader fractal "../GraphicsEngine/Fog.vs" "../GraphicsEngine/Fractal.ps"
+
+# Render Class depth set
+
+# texSet moss stars snow reflect water none fire skybox ps
+texSetCreate none
+
+texSetAdd moss "../GraphicsEngine/Data/Celeste.tga"
+texSetAdd moss "../GraphicsEngine/Data/Moss.tga"
+texSetAdd moss "../GraphicsEngine/Data/DefaultAlphaMap.tga"
+texSetAdd moss "../GraphicsEngine/Data/MossNormal.tga"
+texSetAdd stars "../GraphicsEngine/Data/Celeste.tga"
+texSetAdd stars "../GraphicsEngine/Data/Celeste.tga"
+texSetAdd stars "../GraphicsEngine/Data/DefaultAlphaMap.tga"
+texSetAdd stars "../GraphicsEngine/Data/RockNormal.tga"
+texSetAdd snow "../GraphicsEngine/Data/Snow.tga"
+texSetAdd snow "../GraphicsEngine/Data/Snow.tga"
+texSetAdd snow "../GraphicsEngine/Data/DefaultAlphaMap.tga"
+texSetAdd snow "../GraphicsEngine/Data/DefaultNormal.tga"
+texSetAdd reflect "../GraphicsEngine/Data/Glass.tga"
+texSetAdd reflect "../GraphicsEngine/Data/Glass.tga"
+texSetAdd reflect "../GraphicsEngine/Data/DefaultAlphaMap.tga"
+texSetAdd reflect "../GraphicsEngine/Data/GlassNormal.tga"
+texSetAdd water "../GraphicsEngine/Data/WaterBlue.tga"
+texSetAdd water "../GraphicsEngine/Data/WaterBlue.tga"
+texSetAdd water "../GraphicsEngine/Data/DefaultAlphaMap.tga"
+texSetAdd water "../GraphicsEngine/Data/WaterNormal.tga"
+texSetAdd fire "../GraphicsEngine/Data/NoiseAlt.tga"
+texSetAdd fire "../GraphicsEngine/Data/fireColor.tga"
+texSetAdd fire "../GraphicsEngine/Data/flameAlpha.tga"
+texSetAdd skybox "../GraphicsEngine/Data/Skybox/Skybox.tga"
+texSetAdd ps "../GraphicsEngine/Data/Sparkle.tga"
+
+model madeline "../GraphicsEngine/Models/Madeline.txt"
+model mountain "../GraphicsEngine/Models/MountFuji.txt"
+model cube "../GraphicsEngine/Models/Cube.txt"
+model icosphere "../GraphicsEngine/Models/Icosphere.txt"
+model plane "../GraphicsEngine/Models/Plane.txt"
+
+# go <name> 		<model>  	<shader> 	<texSet> 	<flags>
+go madelineMoss 	madeline 	main 		moss		shadow(4)
+go madelineStars 	madeline 	main 		stars		
+go icoBig 			icosphere 	main 		moss 		noCull shadow(4)
+go icoTrans 		icosphere 	main 		snow 		trans shadow(4)
+go mountain 		mountain 	main 		snow		shadow(4)
+go water 			plane 		water 		water 		trans reflect(4) refract(5)
+go glass 			cube 		reflect 	glass		trans reflect(4)
+go waterCube 		cube 		main 		moss		shadow(4)
+go fractal 			cube 		moss	 	none
+go fire 			plane 		fire 		fire		trans noCull billBoard
+go floor			plane		main 		snow		shadow(4)
+go skybox			cube		skybox		skybox		noCull
+go test				icosphere	main		snow
+
+goSet madelineMoss
+goPos 3 0 3
+goScale 0.5 0.5 0.5
+
+goSet icoBig
+goPos 0 0 15
+goScale 5
+
+goSet icoTrans
+goPos 3 0.5 3
+
+goSet mountain
+goPos 1 -13 15
+goScale 0.3
+
+goSet glass
+goPos 0 -0.5 0
+goScale 1.5 0.01 1.5
+
+goSet water
+goPos 6 0.5 -0.5
+goScale 2 0.001 2
+
+goSet waterCube
+goPos 6 0.5 -0.5
+goScale 0.5
+
+goSet fractal
+goPos 25 0 0
+goScale 8
+
+goSet fire
+goPos -5 0 0
+goRotate -90 0 0
+
+goSet skybox
+goScale 500
+
+goSet test
+goScale 0.3
+goPos 999 999 999
+
+bitmap spinner "../GraphicsEngine/Animations/Spinner.txt"
+bitmap cursor "../GraphicsEngine/Animations/MouseAnim.txt"
+
+# go2D <name> <bitmap> <shader>
+go2D spinner spinner 2D
+go2D cursor cursor 2D
+
+go2DSet spinner
+go2DPos 1000 50
+go2DScale 0.75
+
+go2DSet cursor
+go2DScale 0.1
+go2DRotate 225
+
+font mainFont 0
+
+# text <name> <shader> <font> <maxLength>
+text a 			font mainFont 32
+text b 			font mainFont 32
+text fps 		font mainFont 32
+text mouseX 	font mainFont 32
+text mouseY 	font mainFont 32
+text mouseBttn	font mainFont 32
+
+textSet a
+textPos 10 10
+textColor 1 0 0
+textString "Example Text"
+textUpdate
+
+textSet b
+textPos 15 30
+textColor 0 1 0
+textString "More Text"
+textUpdate
+
+textSet fps
+textPos 10 60
+
+textSetNone
+textPos mouseX 10 80
+textPos mouseY 10 100
+textPos mouseBttn 10 120
+
+rendTex camView 256 
