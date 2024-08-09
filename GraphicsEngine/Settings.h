@@ -6,7 +6,7 @@ inline constexpr int SCREEN_X = 1200;
 inline constexpr int SCREEN_Y = 900;
 inline constexpr float SCREEN_DEPTH = 1000.0f;
 inline constexpr float SCREEN_NEAR = 0.3f;
-inline constexpr bool V_SYNC = true;
+inline constexpr bool V_SYNC = false;
 inline constexpr bool FULL_SCREEN = false;
 inline constexpr bool DISPLAY_CURSOR = true;
 
